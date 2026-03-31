@@ -1,0 +1,133 @@
+ <!-- Keybaord,font, icons, dashes -->
+   <!-- TODO: stickman, mistakes, timer, colours -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hangman</title>
+  <link rel="stylesheet" href="daily.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <header>
+    <!-- POSSIBLE: REDUCE HEADER PADDING -->
+    <h1>HANGMAN</h1>
+
+    <div class="header-right">
+      <!-- these should be in the icon class??? idk maybe -->
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAX0lEQVR4nO3UQQrAMAgFUe9/6emqy6RYJSbmz1YiDwKaKRWISXcBzDk7C0BwURjCagCDB8sg7AqIQvoA3ryHRwDaAbwJwDGAbMjvPVQDogvSvpJqwOjwfGXZUQ1QbXsApkU155GfCTEAAAAASUVORK5CYII=" alt="timer">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAWklEQVR4nO3PMRIAEBBD0dz/0tGoFGaXmDXktch8gFkQk/BMABcHZSGsCmBgQHXnrgAmHhy5Swd0DsDkbPRPwA4H0AHduQfqHVYH7A6oPoDygHEwCmqsDrBnNU6QZbdgwYsdAAAAAElFTkSuQmCC" alt="clock--v1">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAcElEQVR4nO3SQQ6AIAxE0bn/pYeVG5OmBRoYCn9pHH0GgVcwdoayACTdVwPA4LUzABz4uWoCMLmRAXjVBXiFAfTE6gAa++4j4MBXSgC+zgUw+cX3AdKOwBwE++/N5zEZYO3DgNm2A6z0AavSA7ywqQaqx1vdhoEO6wAAAABJRU5ErkJggg==" alt="leaderboard">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAa0lEQVR4nO2RQQrAMAgE/f+np5cUQgltRBNtcK6y66AihQEaEgUl0AhfzG4RSuBoASZYkc0nIM78R+BGdbYVHUQL9GhL3N9ICUQJYCwyi5BZgAdnCTAIfi18m6tFyCLQMx326MASduwoZAcXr/mdf3UGWdUAAAAASUVORK5CYII=" alt="pixel-star">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAY0lEQVR4nO3TSwoAIAgAUe9/6WkfCGWWKc4yqB59RLpOiSltXEvKAlY7hhAN8Cocwi6AS49reT6/AMS6QHrArfIASCP9HYD1+9KAaIA3xBzRACtkPvrnV4E3YHdhbaP8gK5sA2dTba/1wIM5AAAAAElFTkSuQmCC" alt="connected-people">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAsUlEQVR4nO2USw6CMBBAG44ACXAuE6+ACz2CGw5o3Jh4GvLc1IiGtnxmQJJ5q6aTtq8z0zpnGP8ISuxPwAlhAkgJAA2QR9bVwFFFALj46duQhD/8CXTAQUOgBB4+dAeKXqwKxcQEQhKpw8WbkE+q3+Xoj/NVXgHfmQjeXFOg2kyALUvAQMPFXoeoAJFuT0lICbSxVP+U5qQhkAHXEV/xecx+kwWWYALMFZBmPwKG4VbkBRrVx5wOhoZTAAAAAElFTkSuQmCC" alt="close-window">
+    </div>
+  </header>
+
+  <div class="game-timer">01:30</div>
+  <!-- Stick figure card -->
+  <!-- I WANT TO MAKE THIS LARGER - depends on sam feedback -->
+  <!--Maybe add a subtle background shape (soft radial gradient behind the hangman) -->
+<div id="figure-card">
+  <svg
+    id="hangman-figure"
+    width="180"
+    height="240"
+    viewBox="0 0 180 220"
+    stroke="#ffffff"
+    stroke-width="7"
+    stroke-linecap="square"
+    stroke-linejoin="miter"
+    fill="none"
+    shape-rendering="crispEdges"
+  >
+    <!-- Pole thing -->
+    <line x1="20" y1="200" x2="160" y2="200" />
+    <line x1="50" y1="200" x2="50" y2="20" />
+    <line x1="50" y1="20" x2="120" y2="20" />
+    <line x1="120" y1="20" x2="120" y2="55" />
+
+    <!-- Head -->
+    <rect x="94" y="55" width="52" height="52" />
+
+    <!-- Body -->
+    <line x1="120" y1="107" x2="120" y2="145"/>
+
+    <!-- Arms -->
+    <line x1="120" y1="115" x2="92" y2="135"/>
+    <line x1="120" y1="115" x2="148" y2="135"/>
+
+    <!-- Legs -->
+    <line x1="120" y1="145" x2="102" y2="175"/>
+    <line x1="120" y1="145" x2="138" y2="175"/>
+  </svg>
+</div>
+
+  <!-- WORD ROW -->
+  <!-- Is it too low contrast? -->
+  <div class="word-row">
+    <div class="tile"><span class="tile-letter">E</span></div>
+    <div class="tile"></div>
+    <div class="tile"><span class="tile-letter">E</span></div>
+    <div class="tile"></div>
+    <div class="tile"></div>
+    <div class="tile"></div>
+    <div class="tile"><span class="tile-letter">E</span></div>
+  </div>
+
+  <!-- Mistake badge -->
+  <div class="mistake-label">
+    Mistakes: <span id="mistakeNum">1</span> / 6
+  </div>
+
+
+  <!-- Keyboard -->
+  <!-- Add hover states and active states for keyboard keys -->
+   <!--TODO maybe: Increase contrast between key and background
+        Add hover shadow, use a subtle gradient -->
+  <div class="keyboard">
+    <div class="row row1">
+      <div class="key">Q</div>
+      <div class="key">W</div>
+      <div class="key">E</div>
+      <div class="key">R</div>
+      <div class="key">T</div>
+      <div class="key">Y</div>
+      <div class="key">U</div>
+      <div class="key">I</div>
+      <div class="key">O</div>
+      <div class="key">P</div>
+    </div>
+
+    <div class="row row2">
+      <div class="key">A</div>
+      <div class="key">S</div>
+      <div class="key">D</div>
+      <div class="key">F</div>
+      <div class="key">G</div>
+      <div class="key">H</div>
+      <div class="key">J</div>
+      <div class="key">K</div>
+      <div class="key">L</div>
+    </div>
+
+    <div class="row row3">
+      <div class="key wide" data-key="ENTER">ENTER</div>
+      <div class="key">Z</div>
+      <div class="key">X</div>
+      <div class="key">C</div>
+      <div class="key">V</div>
+      <div class="key">B</div>
+      <div class="key">N</div>
+      <div class="key">M</div>
+      <div class="key wide" data-key="BACKSPACE"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAaElEQVR4nO3TQQqAIBBG4f8SRd7/Rm08zougRQii5ji58MFs54NBpdUUMSi5AzK+iGoAYL9nCABswAlEIJgCr+U8wGEG9CwvAsnypuYAMicKaqgI9CLUAAkSTV+R20f7WhawTm7A6tcu+c0CY9UEJ48AAAAASUVORK5CYII=" alt="backspace"></div>
+    </div>
+  </div>
+
+</body>
+</html>
