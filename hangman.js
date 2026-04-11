@@ -1,15 +1,20 @@
 // Hangman Game Logic for Daily Game
 
-const word = "SINGER"; // Example word, later can be random
+const word = "CYCLE"; // Example word, later can be random
 const maxMistakes = 6;
+const initialTime = 90; // 1 minute 30 seconds
 let mistakes = 0;
 let guessedLetters = new Set();
 let wordDisplay;
 let tiles;
+let gameOver = false;
+let timeRemaining = initialTime;
+let timerInterval;
 
 const mistakeNum = document.getElementById("mistakeNum");
 const hangmanFigure = document.getElementById("hangman-figure");
 const hangmanParts = Array.from(hangmanFigure.children).slice(4); // Head, body, arms, legs
+const gameTimer = document.querySelector(".game-timer");
 
 // Initialize game
 function initGame() {
@@ -30,6 +35,9 @@ function initGame() {
   mistakes = 0;
   mistakeNum.textContent = "0";
   guessedLetters.clear();
+  gameOver = false;
+  timeRemaining = initialTime;
+  updateTimerDisplay();
 
   // Add event listeners to keys
   document.querySelectorAll(".key").forEach((key) => {
@@ -46,9 +54,14 @@ function initGame() {
 }
 
 function handleGuess(letter) {
-  if (guessedLetters.has(letter) || mistakes >= maxMistakes) return;
+  if (gameOver || guessedLetters.has(letter) || mistakes >= maxMistakes) return;
 
   guessedLetters.add(letter);
+
+  // Start timer on first guess
+  if (guessedLetters.size === 1) {
+    startTimer();
+  }
 
   // Mark key as guessed
   document.querySelectorAll(".key").forEach((key) => {
@@ -92,17 +105,49 @@ function handleGuess(letter) {
 
 function checkGameEnd() {
   if (mistakes >= maxMistakes) {
+    gameOver = true;
+    stopTimer();
     setTimeout(() => alert("Game Over! The word was " + word), 10);
     // Disable further input
     document
       .querySelectorAll(".key")
       .forEach((key) => (key.style.pointerEvents = "none"));
   } else if (wordDisplay.join("") === word) {
+    gameOver = true;
+    stopTimer();
     setTimeout(() => alert("You win!"), 10);
     // Disable further input
     document
       .querySelectorAll(".key")
       .forEach((key) => (key.style.pointerEvents = "none"));
+  }
+}
+
+function updateTimerDisplay() {
+  const minutes = Math.floor(timeRemaining / 60);
+  const seconds = timeRemaining % 60;
+  gameTimer.textContent = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+}
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    timeRemaining--;
+    updateTimerDisplay();
+    if (timeRemaining <= 0) {
+      stopTimer();
+      gameOver = true;
+      setTimeout(() => alert("Time's up! Game Over! The word was " + word), 10);
+      // Disable further input
+      document
+        .querySelectorAll(".key")
+        .forEach((key) => (key.style.pointerEvents = "none"));
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
   }
 }
 
