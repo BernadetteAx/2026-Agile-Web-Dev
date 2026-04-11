@@ -260,8 +260,13 @@ header h1 {
 }
 
 .key[data-state="wrong"] {
-  background-color: var(--wrong);
+  background-color: var(--incorrect);
   color: white;
+}
+
+.key[data-state="guessed"] {
+  background-color: #555;
+  color: #aaa;
 }
 
 .key[data-key="ENTER"] {
