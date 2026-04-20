@@ -5,11 +5,10 @@
 
   --bg: #000000;
   --tile-border: #3a3a3a;
-
   --text-main: #ffffff;
 
-  --correct: #00ff9d;
-  --incorrect: #ff3b3b;
+  --correct: #4e7f6a; 
+  /* --incorrect: #FF3B3B; */
 
   /* --error-bg: #FFD8D8;
   --error-border: #FF9B9B; */
@@ -26,6 +25,15 @@
   font-style: normal;
 }
 
+/* for the bootstrap conflicts */
+button, input {
+  all: unset;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   background: var(--bg);
@@ -39,57 +47,38 @@ body {
 
 header {
   width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   padding: 18px 32px;
   background: #161515;
   border-bottom: 2px solid #0e0e0e;
-  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 header h1 {
   margin: 0;
-  font-weight: 700;
   color: var(--text-main);
   font-size: clamp(16px, 5vw, 28px);
-  position: static;
-  width: 100%;
-  text-align: left;
-  /* left: 50%;
-  transform: translateX(-50%);
-  margin: 0; */
 }
 
 .header-right {
-  flex: 1;
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: clamp(8px, 2vw, 18px); /* shrinks on smaller screens */
+  gap: clamp(8px, 2vw, 18px); /* gap shrinks smaller screens */
 }
 
 .header-right img {
-  width: clamp(16px, 4vw, 24px); /* icons shrink between 16px and 24px */
-  height: auto;
-  flex-shrink: 1;
+  width: clamp(16px, 4vw, 24px);
 }
 
-.icon {
-  font-size: 20px;
-  color: var(--icon-color);
-}
-
+/* SCORE / STATUS */
 .point-score {
   font-size: 0.85rem;
-  font-weight: 600;
-  color: #ffffff;
-  background: #272626;
+  color: var(--text-main);
+  background: var(--key-bg);
   padding: 6px 14px;
   border-radius: 4px;
+  margin: 20px auto 0;
   width: fit-content;
-  margin: 20px auto 0px; /* TOP | LEFT/RIGHT | BOTTOM */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
 }
 
 /* Stick figure card */
@@ -97,15 +86,15 @@ header h1 {
   background: #111;
   border: 5px solid #fff;
   border-radius: 3px;
-  width: 60vw; /* scales w/ screen */
-  max-width: 220px;
+  width: 60vw;
+  max-width: 220px;     /* caps for desktop size*/
   aspect-ratio: 1 / 1;
-  height: auto;
+
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 20px auto 20px;
-  image-rendering: pixelated;
+
+  margin: 20px auto;
 }
 
 #hangman-figure {
@@ -115,60 +104,58 @@ header h1 {
 
 .word-row {
   display: flex;
-  justify-content: center;
-  margin-top: 35px;
-  gap: clamp(6px, 2vw, 18px); /* spacing between letters */
+  justify-content: center; /* centers keys in row */
+  margin-top: 45px;
+  gap: clamp(6px, 2vw, 18px);   /* spacing between letters */
 }
 
 .tile {
   position: relative;
   width: 8vw;
   max-width: 50px;
-  min-width: 28px; /* rectangle width */
-  height: 8px; /* dash thickness */
+  min-width: 28px;          /* rectangle width */
+  height: 8px;          /* dash thickness */
   background: var(--tile-border);
   border-radius: 2px;
-  margin: 0;
 }
 
 .tile.filled {
   background: var(--tile-border);
 }
 
-/* Letter above dash */
+/* letter above dash */
 .tile-letter {
   position: absolute;
-  bottom: 100%; /* place above the dash */
+  bottom: 100%;     /* place above the dash */
   left: 50%;
-  transform: translateX(-50%) translateY(-6px); /* vertical position of letters*/
+  transform: translateX(-50%) translateY(-2px); /* vertical position of letters*/
   font-size: clamp(14px, 4vw, 25px);
   font-weight: 500;
   color: var(--text-main);
   pointer-events: none;
 }
 
-/* Mistakes badge */
 .mistake-label {
   text-align: center;
   font-size: 1rem;
   color: var(--text-main);
   font-weight: bold;
-  margin-top: 30px;
-  margin-bottom: 0px;
+  margin-top: 30px;     /* THIS is the spacing from the dash/guess area */
 }
 
-/* Keyboard */
+/* KEYBOARD */
 .keyboard {
   width: 100%;
   margin: 40px auto 0;
   display: flex;
   flex-direction: column;
-  align-items: stretch; /* center the rows */
+  align-items: center;
 }
 
-.row {
+/* renamed from .row (Bootstrap conflict) */
+.keyboard-row {
   display: flex;
-  justify-content: center; /* centers keys in row */
+  justify-content: center;
   width: 100%;
   max-width: 560px;
   margin: 0 auto 10px;
@@ -194,24 +181,23 @@ header h1 {
   flex: 1;
 }
 
-/* ENTER + BACKSPACE SIZING */
+/* enter + backspace sizes */
 .key[data-key="ENTER"] {
-  flex: 1.7; /* wider */
-  height: 60px;
-  font-size: 0.25em;
-  letter-spacing: 0.4px;
+  flex: 1.7; /* wider than normal keys */
+  font-size: 0.7em;
 }
 
 .key[data-key="BACKSPACE"] {
-  flex: 1.7; /* wider */
-  height: 60px;
-  font-size: 1.1em;
+  flex: 1.7; /* wider than normal keys */
+  font-size: 1em;
 }
 
-.row .key:last-of-type {
+/* remove margin on the last key */
+.keyboard-row .key:last-of-type {
   margin-right: 0;
 }
 
+/* KEYS */
 .key {
   /* font-family: 'nyt-franklin', sans-serif; */
   /* font-family: "American Typewriter", serif; */
@@ -220,61 +206,39 @@ header h1 {
   height: 58px;
   font-weight: bold;
   border-radius: 4px;
+
   background-color: var(--key-bg);
   color: var(--key-text-color);
 
   display: flex;
   justify-content: center;
   align-items: center;
+
   text-transform: uppercase;
 
   flex: 1;
 
-  border: 0;
-  padding: 0;
   margin: 0 calc(var(--horizontal-spacing-0-5) * 1.5) 0 0;
 
   cursor: pointer;
   user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.3);
 }
 
 .key:active {
   transform: scale(0.96);
 }
 
-.key.fade {
-  transition:
-    background-color 0.1s ease,
-    color 0.1s ease;
-}
-
-/* STATES */
 .key[data-state="correct"] {
   background-color: var(--correct);
-  color: white;
+  color: #fff;
 }
 
 .key[data-state="wrong"] {
   background-color: var(--incorrect);
-  color: white;
+  color: #fff;
 }
 
-.key[data-state="guessed"] {
-  background-color: #555;
-  color: #aaa;
-}
-
-.key[data-key="ENTER"] {
-  font-size: 0.8em; /* shrink text */
-  letter-spacing: 0.5px;
-}
-
-.key[data-key="BACKSPACE"] {
-  font-size: 1em;
-}
-
-/* For phone sizing issues??? */
+/* MOBILE */
 @media (max-width: 600px) {
   header {
     padding: 12px 16px;
