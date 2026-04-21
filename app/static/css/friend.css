@@ -1,0 +1,152 @@
+:root {
+  --font-press: "Press Start 2P", system-ui;
+  --bg: #000;
+  --text: #fff;
+  --accent: #4e7f6a;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  font-family: var(--font-press);
+  color: var(--text);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* header is a different height then the other pages but this is the same???*/
+/* will fix this issue? */
+header {
+  width: 100%;
+  padding: 18px 32px;
+  background: #161515;
+  border-bottom: 2px solid #0e0e0e;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header h1 {
+  margin: 0;
+  color: var(--text-main);
+  font-size: clamp(16px, 5vw, 28px);
+}
+
+.header-right {
+  display: flex;
+  gap: clamp(8px, 2vw, 18px); /* gap shrinks smaller screens */
+}
+
+.header-right img {
+  width: clamp(16px, 4vw, 24px);
+}
+
+.active-icon img {
+  filter: brightness(0) saturate(100%) invert(61%) sepia(12%) saturate(600%) hue-rotate(110deg);
+}
+
+/*  might change this one later */
+.panel {
+  padding: 14px;
+}
+
+/* spacing blocks */
+.panel-section {
+  margin-bottom: 12px;
+}
+
+.input {
+  width: 100%;
+  background: #272626;
+  border: 3px solid #fff;
+  border-radius: 3px;
+  padding: 10px;
+
+  color: #fff;
+  font-size: 0.7rem;
+  text-align: center;
+
+  outline: none;
+}
+
+.input:focus {
+  box-shadow: none;
+}
+
+.btn-arcade {
+  background: #1b1b1b;
+  border: 2px solid #fff;
+  color: #fff;
+
+  font-family: var(--font-press);
+  font-size: 0.6rem;
+
+  padding: 6px 10px;
+  border-radius: 0;
+
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.btn-arcade:hover {
+  background: #333;
+}
+
+.btn-arcade.active {
+  background: #fff;
+  color: #000;
+}
+
+.list {
+  background: #0d0d0d; /* slightly darker than rows */
+  border: 6px solid #2a2a2a; /* subtle, not white */
+  border-radius: 2px;
+
+  width: 100%;
+  max-width: 430px;
+  height: 60vh;
+
+  padding: 14px;
+  margin-top: 20px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  overflow-y: auto;
+}
+
+/* rows */
+.row-item {
+  background: #121212;
+  border: 1px solid #333;
+
+  display: flex;
+  justify-content: space-between;
+
+  padding: 10px;
+}
+
+.row-item:hover {
+  border-color: #555;
+}
+
+/* text */
+.friend-name {
+  font-size: 0.7rem;
+}
+
+.friend-score {
+  font-size: 0.65rem;
+  color: var(--accent);
+}
+
+/* if no result */
+.no-results {
+  display: none;
+  margin-top: 10px;
+  font-size: 0.6rem;
+  color: #fff;
+}

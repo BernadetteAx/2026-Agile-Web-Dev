@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hangman Leaderboard</title>
+    <link rel="stylesheet" href="/static/css/leaderboard.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header>
+      <h1>HANGMAN</h1>
+
+      <div class="header-right">
+        <a href="/daily" class="header-icon" title="Timer">
+          <img
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAX0lEQVR4nO3UQQrAMAgFUe9/6emqy6RYJSbmz1YiDwKaKRWISXcBzDk7C0BwURjCagCDB8sg7AqIQvoA3ryHRwDaAbwJwDGAbMjvPVQDogvSvpJqwOjwfGXZUQ1QbXsApkU155GfCTEAAAAASUVORK5CYII="
+            alt="timer"
+          />
+        </a>
+
+        <a href="/daily" class="header-icon" title="Clock">
+          <img
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAWklEQVR4nO3PMRIAEBBD0dz/0tGoFGaXmDXktch8gFkQk/BMABcHZSGsCmBgQHXnrgAmHhy5Swd0DsDkbPRPwA4H0AHduQfqHVYH7A6oPoDygHEwCmqsDrBnNU6QZbdgwYsdAAAAAElFTkSuQmCC"
+            alt="clock"
+          />
+        </a>
+
+        <a
+          href="/leaderboard"
+          class="header-icon active-icon"
+          title="Leaderboard"
+        >
+          <img
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAcElEQVR4nO3SQQ6AIAxE0bn/pYeVG5OmBRoYCn9pHH0GgVcwdoayACTdVwPA4LUzABz4uWoCMLmRAXjVBXiFAfTE6gAa++4j4MBXSgC+zgUw+cX3AdKOwBwE++/N5zEZYO3DgNm2A6z0AavSA7ywqQaqx1vdhoEO6wAAAABJRU5ErkJggg=="
+            alt="leaderboard"
+          />
+        </a>
+
+        <a href="/achievements" class="header-icon" title="Achievements">
+          <img
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAa0lEQVR4nO2RQQrAMAgE/f+np5cUQgltRBNtcK6y66AihQEaEgUl0AhfzG4RSuBoASZYkc0nIM78R+BGdbYVHUQL9GhL3N9ICUQJYCwyi5BZgAdnCTAIfi18m6tFyCLQMx326MASduwoZAcXr/mdf3UGWdUAAAAASUVORK5CYII="
+            alt="star"
+          />
+        </a>
+
+        <a href="/friends" class="header-icon" title="Friends">
+          <img
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAY0lEQVR4nO3TSwoAIAgAUe9/6WkfCGWWKc4yqB59RLpOiSltXEvKAlY7hhAN8Cocwi6AS49reT6/AMS6QHrArfIASCP9HYD1+9KAaIA3xBzRACtkPvrnV4E3YHdhbaP8gK5sA2dTba/1wIM5AAAAAElFTkSuQmCC"
+            alt="friends"
+          />
+        </a>
+
+        <a href="/home" class="header-icon" title="Close">
+          <img
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAsUlEQVR4nO2USw6CMBBAG44ACXAuE6+ACz2CGw5o3Jh4GvLc1IiGtnxmQJJ5q6aTtq8z0zpnGP8ISuxPwAlhAkgJAA2QR9bVwFFFALj46duQhD/8CXTAQUOgBB4+dAeKXqwKxcQEQhKpw8WbkE+q3+Xoj/NVXgHfmQjeXFOg2kyALUvAQMPFXoeoAJFuT0lICbSxVP+U5qQhkAHXEV/xecx+kwWWYALMFZBmPwKG4VbkBRrVx5wOhoZTAAAAAElFTkSuQmCC"
+            alt="close"
+          />
+        </a>
+      </div>
+    </header>
+
+    <main class="leaderboard-page">
+      <section class="leaderboard-title-section">
+        <div class="title-badge">RANKINGS</div>
+        <h2>LEADERBOARD</h2>
+        <p>Player stats will appear here once backend data is connected.</p>
+      </section>
+
+      <section class="leaderboard-controls">
+        <button class="sort-button">SORT BY SCORE</button>
+        <button class="sort-button">SORT BY WINS</button>
+        <button class="sort-button">SORT BY STREAK</button>
+      </section>
+
+      <section class="leaderboard-panel">
+        <div class="leaderboard-header-row">
+          <div>RANK</div>
+          <div>PLAYER</div>
+          <div>SCORE</div>
+          <div>WINS</div>
+          <div>STREAK</div>
+        </div>
+
+        <div class="leaderboard-empty-state">
+          <div class="empty-icon"></div>
+          <div class="empty-title">NO DATA YET</div>
+          <div class="empty-text">LEADERBOARD WILL APPEAR HERE</div>
+        </div>
+      </section>
+    </main>
+    <script src="/static/js/leaderboard.js"></script>
+  </body>
+</html>
