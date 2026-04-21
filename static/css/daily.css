@@ -77,6 +77,10 @@ header h1 {
   width: clamp(16px, 4vw, 24px);
 }
 
+.active-icon img {
+  filter: brightness(0) saturate(100%) invert(61%) sepia(12%) saturate(600%) hue-rotate(110deg);
+}
+
 /* TIMER */
 .game-timer {
   font-size: 0.85rem;
