@@ -47,3 +47,8 @@ def friends():
 @main.route("/achievements")
 def achievements():
     return render_template("achievements-page.html")
+
+# Route for the leaderboard page
+@main.route("/leaderboard")
+def leaderboard():
+    return render_template("leaderboard.html")
