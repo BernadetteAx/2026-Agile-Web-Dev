@@ -7,7 +7,6 @@ main = Blueprint("main", __name__)
 
 # Format routes like this to add them to the Flask app
 
-
 #Route for the register page
 @main.route("/register")
 def register():
@@ -19,7 +18,7 @@ def login():
     return render_template("login.html")
 
 # Route for the confirmation page after registration
-@main.route("/confirmation")
+@main.route("/confirm")
 def confirmation():
     return render_template("confirm.html")
 
