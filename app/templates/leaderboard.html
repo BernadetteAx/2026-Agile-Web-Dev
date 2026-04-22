@@ -1,45 +1,37 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block title %} Leaderboard - Hangman {% endblock %}
+{% block nav_stats %} active-icon {% endblock %} {% block extra_css %}
+<link rel="stylesheet" href="/static/css/leaderboard.css" />
+{% endblock %} {% block content %}
 
-{% block title %}Leaderbaord - Hangman{% endblock %}
+<main class="leaderboard-page">
+  <section class="leaderboard-title-section">
+    <div class="title-badge">RANKINGS</div>
+    <h2>LEADERBOARD</h2>
+    <p>Player stats will appear here once backend data is connected.</p>
+  </section>
 
-{% block nav_leaderboard %}active-icon{% endblock %}
+  <section class="leaderboard-controls">
+    <button class="sort-button">SORT BY SCORE</button>
+    <button class="sort-button">SORT BY WINS</button>
+    <button class="sort-button">SORT BY STREAK</button>
+  </section>
 
-{% block extra_css %}
-  <link rel="stylesheet" href="/static/css/leaderboard.css" />
-{% endblock %}
+  <section class="leaderboard-panel">
+    <div class="leaderboard-header-row">
+      <div>RANK</div>
+      <div>PLAYER</div>
+      <div>SCORE</div>
+      <div>WINS</div>
+      <div>STREAK</div>
+    </div>
 
-{% block content %}
-
-    <main class="leaderboard-page">
-      <section class="leaderboard-title-section">
-        <div class="title-badge">RANKINGS</div>
-        <h2>LEADERBOARD</h2>
-        <p>Player stats will appear here once backend data is connected.</p>
-      </section>
-
-      <section class="leaderboard-controls">
-        <button class="sort-button">SORT BY SCORE</button>
-        <button class="sort-button">SORT BY WINS</button>
-        <button class="sort-button">SORT BY STREAK</button>
-      </section>
-
-      <section class="leaderboard-panel">
-        <div class="leaderboard-header-row">
-          <div>RANK</div>
-          <div>PLAYER</div>
-          <div>SCORE</div>
-          <div>WINS</div>
-          <div>STREAK</div>
-        </div>
-
-        <div class="leaderboard-empty-state">
-          <div class="empty-icon"></div>
-          <div class="empty-title">NO DATA YET</div>
-          <div class="empty-text">LEADERBOARD WILL APPEAR HERE</div>
-        </div>
-      </section>
-    </main>
-    <script src="/static/js/leaderboard.js"></script>
+    <div class="leaderboard-empty-state">
+      <div class="empty-icon"></div>
+      <div class="empty-title">NO DATA YET</div>
+      <div class="empty-text">LEADERBOARD WILL APPEAR HERE</div>
+    </div>
+  </section>
+</main>
+<script src="/static/js/leaderboard.js"></script>
 
 {% endblock %}
-
