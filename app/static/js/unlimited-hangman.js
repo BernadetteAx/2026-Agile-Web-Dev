@@ -142,30 +142,52 @@ function handleGuess(letter) {
   checkGameEnd();
 }
 
+function closePopupAndPlay() {
+  const popup = document.getElementById("result-popup");
+  popup.classList.remove("show");
+  setTimeout(() => {
+    popup.classList.add("hidden");
+    initGame();
+  }, 200);
+}
+
+function showResultPopup(won, word, currentStreak) {
+  const popup = document.getElementById("result-popup");
+  const icon  = document.getElementById("result-icon");
+  const title = document.getElementById("result-title");
+  const sub   = document.getElementById("result-sub");
+  const wordReveal = document.getElementById("result-word-reveal");
+
+  icon.innerHTML = '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA7klEQVR4nO3QQZLEMAhDUe5/ac3a1KTctDEm7f+2KSNFZgAAAMmUzN5GDJDL3ka3DKCiwm2HEQP87605bYu1GUCnC5zuIwYoDuzWRwxQHNitj24bQM1+uLyvGGBkzbm6DGDtDm7GAE7ZQT3Izo/2WM03BnCyin6bH+2xmm8M4ESLfvo+6040b4oBnF3Fs+5E86YYwNlVPOtONG+KAbIPbpbeVwwwsuZcXQaw3QFPsos+BgXvLFNSEQZwqnKX6fYBPjUrtvq9PTHAqPr9cWKAUfX748QAo+r3x+n2AWY/NGO/RgwQY79Gtw8AALB+/gBv3TVmnpIGyAAAAABJRU5ErkJggg==" alt="game over" style="width:40px;height:40px;image-rendering:pixelated;">';
+  title.textContent = "GAME OVER";
+  sub.textContent   = `STREAK: ${currentStreak}`;
+  wordReveal.textContent = "WORD: " + word;
+
+  popup.classList.remove("hidden");
+  popup.offsetHeight;
+  popup.classList.add("show");
+}
+
 function checkGameEnd() {
   if (mistakes >= maxMistakes) {
     gameOver = true;
     streak = 0;
     score.textContent = streak;
     usedWords.clear();
-    setTimeout(() => alert("Game Over! The word was " + word), 10);
-    // Disable further input
-    document
-      .querySelectorAll(".key")
-      .forEach((key) => (key.style.pointerEvents = "none"));
-    // Start new game after delay
-    setTimeout(() => initGame(), 2000);
+    word.split("").forEach((char, i) => {
+      tiles[i].querySelector(".tile-letter").textContent = char;
+    });
+    document.querySelectorAll(".key").forEach(k => k.style.pointerEvents = "none");
+    setTimeout(() => showResultPopup(false, word, streak), 400);
+
   } else if (wordDisplay.join("") === word) {
     gameOver = true;
     streak++;
     score.textContent = streak;
     usedWords.add(word);
-    // Disable further input
-    document
-      .querySelectorAll(".key")
-      .forEach((key) => (key.style.pointerEvents = "none"));
-    // Start new game after delay
-    setTimeout(() => initGame(), 2000);
+    document.querySelectorAll(".key").forEach(k => k.style.pointerEvents = "none");
+    // No popup, just go straight to next word
+    setTimeout(() => initGame(), 1000);
   }
 }
 
