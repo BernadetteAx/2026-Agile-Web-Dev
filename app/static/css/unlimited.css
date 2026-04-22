@@ -111,34 +111,17 @@
   padding: 0 4px;
 }
 
-/* DIFFERENT ROW SIZES */
-.row1 .key {
-  height: 54px;
-  font-size: 0.85em;
-  flex: 1;
-}
+/* we now have cascading row widths */
+.keyboard-row.row1 { max-width: 560px; }
+.keyboard-row.row2 { max-width: 520px; }
+.keyboard-row.row3 { max-width: 480px; }
 
-.row2 .key {
-  height: 58px;
-  font-size: 0.95em;
-  flex: 0.85;
-}
-
+.row1 .key,
+.row2 .key,
 .row3 .key {
-  height: 60px;
+  height: 56px;
   font-size: 0.85em;
   flex: 1;
-}
-
-/* enter + backspace sizes */
-.key[data-key="ENTER"] {
-  flex: 1.7; /* wider than normal keys */
-  font-size: 0.7em;
-}
-
-.key[data-key="BACKSPACE"] {
-  flex: 1.7; /* wider than normal keys */
-  font-size: 1em;
 }
 
 /* remove margin on the last key */
