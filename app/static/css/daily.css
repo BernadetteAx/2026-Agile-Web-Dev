@@ -1,13 +1,4 @@
-/* colour scheme up for debate slightly low contrast rn */
-/* this code has the icons and header i want*/
-/* this code has the keyboard i want */
-/* this code has the dashes i want */
-/* this code has the font i want */
-/* the hangman figure is up for debate i want to make a pixel guy*/
-/* this code has been made responsive apart from the stupid keybaord >:o it can die */
-
-
-:root {
+  :root {
   --font-press: "Press Start 2P", system-ui;
 
   --bg: #000000;
@@ -30,55 +21,6 @@
   font-family: "Press Start 2P", system-ui;
   font-weight: 150;
   font-style: normal;
-}
-
-/* for the bootstrap conflicts */
-button, input {
-  all: unset;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  background: var(--bg);
-  /* font-family: 'nyt-franklin', sans-serif; */
-  font-family: var(--font-press);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  overflow-x: hidden;
-}
-
-header {
-  width: 100%;
-  padding: 18px 32px;
-  background: #161515;
-  border-bottom: 2px solid #0e0e0e;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-header h1 {
-  margin: 0;
-  color: var(--text-main);
-  font-size: clamp(16px, 5vw, 28px);
-}
-
-.header-right {
-  display: flex;
-  gap: clamp(8px, 2vw, 18px); /* gap shrinks smaller screens */
-}
-
-.header-right img {
-  width: clamp(16px, 4vw, 24px);
-}
-
-.active-icon img {
-  filter: brightness(0) saturate(100%) invert(61%) sepia(12%) saturate(600%) hue-rotate(110deg);
 }
 
 /* TIMER */

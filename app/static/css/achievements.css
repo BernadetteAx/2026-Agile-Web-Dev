@@ -10,36 +10,6 @@
   --locked: rgba(255,255,255,0.25);
 }
 
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  background: var(--bg);
-  font-family: var(--font-press);
-  color: var(--text);
-}
-
-header {
-  width: 100%;
-  padding: 18px 32px;
-  background: #161515;
-  border-bottom: 2px solid #0e0e0e;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-header h1 {
-  font-size: clamp(14px, 4vw, 24px);
-  margin: 0;
-}
-
-.active-icon img {
-  filter: brightness(0) saturate(100%) invert(61%) sepia(12%) saturate(600%) hue-rotate(110deg);
-}
-
 /* spacing already handled by bootstrap */
 .achievement-grid {
   margin-top: 20px;
@@ -74,6 +44,7 @@ header h1 {
 .title {
   font-size: 0.6rem;
   margin-bottom: 6px;
+  color: var(--text);
 }
 
 .desc {

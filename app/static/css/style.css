@@ -13,50 +13,6 @@
     --note-color: #bfbfbf;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  background: var(--bg);
-  /* font-family: 'nyt-franklin', sans-serif; */
-  font-family: var(--font-press);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  overflow-x: hidden;
-}
-
-header {
-  width: 100%;
-  padding: 18px 32px;
-  background: #161515;
-  border-bottom: 2px solid #0e0e0e;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-header h1 {
-  margin: 0;
-  color: var(--text-main);
-  font-size: clamp(16px, 5vw, 28px);
-}
-
-.header-right {
-  display: flex;
-  gap: clamp(8px, 2vw, 18px); /* gap shrinks smaller screens */
-}
-
-.header-right img {
-  width: clamp(16px, 4vw, 24px);
-}
-
-.active-icon img {
-  filter: brightness(0) saturate(100%) invert(61%) sepia(12%) saturate(600%) hue-rotate(110deg);
-}
-
 .auth-page,
 .home-page {
     min-height: calc(100vh - 80px);
@@ -76,6 +32,7 @@ header h1 {
     padding: 30px 28px;
     box-sizing: border-box;
     text-align: center;
+    overflow: hidden;
 }
 
 .auth-box h2,
@@ -106,10 +63,11 @@ input::placeholder {
 
 button {
     width: 100%;
+    box-sizing: border-box;
     padding: 14px;
     margin-top: 10px;
     border: 0;
-    border-radius: 4px;
+    border-radius: 3px;
     background-color: var(--button-bg);
     color: var(--text-main);
     font-family: var(--font-press);
