@@ -34,57 +34,108 @@ The application is designed to be:
 - Effective in tracking user performance and progress
 
 ---
-
 ## Getting Started
-
 These instructions will help you set up the project locally for development and testing.
 
 ### Prerequisites
+A minimum of Python 3.7 is required to run this project.
 
-Ensure you have the following installed:
-- Node.js (if backend is used)
-- npm or yarn
-- Git
+On Linux:
+```
+$ sudo apt-get install python3
+```
+
+On Mac:
+```
+$ brew install python3
+```
+
+On Windows, go to the [Python website](https://www.python.org/downloads/) and download the installer.
+
+You will also need Git installed:
+```
+$ git --version
+```
 
 ---
 
 ## Installation
 
+Clone the repository and navigate into the project directory:
 ```
-# Clone the repository
-git clone https://github.com/BernadetteAx/2026-Agile-Web-Dev 
-```
-
-```
-# Navigate into the project directory
-cd 2026-Agile-Web-Dev
+$ git clone https://github.com/BernadetteAx/2026-Agile-Web-Dev
+$ cd 2026-Agile-Web-Dev
 ```
 
+Set up a virtual environment. It is recommended to run this application on Linux or Mac, as pip on Windows does not always correctly manage packages.
+
+On Mac and Linux:
 ```
-# Install dependencies
-npm install
+$ python3 -m venv flask
+$ source flask/bin/activate
+$ pip install -r requirements.txt
 ```
+
+On Windows:
+```
+$ python -m venv flask
+$ flask\Scripts\activate
+$ pip install -r requirements.txt
+```
+
+---
 
 ## Running the Application
 
+Set the Flask app environment variable and start the development server.
+
+On Mac and Linux:
 ```
-# Start the development server
-npm start
+$ export FLASK_APP=app.py
+$ flask run
 ```
+
+On Windows:
+```
+$ set FLASK_APP=app.py
+$ flask run
+```
+
+The app will be available at `http://127.0.0.1:5000` by default.
+
+---
 
 ## Running the Tests
 
+Open the root directory of the project in a terminal and enter:
 ```
-#Execute the test suite
-npm test
+$ python -m unittest discover
 ```
+
+> **Note:** Ensure that the virtual environment is **not** active when running the automated tests, as it may cause errors.
+
+---
 
 ## Deployment
 
+To configure the application for deployment, set the required environment variables:
+
+On Mac and Linux:
 ```
-#Build the production version
-npm run build
-``` 
+$ export FLASK_APP=app.py
+$ export FLASK_ENV=production
+```
+
+If any additional environment variables are required (e.g. secret keys or mail credentials), set them as follows:
+```
+$ export SECRET_KEY=<your-secret-key>
+$ export MAIL_PASSWORD=<your-mail-server-password>
+```
+
+Then start the server:
+```
+$ flask run
+```
 
 ---
 
@@ -101,12 +152,14 @@ This application includes the following functionality:
 
 ---
 
-## Technologies Used  
+## Technologies Used
 
-- [HTML]
-- [CSS] 
-- [JavaScript]  
-- [Bootstrap] - The web framework used
+- HTML
+- CSS
+- JavaScript
+- Python 3
+- [Flask](https://flask.palletsprojects.com/) – web framework
+- Bootstrap – front-end styling
 
 ---
 
@@ -137,57 +190,63 @@ The application is designed to be:
 
 ---
 
-## Main Pages  
+## Application Design
 
-The application consists of the following main pages:  
+### Main Pages
 
-- Home Page (Intro + “Play Now” button)  
-- Login Page  
-- Signup Page  
-- Dashboard (Welcome user, Start game, View leaderboard, View history)  
-- Game Page (Word display (_ _ _ _), Keyboard input, Hangman drawing, Score display)  
-- Leaderboard Page (Top players)  
-- Create Word Page (Users submit words)  
-- Profile Page (Stats, games played, wins/losses)  
+| Page | Description |
+|------|-------------|
+| Home | Intro screen with a "Play Now" button |
+| Login | User login form |
+| Signup | New account registration |
+| Dashboard | Welcome screen with links to start a game, view the leaderboard, and view history |
+| Game | Word display (`_ _ _ _`), letter keyboard, hangman drawing, and score |
+| Leaderboard | Top players ranked by score |
+| Create Word | Form for users to submit custom words |
+| Profile | User stats including games played, wins, and losses |
+
+### UI Layout
+
+- Navigation bar: Home | Play | Leaderboard | Profile | Logout
+- Large centered game area
+- A–Z letter buttons for input
+- Hangman image updates dynamically with each incorrect guess
+
 
 ---
 
-## Basic UI Idea  
+## Database Schema
 
-- Navigation bar (Home | Play | Leaderboard | Profile | Logout)  
-- Big centered game area
-- Letters displayed as buttons (A–Z)  
-- Hangman image updates dynamically  
+### Users
+| Field         | Type    |
+|---------------|---------|
+| user_id       | Integer |
+| username      | String  |
+| password_hash | String  |
+| score         | Integer |
+| games_played  | Integer |
 
----
+### Games
+| Field        | Type          |
+|--------------|---------------|
+| game_id      | Integer       |
+| user_id      | Integer (FK)  |
+| word         | String        |
+| result       | win / lose    |
+| guesses_used | Integer       |
 
-## Database Ideas  
+### Words
+| Field      | Type         |
+|------------|--------------|
+| word_id    | Integer      |
+| word_text  | String       |
+| created_by | Integer (FK) |
 
-- Users  
-- Games  
-- Words  
-- Scores  
+### Scores
+| Field       | Type         |
+|-------------|--------------|
+| score_id    | Integer      |
+| user_id     | Integer (FK) |
+| score_value | Integer      |
+| timestamp   | DateTime     |
 
-The application is expected to use the following data models:
-
-- Users
-	- user_id
-	- username
-	- password_hash
-	- score
-	- games_played
-- Games
-	- game_id
-	- user_id
-	- word
-	- result (win/lose)
-	- guesses_used
-- Words
-	- word_id
-	- word_text
-	- created_by
-- Scores
-	- score_id
-	- user_id
-	- score_value
-	- timestamp
