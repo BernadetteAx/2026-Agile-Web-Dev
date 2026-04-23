@@ -5,10 +5,15 @@ SQLAlchemy: Python tool to allow easier usage of SQLite
 Flask-SQLAlchemy: Flask wrapper for SQLAlchemy
 Flask-Migrate: Tool to keep track changes to database structure (important)
 
-###### Installation requirements
+###### Installation
 
 - Git pull
 - pip install -r requirements.txt
+- To initialise the database, run:
+  - `flask db migrate -m "initial" `
+  - `flask db upgrade `
+  - This will create app.db in your repo (this is gitignored)
+    - Database file, unique for all members
 
 ###### What is the database?
 
