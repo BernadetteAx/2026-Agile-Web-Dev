@@ -76,7 +76,7 @@
   gap: 12px;
 
   overflow-y: auto;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 /* rows */
