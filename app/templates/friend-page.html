@@ -82,22 +82,17 @@
       }
 
       function addFriend(name) {
-        // find user object
         const user = allUsers.find((u) => u.name === name);
 
-        if (!user) {
-          alert("User not found");
-          return;
-        }
+        if (!user) { alert("User not found"); return; }
+        if (friends.some((f) => f.name === name)) { alert("You're already friends with " + name); return; }
 
-        // check duplicate
-        if (friends.some((f) => f.name === name)) {
-          alert("You're already friends with " + name);
-          return;
-        }
+        friends.push(user);
 
-        friends.push(user); // add name + wins
-        renderFriends();
+        // re-apply active sort if one is selected
+        const activeBtn = document.querySelector(".sort-btn.active");
+        if (activeBtn) activeBtn.click();
+        else renderFriends();
       }
 
       searchInput.addEventListener("keydown", (e) => {
@@ -111,6 +106,27 @@
       });
 
       renderFriends();
-    </script>
+
+    let currentSort = null;
+
+      document.querySelectorAll(".sort-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const sortType = btn.dataset.sort;
+
+          // toggle active style
+          document.querySelectorAll(".sort-btn").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+
+          // sort the friends array in place
+          if (sortType === "name") {
+            friends.sort((a, b) => a.name.localeCompare(b.name));
+          } else if (sortType === "wins") {
+            friends.sort((a, b) => b.wins - a.wins);
+          }
+
+          renderFriends();
+        });
+      });
+      </script>
 
 {% endblock %}
