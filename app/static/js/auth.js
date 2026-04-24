@@ -95,6 +95,27 @@ if (registerBtn) {
   };
 }
 
+const toggleLoginPassword = document.getElementById("toggleLoginPassword");
+
+if (toggleLoginPassword) {
+  toggleLoginPassword.onclick = function () {
+    const loginPassword = document.getElementById("loginPassword");
+    const icon = toggleLoginPassword.querySelector("i");
+
+    if (loginPassword.type === "password") {
+      loginPassword.type = "text";
+
+      icon.classList.remove("bi-eye-slash");
+      icon.classList.add("bi-eye");
+    } else {
+      loginPassword.type = "password";
+
+      icon.classList.remove("bi-eye");
+      icon.classList.add("bi-eye-slash");
+    }
+  };
+}
+
 const loginBtn = document.getElementById("loginBtn");
 
 if (loginBtn) {
