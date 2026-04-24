@@ -240,7 +240,7 @@ function triggerGlitch() {
 
 function triggerConfetti() {
   const colors = [
-    "#4e7f6a",
+    "#4e7f6a", // your game's green
     "#ffffff",
     "#00dcff",
     "#00ffb4",
@@ -253,7 +253,7 @@ function triggerConfetti() {
   const numPixels = 200;
   const pixels = [];
 
-  // start from center of screen
+  // Burst from center of screen
   const originX = window.innerWidth / 2;
   const originY = window.innerHeight / 3;
 
@@ -262,12 +262,12 @@ function triggerConfetti() {
     const size = Math.floor(Math.random() * 14 + 6);
     const color = colors[Math.floor(Math.random() * colors.length)];
 
-    // burst direction of the explosion
+    // Random burst direction
     const angle = Math.random() * Math.PI * 2;
     const speed = Math.random() * 600 + 200; // px to travel
     const vx = Math.cos(angle) * speed;
     const vy = Math.sin(angle) * speed - (Math.random() * 400 + 200);
-    const duration = Math.random() * 600 + 600;
+    const duration = Math.random() * 600 + 600; // 600–1200ms
     const delay = Math.random() * 150; // slight stagger
 
     pixel.style.cssText = `
@@ -287,7 +287,7 @@ function triggerConfetti() {
     pixels.push({ el: pixel, vx, vy, duration, delay });
   }
 
-  // animate each pixel
+  // Animate each pixel with requestAnimationFrame
   pixels.forEach(({ el, vx, vy, duration, delay }) => {
     let start = null;
 

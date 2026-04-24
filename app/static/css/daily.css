@@ -275,7 +275,190 @@
   transform: scale(0.96);
 }
 
-/* MOBILE */
+#logout-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+#logout-overlay.active {
+  display: flex;
+}
+
+/* draw animation */
+.part {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  transition: none;
+}
+
+.part.revealed {
+  animation: draw 0.4s ease forwards;
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* glitch effect on game over */
+@keyframes glitch-body {
+  0%   { transform: translate(0); }
+  8%   { transform: translate(-6px, 0) skewX(4deg); }
+  16%  { transform: translate(6px, 0) skewX(-4deg); }
+  24%  { transform: translate(-3px, 2px) skewX(8deg); }
+  32%  { transform: translate(3px, -2px); }
+  40%  { transform: translate(-8px, 0) skewX(-6deg); }
+  48%  { transform: translate(8px, 1px) skewX(6deg); }
+  56%  { transform: translate(-4px, -1px); }
+  64%  { transform: translate(4px, 2px) skewX(-3deg); }
+  72%  { transform: translate(-6px, 0); }
+  80%  { transform: translate(6px, -2px) skewX(5deg); }
+  88%  { transform: translate(-2px, 1px); }
+  100% { transform: translate(0); }
+}
+
+.glitch-overlay {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+
+.glitch-overlay.active {
+  opacity: 1;
+  animation: glitchFadeOut 0.85s ease forwards;
+}
+
+@keyframes glitchFadeOut {
+  0%   { opacity: 1; }
+  85%  { opacity: 0.8; }
+  100% { opacity: 0; }
+}
+
+/* RGB split layers */
+.glitch-r, .glitch-g, .glitch-b {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9997;
+  opacity: 0;
+  background: transparent;
+}
+
+.glitch-r.active {
+  opacity: 1;
+  animation: glitch-r-anim 0.85s steps(1) forwards;
+}
+.glitch-g.active {
+  opacity: 1;
+  animation: glitch-g-anim 0.85s steps(1) forwards;
+}
+.glitch-b.active {
+  opacity: 1;
+  animation: glitch-b-anim 0.85s steps(1) forwards;
+}
+
+/* ── glitch on game over ── */
+#glitch-wrapper {
+  position: relative;
+}
+
+#glitch-wrapper.glitching {
+  animation: glitch-shake 0.07s steps(1) infinite;
+}
+
+@keyframes glitch-shake {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(-3px, 0); }
+  75%  { transform: translate(3px, 0); }
+  100% { transform: translate(0, 0); }
+}
+
+/* horizontal bands */
+.glitch-strip {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 600;
+  opacity: 0;
+  will-change: transform, opacity;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(0, 220, 255, 0.55)  0px,
+    rgba(0, 100, 200, 0.4)   4px,
+    rgba(0, 255, 150, 0.35)  8px,
+    rgba(100, 0, 255, 0.3)   12px,
+    rgba(0, 180, 255, 0.45)  16px,
+    rgba(20, 255, 200, 0.3)  20px,
+    transparent              20px,
+    transparent              28px
+  );
+}
+
+/* covers the screen with scanlines */
+#glitch-scanlines {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  opacity: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 0, 0, 0.08) 0px,
+    rgba(0, 255, 100, 0.06) 2px,
+    rgba(0, 0, 255, 0.08) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+
+#glitch-scanlines.active {
+  animation: scanline-flicker 0.9s steps(3) forwards;
+}
+
+#glitch-red {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 499;
+  opacity: 0;
+  background: rgba(255, 0, 60, 0.18);
+  mix-blend-mode: screen;
+}
+
+#glitch-red.active {
+  animation: rgb-split-red 0.9s steps(2) forwards;
+}
+
+#glitch-blue {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 499;
+  opacity: 0;
+  background: rgba(0, 100, 255, 0.18);
+  mix-blend-mode: screen;
+}
+
+#glitch-blue.active {
+  animation: rgb-split-blue 0.9s steps(2) forwards;
+}
+
+/* page shakes + color-corrupts */
+#glitch-wrapper.glitching {
+  animation:
+    glitch-shake  0.07s steps(1) infinite,
+    glitch-colors 0.07s steps(1) infinite;
+}
+
 @media (max-width: 600px) {
   header {
     padding: 12px 16px;
