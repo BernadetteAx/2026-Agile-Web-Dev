@@ -13,14 +13,18 @@ let timerInterval;
 
 const mistakeNum = document.getElementById("mistakeNum");
 const hangmanFigure = document.getElementById("hangman-figure");
-const hangmanParts = Array.from(hangmanFigure.children).slice(4); // Head, body, arms, legs
 const gameTimer = document.querySelector(".game-timer");
+const parts = [
+  "part-head",
+  "part-body", 
+  "part-left-arm",
+  "part-right-arm",
+  "part-left-leg",
+  "part-right-leg"
+];
 
 // Initialize game
 function initGame() {
-  // Hide hangman parts initially
-  hangmanParts.forEach((part) => (part.style.display = "none"));
-
   // Set up word display
   const wordRow = document.querySelector(".word-row");
   wordRow.innerHTML = "";
@@ -89,8 +93,13 @@ function handleGuess(letter) {
     mistakes++;
     mistakeNum.textContent = mistakes;
     // Show next hangman part
-    if (mistakes <= hangmanParts.length) {
-      hangmanParts[mistakes - 1].style.display = "block";
+    if (mistakes <= parts.length) {
+      const partElements = document.querySelectorAll(`.${parts[mistakes - 1]}`);
+      partElements.forEach(el => {
+        el.classList.remove("revealed");
+        void el.offsetWidth;
+        el.classList.add("revealed");
+      });
     }
     // Mark key as incorrect
     document.querySelectorAll(".key").forEach((key) => {

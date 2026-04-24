@@ -16,26 +16,24 @@ block nav_daily %}active-icon{% endblock %} {% block extra_css %}
       stroke-width="7"
       fill="none"
       shape-rendering="crispEdges"
+      overflow="visible"
     >
-      <!-- Pole thing -->
-      <line x1="20" y1="200" x2="160" y2="200" />
-      <line x1="50" y1="200" x2="50" y2="20" />
-      <line x1="50" y1="20" x2="120" y2="20" />
-      <line x1="120" y1="20" x2="120" y2="55" />
+    <!-- pole is always visible -->
+    <line stroke="#ffffff" x1="20" y1="200" x2="160" y2="200" />
+    <line stroke="#ffffff" x1="50" y1="200" x2="50" y2="20" />
+    <line stroke="#ffffff" x1="50" y1="20" x2="120" y2="20" />
+    <line stroke="#ffffff" x1="120" y1="20" x2="120" y2="55" />
 
-      <!-- Head -->
-      <rect x="94" y="55" width="52" height="52" />
-
-      <!-- Body -->
-      <line x1="120" y1="107" x2="120" y2="145" />
-
-      <!-- Arms -->
-      <line x1="120" y1="115" x2="92" y2="135" />
-      <line x1="120" y1="115" x2="148" y2="135" />
-
-      <!-- Legs -->
-      <line x1="120" y1="145" x2="102" y2="175" />
-      <line x1="120" y1="145" x2="138" y2="175" />
+    <!-- head and body -->
+    <line class="part part-head" x1="99" y1="55" x2="141" y2="55" />
+    <line class="part part-head" x1="145" y1="59" x2="145" y2="103" />
+    <line class="part part-head" x1="99" y1="107" x2="141" y2="107" />
+    <line class="part part-head" x1="95" y1="59" x2="95" y2="103" />
+    <line class="part part-body" x1="120" y1="107" x2="120" y2="145" />
+    <line class="part part-left-arm" x1="120" y1="115" x2="92" y2="135" />
+    <line class="part part-right-arm" x1="120" y1="115" x2="148" y2="135" />
+    <line class="part part-left-leg" x1="120" y1="145" x2="102" y2="175" />
+    <line class="part part-right-leg" x1="120" y1="145" x2="138" y2="175" />
     </svg>
   </div>
 
