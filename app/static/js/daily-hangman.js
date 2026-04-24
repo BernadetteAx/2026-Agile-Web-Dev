@@ -160,6 +160,7 @@ function checkGameEnd() {
     document
       .querySelectorAll(".key")
       .forEach((k) => (k.style.pointerEvents = "none"));
+    triggerConfetti(); // 👈 add this
     setTimeout(() => showResultPopup(true, word, timeRemaining), 400);
   }
 }
@@ -236,6 +237,86 @@ function triggerGlitch() {
     }
   }, intervalMs);
 }
+
+function triggerConfetti() {
+  const colors = [
+    "#4e7f6a", // your game's green
+    "#ffffff",
+    "#00dcff",
+    "#00ffb4",
+    "#7b2fff",
+    "#ffee00",
+    "#ff4ecd",
+    "#00ff64",
+  ];
+
+  const numPixels = 200;
+  const pixels = [];
+
+  // Burst from center of screen
+  const originX = window.innerWidth / 2;
+  const originY = window.innerHeight / 3;
+
+  for (let i = 0; i < numPixels; i++) {
+    const pixel = document.createElement("div");
+    const size = Math.floor(Math.random() * 14 + 6);
+    const color = colors[Math.floor(Math.random() * colors.length)];
+
+    // Random burst direction
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 600 + 200; // px to travel
+    const vx = Math.cos(angle) * speed;
+    const vy = Math.sin(angle) * speed - (Math.random() * 400 + 200);
+    const duration = Math.random() * 600 + 600; // 600–1200ms
+    const delay = Math.random() * 150; // slight stagger
+
+    pixel.style.cssText = `
+      position: fixed;
+      left: ${originX}px;
+      top: ${originY}px;
+      width: ${size}px;
+      height: ${size}px;
+      background: ${color};
+      z-index: 800;
+      pointer-events: none;
+      image-rendering: pixelated;
+      opacity: 1;
+    `;
+
+    document.body.appendChild(pixel);
+    pixels.push({ el: pixel, vx, vy, duration, delay });
+  }
+
+  // Animate each pixel with requestAnimationFrame
+  pixels.forEach(({ el, vx, vy, duration, delay }) => {
+    let start = null;
+
+    function animate(ts) {
+      if (!start) start = ts + delay;
+      const elapsed = ts - start;
+      if (elapsed < 0) { requestAnimationFrame(animate); return; }
+
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 2); // ease out
+
+      const x = vx * ease;
+      const gravity = 300 * progress * progress; // pull down over time
+      const y = vy * ease + gravity;
+
+      el.style.transform = `translate(${x}px, ${y}px)`;
+      el.style.opacity = (1 - progress).toFixed(2);
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        el.remove();
+      }
+    }
+
+    requestAnimationFrame(animate);
+  });
+}
+
 
 function updateTimerDisplay() {
   const minutes = Math.floor(timeRemaining / 60);
