@@ -87,9 +87,14 @@ function initGame() {
     key.removeAttribute("data-state");
     key.style.pointerEvents = "auto";
   });
+}
 
+document.addEventListener("DOMContentLoaded", () => {
+  // attach listeners ONCE
   document.querySelectorAll(".key").forEach((key) => {
-    key.addEventListener("click", () => handleGuess(key.textContent.trim()));
+    key.addEventListener("click", () =>
+      handleGuess(key.textContent.trim())
+    );
   });
 
   document.addEventListener("keydown", (e) => {
@@ -98,7 +103,10 @@ function initGame() {
       handleGuess(letter);
     }
   });
-}
+
+  // start game
+  initGame();
+});
 
 function handleGuess(letter) {
   if (gameOver || guessedLetters.has(letter) || mistakes >= maxMistakes) return;
@@ -187,9 +195,8 @@ function checkGameEnd() {
     word.split("").forEach((char, i) => {
       tiles[i].querySelector(".tile-letter").textContent = char;
     });
-    document
-      .querySelectorAll(".key")
-      .forEach((k) => (k.style.pointerEvents = "none"));
+    document.querySelectorAll(".key").forEach((k) => (k.style.pointerEvents = "none"));
+    triggerGlitch();
     setTimeout(() => showResultPopup(false, word, streak), 400);
   } else if (wordDisplay.join("") === word) {
     gameOver = true;
@@ -199,10 +206,79 @@ function checkGameEnd() {
     document
       .querySelectorAll(".key")
       .forEach((k) => (k.style.pointerEvents = "none"));
-    // No popup, just go straight to next word
     setTimeout(() => initGame(), 1000);
   }
 }
 
-// Start the game
-document.addEventListener("DOMContentLoaded", initGame);
+function triggerGlitch() {
+  const wrapper = document.getElementById("glitch-wrapper");
+  const duration = 900;
+  const intervalMs = 50;
+  let elapsed = 0;
+  const activeBlocks = [];
+
+  // whole-screen shake
+  wrapper.classList.remove("glitching");
+  void wrapper.offsetWidth;
+  wrapper.classList.add("glitching");
+
+  const interval = setInterval(() => {
+    elapsed += intervalMs;
+
+    // remove previous blocks
+    activeBlocks.forEach(b => b.remove());
+    activeBlocks.length = 0;
+
+    // fade out toward end
+    const fadeRatio = elapsed / duration;
+    const numBlocks = Math.floor((1 - fadeRatio) * 35 + 5);
+
+    for (let i = 0; i < numBlocks; i++) {
+      const block = document.createElement("div");
+
+      // Random position and size
+      const x = Math.random() * 100;
+      const y = Math.random() * 100;
+      const w = Math.random() * 18 + 2;   
+      const h = Math.random() * 3 + 0.5;  
+
+      // cyan, teal, blue, green, purple, white, red
+      const palettes = [
+        `rgba(0, 220, 255, 0.85)`,
+        `rgba(0, 255, 180, 0.8)`,
+        `rgba(50, 100, 255, 0.85)`,
+        `rgba(0, 180, 200, 0.9)`,
+        `rgba(120, 0, 255, 0.8)`,
+        `rgba(0, 255, 100, 0.85)`,
+        `rgba(200, 255, 255, 0.9)`,
+        `rgba(255, 255, 255, 0.7)`,
+        `rgba(0, 100, 255, 0.9)`,
+        `rgba(255, 0, 80, 0.75)`,    // occasional red
+        `rgba(255, 200, 0, 0.75)`,   // occasional yellow
+      ];
+      const color = palettes[Math.floor(Math.random() * palettes.length)];
+
+      block.style.cssText = `
+        pointer-events: none;
+        position: fixed;
+        left: ${x}vw;
+        top: ${y}vh;
+        width: ${w}vw;
+        height: ${h}vh;
+        background: ${color};
+        z-index: 600;
+        mix-blend-mode: screen;
+        opacity: ${(Math.random() * 0.5 + 0.5).toFixed(2)};
+      `;
+
+      document.body.appendChild(block);
+      activeBlocks.push(block);
+    }
+
+    if (elapsed >= duration) {
+      clearInterval(interval);
+      activeBlocks.forEach(b => b.remove());
+      wrapper.classList.remove("glitching");
+    }
+  }, intervalMs);
+}

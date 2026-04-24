@@ -1,95 +1,108 @@
-{% extends "base.html" %} {% block title %}Unlimited - Hangman{% endblock %} {%
-block nav_unlimited %}active-icon{% endblock %} {% block extra_css %}
-<link rel="stylesheet" href="/static/css/unlimited.css" />
-{% endblock %} {% block content %}
+{% extends "base.html" %} 
 
-<!-- MAIN CONTENT -->
-<div class="container text-center">
-  <div class="point-score">Words Guessed: <span id="score">0</span></div>
-  <!-- Stick figure card -->
-  <!-- I WANT TO MAKE THIS LARGER - depends on sam feedback -->
-  <!--Maybe add a subtle background shape (soft radial gradient behind the hangman) -->
-  <div id="figure-card">
-    <svg
-      id="hangman-figure"
-      width="180"
-      height="240"
-      viewBox="0 0 180 220"
-      stroke="#ffffff"
-      stroke-width="7"
-      fill="none"
-      shape-rendering="crispEdges"
-      overflow="visible"
-    >
-    <!-- pole is always visible -->
-    <line stroke="#ffffff" x1="20" y1="200" x2="160" y2="200" />
-    <line stroke="#ffffff" x1="50" y1="200" x2="50" y2="20" />
-    <line stroke="#ffffff" x1="50" y1="20" x2="120" y2="20" />
-    <line stroke="#ffffff" x1="120" y1="20" x2="120" y2="55" />
+{% block title %}Unlimited - Hangman{% endblock %}
 
-    <!-- head and body -->
-    <line class="part part-head" x1="99" y1="55" x2="141" y2="55" />
-    <line class="part part-head" x1="145" y1="59" x2="145" y2="103" />
-    <line class="part part-head" x1="99" y1="107" x2="141" y2="107" />
-    <line class="part part-head" x1="95" y1="59" x2="95" y2="103" />
-    <line class="part part-body" x1="120" y1="107" x2="120" y2="145" />
-    <line class="part part-left-arm" x1="120" y1="115" x2="92" y2="135" />
-    <line class="part part-right-arm" x1="120" y1="115" x2="148" y2="135" />
-    <line class="part part-left-leg" x1="120" y1="145" x2="102" y2="175" />
-    <line class="part part-right-leg" x1="120" y1="145" x2="138" y2="175" />
-    </svg>
+{% block nav_unlimited %}active-icon{% endblock %} 
+
+{% block extra_css %}
+  <link rel="stylesheet" href="/static/css/unlimited.css" />
+{% endblock %} 
+
+{% block content %}
+
+<div id="glitch-wrapper">
+  <!-- MAIN CONTENT -->
+  <div class="container text-center">
+    <div class="point-score">Words Guessed: <span id="score">0</span></div>
+    <!-- Stick figure card -->
+    <!-- I WANT TO MAKE THIS LARGER - depends on sam feedback -->
+    <!--Maybe add a subtle background shape (soft radial gradient behind the hangman) -->
+    <div id="figure-card">
+      <svg
+        id="hangman-figure"
+        width="180"
+        height="240"
+        viewBox="0 0 180 220"
+        stroke="#ffffff"
+        stroke-width="7"
+        fill="none"
+        shape-rendering="crispEdges"
+        overflow="visible"
+      >
+      <!-- pole is always visible -->
+      <line stroke="#ffffff" x1="20" y1="200" x2="160" y2="200" />
+      <line stroke="#ffffff" x1="50" y1="200" x2="50" y2="20" />
+      <line stroke="#ffffff" x1="50" y1="20" x2="120" y2="20" />
+      <line stroke="#ffffff" x1="120" y1="20" x2="120" y2="55" />
+
+      <!-- head and body -->
+      <line class="part part-head" x1="99" y1="55" x2="141" y2="55" />
+      <line class="part part-head" x1="145" y1="59" x2="145" y2="103" />
+      <line class="part part-head" x1="99" y1="107" x2="141" y2="107" />
+      <line class="part part-head" x1="95" y1="59" x2="95" y2="103" />
+      <line class="part part-body" x1="120" y1="107" x2="120" y2="145" />
+      <line class="part part-left-arm" x1="120" y1="115" x2="92" y2="135" />
+      <line class="part part-right-arm" x1="120" y1="115" x2="148" y2="135" />
+      <line class="part part-left-leg" x1="120" y1="145" x2="102" y2="175" />
+      <line class="part part-right-leg" x1="120" y1="145" x2="138" y2="175" />
+      </svg>
+    </div>
+
+    <!-- WORD -->
+    <!-- Is it too low contrast? -->
+    <div class="word-row"></div>
+
+    <!-- Mistakes -->
+    <div class="mistake-label">Mistakes: <span id="mistakeNum">1</span> / 6</div>
   </div>
 
-  <!-- WORD -->
-  <!-- Is it too low contrast? -->
-  <div class="word-row"></div>
+  <!-- Keyboard -->
+  <!-- Add hover states and active states for keyboard keys -->
+  <!--TODO maybe: Increase contrast between key and background
+          Add hover shadow, use a subtle gradient -->
+  <div class="container-fluid px-2">
+    <div class="keyboard">
+      <div class="keyboard-row row1">
+        <div class="key">Q</div>
+        <div class="key">W</div>
+        <div class="key">E</div>
+        <div class="key">R</div>
+        <div class="key">T</div>
+        <div class="key">Y</div>
+        <div class="key">U</div>
+        <div class="key">I</div>
+        <div class="key">O</div>
+        <div class="key">P</div>
+      </div>
 
-  <!-- Mistakes -->
-  <div class="mistake-label">Mistakes: <span id="mistakeNum">1</span> / 6</div>
-</div>
+      <div class="keyboard-row row2">
+        <div class="key">A</div>
+        <div class="key">S</div>
+        <div class="key">D</div>
+        <div class="key">F</div>
+        <div class="key">G</div>
+        <div class="key">H</div>
+        <div class="key">J</div>
+        <div class="key">K</div>
+        <div class="key">L</div>
+      </div>
 
-<!-- Keyboard -->
-<!-- Add hover states and active states for keyboard keys -->
-<!--TODO maybe: Increase contrast between key and background
-        Add hover shadow, use a subtle gradient -->
-<div class="container-fluid px-2">
-  <div class="keyboard">
-    <div class="keyboard-row row1">
-      <div class="key">Q</div>
-      <div class="key">W</div>
-      <div class="key">E</div>
-      <div class="key">R</div>
-      <div class="key">T</div>
-      <div class="key">Y</div>
-      <div class="key">U</div>
-      <div class="key">I</div>
-      <div class="key">O</div>
-      <div class="key">P</div>
-    </div>
-
-    <div class="keyboard-row row2">
-      <div class="key">A</div>
-      <div class="key">S</div>
-      <div class="key">D</div>
-      <div class="key">F</div>
-      <div class="key">G</div>
-      <div class="key">H</div>
-      <div class="key">J</div>
-      <div class="key">K</div>
-      <div class="key">L</div>
-    </div>
-
-    <div class="keyboard-row row3">
-      <div class="key">Z</div>
-      <div class="key">X</div>
-      <div class="key">C</div>
-      <div class="key">V</div>
-      <div class="key">B</div>
-      <div class="key">N</div>
-      <div class="key">M</div>
+      <div class="keyboard-row row3">
+        <div class="key">Z</div>
+        <div class="key">X</div>
+        <div class="key">C</div>
+        <div class="key">V</div>
+        <div class="key">B</div>
+        <div class="key">N</div>
+        <div class="key">M</div>
+      </div>
     </div>
   </div>
 </div>
+
+<div id="glitch-scanlines"></div>
+<div id="glitch-red"></div>
+<div id="glitch-blue"></div>
 
 <!-- popup feature -->
 <div id="result-popup" class="result-popup hidden">
