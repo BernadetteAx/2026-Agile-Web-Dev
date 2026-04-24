@@ -13,14 +13,18 @@ let timerInterval;
 
 const mistakeNum = document.getElementById("mistakeNum");
 const hangmanFigure = document.getElementById("hangman-figure");
-const hangmanParts = Array.from(hangmanFigure.children).slice(4); // Head, body, arms, legs
 const gameTimer = document.querySelector(".game-timer");
+const parts = [
+  "part-head",
+  "part-body", 
+  "part-left-arm",
+  "part-right-arm",
+  "part-left-leg",
+  "part-right-leg"
+];
 
 // Initialize game
 function initGame() {
-  // Hide hangman parts initially
-  hangmanParts.forEach((part) => (part.style.display = "none"));
-
   // Set up word display
   const wordRow = document.querySelector(".word-row");
   wordRow.innerHTML = "";
@@ -89,8 +93,13 @@ function handleGuess(letter) {
     mistakes++;
     mistakeNum.textContent = mistakes;
     // Show next hangman part
-    if (mistakes <= hangmanParts.length) {
-      hangmanParts[mistakes - 1].style.display = "block";
+    if (mistakes <= parts.length) {
+      const partElements = document.querySelectorAll(`.${parts[mistakes - 1]}`);
+      partElements.forEach(el => {
+        el.classList.remove("revealed");
+        void el.offsetWidth;
+        el.classList.add("revealed");
+      });
     }
     // Mark key as incorrect
     document.querySelectorAll(".key").forEach((key) => {
@@ -143,20 +152,171 @@ function checkGameEnd() {
     document
       .querySelectorAll(".key")
       .forEach((k) => (k.style.pointerEvents = "none"));
-    setTimeout(() => showResultPopup(false, word, 0), 400);
-    document
-      .querySelectorAll(".key")
-      .forEach((k) => (k.style.pointerEvents = "none"));
-    setTimeout(() => showResultPopup(false, word, timeRemaining), 400);
+    triggerGlitch();
+    setTimeout(() => showResultPopup(false, word, timeRemaining), 950); // ← changed from 400
   } else if (wordDisplay.join("") === word) {
     gameOver = true;
     stopTimer();
     document
       .querySelectorAll(".key")
       .forEach((k) => (k.style.pointerEvents = "none"));
+    triggerConfetti(); // 👈 add this
     setTimeout(() => showResultPopup(true, word, timeRemaining), 400);
   }
 }
+
+function triggerGlitch() {
+  const wrapper = document.getElementById("glitch-wrapper");
+  const duration = 900;
+  const intervalMs = 50;
+  let elapsed = 0;
+  const activeBlocks = [];
+
+  // whole-screen shake
+  wrapper.classList.remove("glitching");
+  void wrapper.offsetWidth;
+  wrapper.classList.add("glitching");
+
+  const interval = setInterval(() => {
+    elapsed += intervalMs;
+
+    // remove previous blocks
+    activeBlocks.forEach(b => b.remove());
+    activeBlocks.length = 0;
+
+    // fade out toward end
+    const fadeRatio = elapsed / duration;
+    const numBlocks = Math.floor((1 - fadeRatio) * 35 + 5);
+
+    for (let i = 0; i < numBlocks; i++) {
+      const block = document.createElement("div");
+
+      // Random position and size
+      const x = Math.random() * 100;
+      const y = Math.random() * 100;
+      const w = Math.random() * 18 + 2;   
+      const h = Math.random() * 3 + 0.5;  
+
+      // cyan, teal, blue, green, purple, white, red
+      const palettes = [
+        `rgba(0, 220, 255, 0.85)`,
+        `rgba(0, 255, 180, 0.8)`,
+        `rgba(50, 100, 255, 0.85)`,
+        `rgba(0, 180, 200, 0.9)`,
+        `rgba(120, 0, 255, 0.8)`,
+        `rgba(0, 255, 100, 0.85)`,
+        `rgba(200, 255, 255, 0.9)`,
+        `rgba(255, 255, 255, 0.7)`,
+        `rgba(0, 100, 255, 0.9)`,
+        `rgba(255, 0, 80, 0.75)`,    // occasional red
+        `rgba(255, 200, 0, 0.75)`,   // occasional yellow
+      ];
+      const color = palettes[Math.floor(Math.random() * palettes.length)];
+
+      block.style.cssText = `
+        pointer-events: none;
+        position: fixed;
+        left: ${x}vw;
+        top: ${y}vh;
+        width: ${w}vw;
+        height: ${h}vh;
+        background: ${color};
+        z-index: 600;
+        mix-blend-mode: screen;
+        opacity: ${(Math.random() * 0.5 + 0.5).toFixed(2)};
+      `;
+
+      document.body.appendChild(block);
+      activeBlocks.push(block);
+    }
+
+    if (elapsed >= duration) {
+      clearInterval(interval);
+      activeBlocks.forEach(b => b.remove());
+      wrapper.classList.remove("glitching");
+    }
+  }, intervalMs);
+}
+
+function triggerConfetti() {
+  const colors = [
+    "#4e7f6a",
+    "#ffffff",
+    "#00dcff",
+    "#00ffb4",
+    "#7b2fff",
+    "#ffee00",
+    "#ff4ecd",
+    "#00ff64",
+  ];
+
+  const numPixels = 200;
+  const pixels = [];
+
+  // start from center of screen
+  const originX = window.innerWidth / 2;
+  const originY = window.innerHeight / 3;
+
+  for (let i = 0; i < numPixels; i++) {
+    const pixel = document.createElement("div");
+    const size = Math.floor(Math.random() * 14 + 6);
+    const color = colors[Math.floor(Math.random() * colors.length)];
+
+    // burst direction of the explosion
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 600 + 200; // px to travel
+    const vx = Math.cos(angle) * speed;
+    const vy = Math.sin(angle) * speed - (Math.random() * 400 + 200);
+    const duration = Math.random() * 600 + 600;
+    const delay = Math.random() * 150; // slight stagger
+
+    pixel.style.cssText = `
+      position: fixed;
+      left: ${originX}px;
+      top: ${originY}px;
+      width: ${size}px;
+      height: ${size}px;
+      background: ${color};
+      z-index: 800;
+      pointer-events: none;
+      image-rendering: pixelated;
+      opacity: 1;
+    `;
+
+    document.body.appendChild(pixel);
+    pixels.push({ el: pixel, vx, vy, duration, delay });
+  }
+
+  // animate each pixel
+  pixels.forEach(({ el, vx, vy, duration, delay }) => {
+    let start = null;
+
+    function animate(ts) {
+      if (!start) start = ts + delay;
+      const elapsed = ts - start;
+      if (elapsed < 0) { requestAnimationFrame(animate); return; }
+
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 2); // ease out
+
+      const x = vx * ease;
+      const gravity = 300 * progress * progress; // pull down over time
+      const y = vy * ease + gravity;
+
+      el.style.transform = `translate(${x}px, ${y}px)`;
+      el.style.opacity = (1 - progress).toFixed(2);
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        el.remove();
+      }
+    }
+
+    requestAnimationFrame(animate);
+  });
+}
+
 
 function updateTimerDisplay() {
   const minutes = Math.floor(timeRemaining / 60);
