@@ -45,12 +45,18 @@ let usedWords = new Set();
 
 const mistakeNum = document.getElementById("mistakeNum");
 const hangmanFigure = document.getElementById("hangman-figure");
-const hangmanParts = Array.from(hangmanFigure.children).slice(4); // Head, body, arms, legs
 const score = document.getElementById("score");
+const parts = [
+  "part-head",
+  "part-body",
+  "part-left-arm",
+  "part-right-arm",
+  "part-left-leg",
+  "part-right-leg"
+];
 
 // Initialize game
 function initGame() {
-  // Select random word, avoiding repeats if on streak
   let availableWords = wordList.filter((w) => !usedWords.has(w));
   if (availableWords.length === 0) {
     usedWords.clear();
@@ -58,8 +64,9 @@ function initGame() {
   }
   word = availableWords[Math.floor(Math.random() * availableWords.length)];
 
-  // Hide hangman parts initially
-  hangmanParts.forEach((part) => (part.style.display = "none"));
+  document.querySelectorAll(".part").forEach(el => {
+    el.classList.remove("revealed");
+  });
 
   // Set up word display
   const wordRow = document.querySelector(".word-row");
@@ -71,24 +78,20 @@ function initGame() {
   tiles = document.querySelectorAll(".tile");
   wordDisplay = Array(word.length).fill("");
 
-  // Reset mistakes and guessed letters
   mistakes = 0;
   mistakeNum.textContent = "0";
   guessedLetters.clear();
   gameOver = false;
 
-  // Reset keyboard states
   document.querySelectorAll(".key").forEach((key) => {
     key.removeAttribute("data-state");
     key.style.pointerEvents = "auto";
   });
 
-  // Add event listeners to keys
   document.querySelectorAll(".key").forEach((key) => {
     key.addEventListener("click", () => handleGuess(key.textContent.trim()));
   });
 
-  // Also listen to keyboard
   document.addEventListener("keydown", (e) => {
     const letter = e.key.toUpperCase();
     if (letter.length === 1 && letter >= "A" && letter <= "Z") {
@@ -127,9 +130,15 @@ function handleGuess(letter) {
     // Incorrect guess
     mistakes++;
     mistakeNum.textContent = mistakes;
+    
     // Show next hangman part
-    if (mistakes <= hangmanParts.length) {
-      hangmanParts[mistakes - 1].style.display = "block";
+    if (mistakes <= parts.length) {
+      const partElements = document.querySelectorAll(`.${parts[mistakes - 1]}`);
+      partElements.forEach(el => {
+        el.classList.remove("revealed");
+        void el.offsetWidth;
+        el.classList.add("revealed");
+      });
     }
     // Mark key as incorrect
     document.querySelectorAll(".key").forEach((key) => {
