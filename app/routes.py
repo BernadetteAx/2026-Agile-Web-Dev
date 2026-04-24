@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, jsonify, request
+from flask import Blueprint, render_template, jsonify, request, session, redirect, url_for
 
 
 # Set of routes to be imported into the Flask app by __init__.py
@@ -52,3 +52,12 @@ def achievements():
 @main.route("/leaderboard")
 def leaderboard():
     return render_template("leaderboard.html")
+
+@main.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for('main.login'))
+
+@main.app_context_processor
+def inject_user():
+    return dict(user_logged_in='user_id' in session)
