@@ -171,7 +171,7 @@ function triggerGlitch() {
   let elapsed = 0;
   const activeBlocks = [];
 
-  // Subtle whole-screen shake
+  // whole-screen shake
   wrapper.classList.remove("glitching");
   void wrapper.offsetWidth;
   wrapper.classList.add("glitching");
@@ -179,11 +179,11 @@ function triggerGlitch() {
   const interval = setInterval(() => {
     elapsed += intervalMs;
 
-    // Remove previous blocks
+    // remove previous blocks
     activeBlocks.forEach(b => b.remove());
     activeBlocks.length = 0;
 
-    // Fade out toward end
+    // fade out toward end
     const fadeRatio = elapsed / duration;
     const numBlocks = Math.floor((1 - fadeRatio) * 35 + 5);
 
@@ -193,10 +193,10 @@ function triggerGlitch() {
       // Random position and size
       const x = Math.random() * 100;
       const y = Math.random() * 100;
-      const w = Math.random() * 18 + 2;   // 2–20vw wide
-      const h = Math.random() * 3 + 0.5;  // 0.5–3.5vh tall (keep them strip-ish)
+      const w = Math.random() * 18 + 2;   
+      const h = Math.random() * 3 + 0.5;  
 
-      // Colour palette: cyan, teal, blue, green, purple, white, occasionally red
+      // cyan, teal, blue, green, purple, white, red
       const palettes = [
         `rgba(0, 220, 255, 0.85)`,
         `rgba(0, 255, 180, 0.8)`,

@@ -306,7 +306,7 @@
   }
 }
 
-/* Glitch effect on game over */
+/* glitch effect on game over */
 @keyframes glitch-body {
   0%   { transform: translate(0); }
   8%   { transform: translate(-6px, 0) skewX(4deg); }
@@ -323,7 +323,6 @@
   100% { transform: translate(0); }
 }
 
-/* Red channel ghost */
 .glitch-overlay {
   pointer-events: none;
   position: fixed;
@@ -367,7 +366,7 @@
   animation: glitch-b-anim 0.85s steps(1) forwards;
 }
 
-/* ── Glitch on game over ── */
+/* ── glitch on game over ── */
 #glitch-wrapper {
   position: relative;
 }
@@ -383,7 +382,7 @@
   100% { transform: translate(0, 0); }
 }
 
-/* Each slice is a full-page copy that shows only a horizontal band */
+/* horizontal bands */
 .glitch-strip {
   pointer-events: none;
   position: fixed;
@@ -391,7 +390,6 @@
   z-index: 600;
   opacity: 0;
   will-change: transform, opacity;
-  /* background set by JS to match page screenshot feel */
   background: repeating-linear-gradient(
     90deg,
     rgba(0, 220, 255, 0.55)  0px,
@@ -405,7 +403,7 @@
   );
 }
 
-/* The overlay that covers the screen with scanlines */
+/* covers the screen with scanlines */
 #glitch-scanlines {
   pointer-events: none;
   position: fixed;
@@ -426,7 +424,6 @@
   animation: scanline-flicker 0.9s steps(3) forwards;
 }
 
-/* Red ghost */
 #glitch-red {
   pointer-events: none;
   position: fixed;
@@ -441,7 +438,6 @@
   animation: rgb-split-red 0.9s steps(2) forwards;
 }
 
-/* Blue ghost */
 #glitch-blue {
   pointer-events: none;
   position: fixed;
@@ -456,7 +452,7 @@
   animation: rgb-split-blue 0.9s steps(2) forwards;
 }
 
-/* The page content shakes + color-corrupts */
+/* page shakes + color-corrupts */
 #glitch-wrapper.glitching {
   animation:
     glitch-shake  0.07s steps(1) infinite,
