@@ -110,3 +110,25 @@
 .achievement-popup.show .popup-box {
   animation: pixelPop 0.4s ease;
 }
+
+.locked:hover {
+  opacity: 0.6;
+  border-color: rgba(255,255,255,0.6);
+  border-style: solid;
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255,255,255,0.04) 2px,
+    rgba(255,255,255,0.04) 4px
+  );
+}
+
+.locked:hover .title,
+.locked:hover .desc {
+  color: #fff;
+}
+
+.glitching {
+  display: inline-block;
+}
