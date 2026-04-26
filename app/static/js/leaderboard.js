@@ -57,15 +57,15 @@ function getSortedDailyPlayers() {
   const data = [...dailyPlayers];
 
   if (currentSort === "dailyScore") {
-    data.sort((a, b) => {
+    data.sort(function (a, b) {
       return getDailyScore(b) - getDailyScore(a) || a.mistakes - b.mistakes || b.timeLeft - a.timeLeft;
     });
   } else if (currentSort === "mistakes") {
-    data.sort((a, b) => {
+    data.sort(function (a, b) {
       return a.mistakes - b.mistakes || b.timeLeft - a.timeLeft;
     });
   } else if (currentSort === "timeLeft") {
-    data.sort((a, b) => {
+    data.sort(function (a, b) {
       return b.timeLeft - a.timeLeft || a.mistakes - b.mistakes;
     });
   }
@@ -77,18 +77,38 @@ function getSortedUnlimitedPlayers() {
   const data = [...unlimitedPlayers];
 
   if (currentSort === "bestStreak") {
-    data.sort((a, b) => {
+    data.sort(function (a, b) {
       return b.bestStreak - a.bestStreak || b.accuracy - a.accuracy;
     });
   } else if (currentSort === "totalWords") {
-    data.sort((a, b) => {
+    data.sort(function (a, b) {
       return b.totalWords - a.totalWords || b.bestStreak - a.bestStreak;
     });
   } else if (currentSort === "accuracy") {
-    data.sort((a, b) => {
+    data.sort(function (a, b) {
       return b.accuracy - a.accuracy || b.bestStreak - a.bestStreak;
     });
   }
+
+  return data;
+}
+
+function getOfficialDailyRanking() {
+  const data = [...dailyPlayers];
+
+  data.sort(function (a, b) {
+    return getDailyScore(b) - getDailyScore(a) || a.mistakes - b.mistakes || b.timeLeft - a.timeLeft;
+  });
+
+  return data;
+}
+
+function getOfficialUnlimitedRanking() {
+  const data = [...unlimitedPlayers];
+
+  data.sort(function (a, b) {
+    return b.bestStreak - a.bestStreak || b.accuracy - a.accuracy || b.totalWords - a.totalWords;
+  });
 
   return data;
 }
@@ -200,8 +220,9 @@ function renderQuickStats(data) {
   }
 }
 
-function renderChampion(data) {
-  const champion = data[0];
+function renderChampion() {
+  const officialData = currentMode === "daily" ? getOfficialDailyRanking() : getOfficialUnlimitedRanking();
+  const champion = officialData[0];
 
   const championLabel = document.getElementById("champion-label");
   const championName = document.getElementById("champion-name");
@@ -217,7 +238,7 @@ function renderChampion(data) {
     championLabel.textContent = "ENDLESS CHAMPION";
     championName.textContent = champion.username;
     championScore.textContent = `${champion.bestStreak} WORD STREAK`;
-    championDetail.textContent = `${champion.totalWords} total words · ${champion.accuracy}% accuracy`;
+    championDetail.textContent = `${champion.totalWords} total words · ${champion.games} games · ${champion.accuracy}% accuracy`;
   }
 }
 
@@ -278,14 +299,14 @@ function renderLeaderboard() {
     document.getElementById("leaderboard-description").textContent =
       "Daily ranking is based on a combined score from fewer mistakes and more time left.";
     renderQuickStats(data);
-    renderChampion(data);
+    renderChampion();
     renderDailyRows(data);
   } else {
     data = getSortedUnlimitedPlayers();
     document.getElementById("leaderboard-description").textContent =
       "Unlimited ranking is based on the strongest run, total words guessed, and player accuracy.";
     renderQuickStats(data);
-    renderChampion(data);
+    renderChampion();
     renderUnlimitedRows(data);
   }
 }
@@ -295,7 +316,7 @@ function showPodiumPopup() {
   const stage = document.getElementById("podium-stage");
   const title = document.getElementById("podium-title");
 
-  const data = currentMode === "daily" ? getSortedDailyPlayers() : getSortedUnlimitedPlayers();
+  const data = currentMode === "daily" ? getOfficialDailyRanking() : getOfficialUnlimitedRanking();
   const topThree = data.slice(0, 3);
 
   title.textContent = currentMode === "daily" ? "DAILY TOP 3" : "UNLIMITED TOP 3";
