@@ -377,5 +377,4 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("podium-close-btn").addEventListener("click", closePodiumPopup);
 
   renderLeaderboard();
-  showPodiumPopup();
 });
