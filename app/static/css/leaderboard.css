@@ -76,8 +76,14 @@
 }
 
 .champion-name {
-  font-size: 20px;
-  margin-bottom: 12px;
+  font-size: 34px;
+  color: #ffd700;
+  text-shadow:
+    0 0 4px #fff2a8,
+    0 0 8px #ffd700,
+    0 0 14px #ffcc33,
+    0 0 20px rgba(255, 215, 0, 0.85);
+  animation: championGoldGlow 1.2s ease-in-out infinite alternate;
 }
 
 .champion-score {
@@ -415,4 +421,26 @@
 
 .score-green {
   color: #4e7f6a;
+}
+
+@keyframes championGoldGlow {
+  0% {
+    color: #ffe27a;
+    text-shadow:
+      0 0 3px #fff6c8,
+      0 0 6px #ffd700,
+      0 0 10px #ffcc33,
+      0 0 16px rgba(255, 215, 0, 0.55);
+    transform: scale(1);
+  }
+
+  100% {
+    color: #fff4b0;
+    text-shadow:
+      0 0 5px #fff8d6,
+      0 0 10px #ffd700,
+      0 0 18px #ffcc33,
+      0 0 28px rgba(255, 215, 0, 0.95);
+    transform: scale(1.03);
+  }
 }
