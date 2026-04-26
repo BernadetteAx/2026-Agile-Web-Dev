@@ -1,37 +1,57 @@
-{% extends "base.html" %} {% block title %} Leaderboard - Hangman {% endblock %}
-{% block nav_stats %} active-icon {% endblock %} {% block extra_css %}
+{% extends "base.html" %} 
+{% block title %} Leaderboard - Hangman {% endblock %}
+
+{% block nav_stats %} active-icon {% endblock %}
+
+{% block extra_css %}
 <link rel="stylesheet" href="/static/css/leaderboard.css" />
-{% endblock %} {% block content %}
+{% endblock %}
+
+{% block content %}
 
 <main class="leaderboard-page">
   <section class="leaderboard-title-section">
     <div class="title-badge">RANKINGS</div>
     <h2>LEADERBOARD</h2>
-    <p>Player stats will appear here once backend data is connected.</p>
+    <p id="leaderboard-description">
+      Daily challenge ranking is based on fewer mistakes and more time left.
+    </p>
   </section>
 
-  <section class="leaderboard-controls">
-    <button class="sort-button">SORT BY SCORE</button>
-    <button class="sort-button">SORT BY WINS</button>
-    <button class="sort-button">SORT BY STREAK</button>
+  <section class="mode-tabs">
+    <button id="daily-tab" class="mode-tab active-tab">DAILY CHALLENGE</button>
+    <button id="unlimited-tab" class="mode-tab">UNLIMITED RUN</button>
   </section>
+
+  <section class="champion-section">
+    <div class="champion-card">
+      <div class="champion-label" id="champion-label">TODAY'S CHAMPION</div>
+      <div class="champion-name" id="champion-name">---</div>
+      <div class="champion-score" id="champion-score">---</div>
+      <div class="champion-detail" id="champion-detail">---</div>
+    </div>
+  </section>
+
+  <section class="quick-stats" id="quick-stats"></section>
+
+  <section class="leaderboard-controls" id="leaderboard-controls"></section>
 
   <section class="leaderboard-panel">
-    <div class="leaderboard-header-row">
-      <div>RANK</div>
-      <div>PLAYER</div>
-      <div>SCORE</div>
-      <div>WINS</div>
-      <div>STREAK</div>
-    </div>
-
-    <div class="leaderboard-empty-state">
-      <div class="empty-icon"></div>
-      <div class="empty-title">NO DATA YET</div>
-      <div class="empty-text">LEADERBOARD WILL APPEAR HERE</div>
-    </div>
+    <div class="leaderboard-header-row" id="leaderboard-header-row"></div>
+    <div id="leaderboard-body"></div>
   </section>
 </main>
+
+<div id="podium-popup" class="podium-popup hidden">
+  <div class="podium-box">
+    <div class="podium-title" id="podium-title">TOP 3 PLAYERS</div>
+
+    <div class="podium-stage" id="podium-stage"></div>
+
+    <button class="podium-close-btn" id="podium-close-btn">CLOSE</button>
+  </div>
+</div>
+
 <script src="/static/js/leaderboard.js"></script>
 
 {% endblock %}
