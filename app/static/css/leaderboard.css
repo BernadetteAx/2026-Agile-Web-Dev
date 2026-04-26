@@ -395,3 +395,33 @@
     font-size: 12px;
   }
 }
+/* ===== brighter text override for leaderboard ===== */
+
+.leaderboard-page,
+.leaderboard-page h2,
+.leaderboard-page p,
+#leaderboard-description,
+.champion-label,
+.champion-name,
+.champion-detail,
+.stat-label,
+.stat-value,
+.leaderboard-header-row,
+.table-row,
+.rank-cell,
+.player-cell,
+.player-cell span,
+.badge,
+.podium-title,
+.podium-rank,
+.podium-name {
+  color: #ffffff;
+}
+
+.podium-points {
+  color: #4e7f6a;
+}
+
+.score-green {
+  color: #4e7f6a;
+}
