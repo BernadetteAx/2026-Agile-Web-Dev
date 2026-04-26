@@ -329,19 +329,31 @@ function showPodiumPopup() {
     stage.innerHTML = `
       <div class="podium-player first">
         <div class="podium-rank">#1</div>
-        <div class="podium-name">${first.username}</div>
+        <div class="podium-name">
+          <span class="medal-icon">🥇</span>
+          ${first.username}
+          <span class="medal-icon">🥇</span>
+        </div>
         <div class="podium-points">${getDailyScore(first)} PTS<br>${first.mistakes} mistakes<br>${formatTime(first.timeLeft)} left</div>
       </div>
 
       <div class="podium-player second">
         <div class="podium-rank">#2</div>
-        <div class="podium-name">${second.username}</div>
+        <div class="podium-name">
+          <span class="medal-icon">🥈</span>
+          ${second.username}
+          <span class="medal-icon">🥈</span>
+        </div>
         <div class="podium-points">${getDailyScore(second)} PTS<br>${second.mistakes} mistakes<br>${formatTime(second.timeLeft)} left</div>
       </div>
 
       <div class="podium-player third">
         <div class="podium-rank">#3</div>
-        <div class="podium-name">${third.username}</div>
+        <div class="podium-name">
+          <span class="medal-icon">🥉</span>
+          ${third.username}
+          <span class="medal-icon">🥉</span>
+        </div>
         <div class="podium-points">${getDailyScore(third)} PTS<br>${third.mistakes} mistakes<br>${formatTime(third.timeLeft)} left</div>
       </div>
     `;
@@ -349,19 +361,31 @@ function showPodiumPopup() {
     stage.innerHTML = `
       <div class="podium-player first">
         <div class="podium-rank">#1</div>
-        <div class="podium-name">${first.username}</div>
+        <div class="podium-name">
+          <span class="medal-icon">🥇</span>
+          ${first.username}
+          <span class="medal-icon">🥇</span>
+        </div>
         <div class="podium-points">${first.bestStreak} STREAK<br>${first.totalWords} words<br>${first.accuracy}% accuracy</div>
       </div>
 
       <div class="podium-player second">
         <div class="podium-rank">#2</div>
-        <div class="podium-name">${second.username}</div>
+        <div class="podium-name">
+          <span class="medal-icon">🥈</span>
+          ${second.username}
+          <span class="medal-icon">🥈</span>
+        </div>
         <div class="podium-points">${second.bestStreak} STREAK<br>${second.totalWords} words<br>${second.accuracy}% accuracy</div>
       </div>
 
       <div class="podium-player third">
         <div class="podium-rank">#3</div>
-        <div class="podium-name">${third.username}</div>
+        <div class="podium-name">
+          <span class="medal-icon">🥉</span>
+          ${third.username}
+          <span class="medal-icon">🥉</span>
+        </div>
         <div class="podium-points">${third.bestStreak} STREAK<br>${third.totalWords} words<br>${third.accuracy}% accuracy</div>
       </div>
     `;

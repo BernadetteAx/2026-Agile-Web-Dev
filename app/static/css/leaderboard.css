@@ -270,6 +270,8 @@
   background: #181818;
   padding: 18px 10px;
   animation: podiumRise 0.6s ease both;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .podium-player.first {
@@ -308,8 +310,13 @@
 }
 
 .podium-name {
-  font-size: 12px;
+  font-size: clamp(7px, 1.1vw, 12px);
   margin-bottom: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  line-height: 1.8;
 }
 
 .podium-points {
@@ -442,5 +449,26 @@
       0 0 18px #ffcc33,
       0 0 28px rgba(255, 215, 0, 0.95);
     transform: scale(1.03);
+  }
+}
+
+/* ===== podium medal icons ===== */
+
+.medal-icon {
+  display: inline-block;
+  margin: 0 4px;
+  font-size: clamp(10px, 1.2vw, 16px);
+  vertical-align: middle;
+  animation: medalBounce 1.4s ease-in-out infinite;
+}
+
+@keyframes medalBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-3px);
   }
 }
