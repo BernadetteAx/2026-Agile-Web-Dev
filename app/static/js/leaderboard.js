@@ -232,7 +232,6 @@ function renderDailyRows(data) {
     row.innerHTML = `
       <div class="rank-cell">#${index + 1}</div>
       <div class="player-cell">
-        <div class="player-avatar ${index === 0 ? "top-player" : ""}"></div>
         <span>${player.username}</span>
       </div>
       <div class="score-green">${getDailyScore(player)}</div>
@@ -256,7 +255,6 @@ function renderUnlimitedRows(data) {
     row.innerHTML = `
       <div class="rank-cell">#${index + 1}</div>
       <div class="player-cell">
-        <div class="player-avatar ${index === 0 ? "top-player" : ""}"></div>
         <span>${player.username}</span>
       </div>
       <div class="score-green">${player.bestStreak}</div>
