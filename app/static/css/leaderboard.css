@@ -399,7 +399,7 @@
     font-size: 12px;
   }
 }
-/* ===== brighter text override for leaderboard ===== */
+/* brighter text override for leaderboard */
 
 .leaderboard-page,
 .leaderboard-page h2,
@@ -452,7 +452,7 @@
   }
 }
 
-/* ===== podium medal icons ===== */
+/* podium medal icons */
 
 .medal-icon {
   display: inline-block;
@@ -470,5 +470,34 @@
 
   50% {
     transform: translateY(-3px);
+  }
+}
+
+/* podium fireworks */
+
+.firework-particle {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  z-index: 10000;
+  pointer-events: none;
+  image-rendering: pixelated;
+  box-shadow: 0 0 8px currentColor;
+  animation: fireworkExplode 0.9s ease-out forwards;
+}
+
+@keyframes fireworkExplode {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+
+  70% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(var(--x), var(--y)) scale(0.2);
+    opacity: 0;
   }
 }

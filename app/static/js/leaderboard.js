@@ -392,6 +392,57 @@ function showPodiumPopup() {
   }
 
   popup.classList.remove("hidden");
+  triggerPodiumFireworks();
+}
+
+function triggerPodiumFireworks() {
+  const colors = [
+    "#ffffff",
+    "#ffd700",
+    "#c0c0c0",
+    "#cd7f32",
+    "#4e7f6a",
+    "#00dcff",
+    "#ff4ecd"
+  ];
+
+  const fireworkCount = 5;
+
+  for (let i = 0; i < fireworkCount; i++) {
+    setTimeout(function () {
+      createOneFirework(colors);
+    }, i * 180);
+  }
+}
+
+function createOneFirework(colors) {
+  const centerX = window.innerWidth * (0.25 + Math.random() * 0.5);
+  const centerY = window.innerHeight * (0.18 + Math.random() * 0.35);
+  const particles = 28;
+
+  for (let i = 0; i < particles; i++) {
+    const particle = document.createElement("div");
+    particle.className = "firework-particle";
+
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const angle = (Math.PI * 2 * i) / particles;
+    const distance = 80 + Math.random() * 90;
+
+    const x = Math.cos(angle) * distance;
+    const y = Math.sin(angle) * distance;
+
+    particle.style.left = centerX + "px";
+    particle.style.top = centerY + "px";
+    particle.style.backgroundColor = color;
+    particle.style.setProperty("--x", x + "px");
+    particle.style.setProperty("--y", y + "px");
+
+    document.body.appendChild(particle);
+
+    setTimeout(function () {
+      particle.remove();
+    }, 900);
+  }
 }
 
 function closePodiumPopup() {
