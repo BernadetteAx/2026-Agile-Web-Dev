@@ -116,6 +116,27 @@ if (toggleLoginPassword) {
   };
 }
 
+const toggleRegisterPassword = document.getElementById("toggleRegisterPassword");
+
+if (toggleRegisterPassword) {
+  toggleRegisterPassword.onclick = function () {
+    const registerPassword = document.getElementById("registerPassword");
+    const icon = toggleRegisterPassword.querySelector("i");
+
+    if (registerPassword.type === "password") {
+      registerPassword.type = "text";
+
+      icon.classList.remove("bi-eye-slash");
+      icon.classList.add("bi-eye");
+    } else {
+      registerPassword.type = "password";
+
+      icon.classList.remove("bi-eye");
+      icon.classList.add("bi-eye-slash");
+    }
+  };
+}
+
 const loginBtn = document.getElementById("loginBtn");
 
 if (loginBtn) {
