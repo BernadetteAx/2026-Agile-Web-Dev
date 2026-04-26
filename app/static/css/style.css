@@ -158,7 +158,8 @@ a {
     margin-bottom: 0;
 }
 
-#loginPassword {
+#loginPassword,
+#registerPassword {
     padding-left: 50px;
     padding-right: 50px;
     text-align: center;
