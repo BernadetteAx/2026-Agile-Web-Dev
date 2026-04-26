@@ -1,6 +1,6 @@
 // Hangman Game Logic for Daily Game
 
-const word = "CYCLE"; // Example word, later can be random
+let word = ""; // Will be fetched from the API
 const maxMistakes = 6;
 const initialTime = 90; // 1 minute 30 seconds
 let mistakes = 0;
@@ -15,6 +15,24 @@ const mistakeNum = document.getElementById("mistakeNum");
 const hangmanFigure = document.getElementById("hangman-figure");
 const hangmanParts = Array.from(hangmanFigure.children).slice(4); // Head, body, arms, legs
 const gameTimer = document.querySelector(".game-timer");
+
+// Fetch the daily word from the backend
+async function fetchDailyWord() {
+  try {
+    const response = await fetch("/api/daily-word");
+    const data = await response.json();
+    if (response.ok) {
+      word = data.word;
+      initGame();
+    } else {
+      console.error("Failed to fetch daily word:", data.error);
+      alert("Failed to load the daily word. Please try again.");
+    }
+  } catch (error) {
+    console.error("Error fetching daily word:", error);
+    alert("Error connecting to the server. Please try again.");
+  }
+}
 
 // Initialize game
 function initGame() {
@@ -187,4 +205,4 @@ function stopTimer() {
 }
 
 // Start the game
-document.addEventListener("DOMContentLoaded", initGame);
+document.addEventListener("DOMContentLoaded", fetchDailyWord);
