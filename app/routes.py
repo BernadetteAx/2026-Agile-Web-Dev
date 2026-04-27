@@ -77,7 +77,14 @@ def get_daily_word():
     
     try:
         while retry_count < max_retries:
-            response = requests.get("https://random-word-api.herokuapp.com/word?diff=1", timeout=10)
+            response = requests.get(
+                "https://random-word-api.herokuapp.com/word?diff=1",
+                headers={
+                    "User-Agent": "Mozilla/5.0",
+                    "Accept": "application/json"
+                },
+                timeout=10
+            )            
             response.raise_for_status()
             
             # Validate API response
