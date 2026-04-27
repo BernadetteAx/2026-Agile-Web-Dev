@@ -147,3 +147,45 @@ a {
         font-size: 7px;
     }
 }
+
+.password-field {
+    position: relative;
+    width: 100%;
+    margin-bottom: 14px;
+}
+
+.password-field input {
+    margin-bottom: 0;
+}
+
+#loginPassword,
+#registerPassword {
+    padding-left: 50px;
+    padding-right: 50px;
+    text-align: center;
+}
+
+.password-eye {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+
+    background: transparent;
+    border: none;
+    color: white;
+
+    width: auto;
+    padding: 0;
+    margin: 0;
+
+    cursor: pointer;
+}
+
+.password-eye:hover {
+    background: transparent;
+}
+
+.password-eye i {
+    pointer-events: none;
+}

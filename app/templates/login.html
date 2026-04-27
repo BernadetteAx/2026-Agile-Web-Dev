@@ -14,8 +14,15 @@
       <div class="auth-box">
         <h2>LOGIN</h2>
 
-        <input id="loginEmail" type="email" placeholder="EMAIL" />
-        <input id="loginPassword" type="password" placeholder="PASSWORD" />
+        <div class="password-field">
+          <input id="loginEmail" type="email" placeholder="EMAIL" />
+        </div>
+        <div class="password-field">
+          <input id="loginPassword" type="password" placeholder="PASSWORD" />
+          <button id="toggleLoginPassword" type="button" class="password-eye">
+            <i class="bi bi-eye-slash"></i>
+          </button>
+        </div>
 
         <button id="loginBtn">LOGIN</button>
 
