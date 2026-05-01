@@ -10,4 +10,4 @@ default_database_location = 'sqlite:///' + os.path.join(basedir, 'app.db')
 class Config:
     SQLALCHEMY_DATABASE_URI = os.getenv('HANGMAN_DATABASE_URL') or default_database_location
     # Set a secret key for the app. This is used to protect against CSRF attacks and to sign cookies.
-    SECRET_KEY = "they_should_have_taught_us_this_earlier"
+    HANGMAN_SECRET_KEY = "they_could_have_taught_us_earlier"
