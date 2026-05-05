@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, jsonify, request
 from datetime import date
 import requests
 from app import db
-from app.models import DailyWord
+from app.models import DailyWord, Achievement, UserAchievement
 
 
 # Set of routes to be imported into the Flask app by __init__.py
@@ -51,6 +51,26 @@ def friends():
 @main.route("/achievements")
 def achievements():
     return render_template("achievements-page.html")
+
+@main.route("/api/achievements")
+def get_achievements():
+
+    user_id = 1  # TEMPORARY fake user until login system exists!!!!
+
+    all_achievements = Achievement.query.all()
+    unlocked = UserAchievement.query.filter_by(user_id=user_id).all()
+
+    unlocked_ids = {ua.achievement_id for ua in unlocked}
+
+    return jsonify([
+        {
+            "id": a.id,
+            "name": a.name,
+            "description": a.description,
+            "unlocked": a.id in unlocked_ids
+        }
+        for a in all_achievements
+    ])
 
 # Route for the leaderboard page
 @main.route("/leaderboard")
