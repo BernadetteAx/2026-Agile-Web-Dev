@@ -34,7 +34,7 @@ class Achievement(db.Model):
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(255), nullable=False)
     users = db.relationship("UserAchievement", backref="achievement", lazy=True)
-    image_url = db.Column(db.String(255), nullable=True)
+    image_url = db.Column(db.String(1000), nullable=True)
 
     # logic system
     condition_type = db.Column(db.String(50), nullable=False)

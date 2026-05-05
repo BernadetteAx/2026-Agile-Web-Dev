@@ -56,7 +56,13 @@ def achievements():
 @main.route("/api/achievements")
 def get_achievements():
 
-    user = User.query.get(1)  # temporary fake user
+    # TODO: replace with actual user once login is wired up
+    class _GuestUser:
+        wins = 0
+        streak = 0
+        achievements = []
+
+    user = _GuestUser()
 
     all_achievements = Achievement.query.all()
 
@@ -65,6 +71,7 @@ def get_achievements():
             "id": a.id,
             "name": a.name,
             "description": a.description,
+            "image_url": a.image_url,
             "unlocked": check_achievement(user, a)
         }
         for a in all_achievements

@@ -1,6 +1,7 @@
 console.log("Achievements JS loaded");
 
 let achievements = [];
+const LOCKED_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA7klEQVR4nO3QMQ7DMAxDUd7/0uwsDzWIKJVZ860yIuUDEa9gM7hhAvSCG94WgC8ffHwQJkDl9v3jDzwuAIcPmt6P6QOm92P6gOn9mD5gej/UAyjq3t+OCVCp73e697djAlS37cf0AdP7MX3A9H5MHzC9/+cHHffDqwRYuH3/sesD7A7e/YD6/nhMgO+evj8ebw+wUgPg3zABKnVujwlQqXN7TIBKndtjAlTq3B4ToFLn9pgAlTq3xwSo1Lk9JkClzu0xASp1bo8JUO3mK7hjAlS7+QrumACVOrfHBKjUuT0mQC+4YQL0ghveHiBwpg85uXYXUeyCNgAAAABJRU5ErkJggg==";
 
 async function loadAchievements() {
   console.log("Loading achievements...");
@@ -42,7 +43,9 @@ function renderAchievements() {
 
     col.innerHTML = `
       <div class="achievement-box ${unlocked ? "unlocked" : "locked"}">
-        <div class="icon">${unlocked ? "🏆" : "?"}</div>
+        <div class="icon">
+          <img src="${unlocked ? a.image_url : LOCKED_IMG}" />
+        </div>
         <div class="title">${unlocked ? a.name : maskText(a.name)}</div>
         <div class="desc">${unlocked ? a.description : maskText(a.description)}</div>
       </div>
