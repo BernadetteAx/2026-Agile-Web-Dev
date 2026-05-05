@@ -3,9 +3,25 @@ console.log("Achievements JS loaded");
 let achievements = [];
 
 async function loadAchievements() {
-  const res = await fetch("/api/achievements");
-  achievements = await res.json();
-  renderAchievements();
+  console.log("Loading achievements...");
+
+  try {
+    const res = await fetch("/api/achievements");
+
+    console.log("Response status:", res.status);
+
+    const text = await res.text();
+    console.log("Raw response:", text);
+
+    const data = JSON.parse(text);
+    console.log("ACHIEVEMENTS DATA:", data);
+
+    achievements = data;
+    renderAchievements();
+
+  } catch (err) {
+    console.error("ERROR loading achievements:", err);
+  }
 }
 
 function renderAchievements() {
