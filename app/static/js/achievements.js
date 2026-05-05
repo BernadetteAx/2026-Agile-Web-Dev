@@ -28,9 +28,13 @@ function renderAchievements() {
   const grid = document.querySelector(".achievement-grid");
   if (!grid) return;
 
+  console.log("Rendering achievements into grid...");
+
   grid.innerHTML = "";
 
   achievements.forEach(a => {
+    console.log("Creating box for:", a.name);
+
     const unlocked = a.unlocked;
 
     const col = document.createElement("div");
@@ -46,6 +50,8 @@ function renderAchievements() {
 
     grid.appendChild(col);
   });
+
+  console.log("DONE rendering");
 
   attachGlitchListeners();
 }

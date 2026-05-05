@@ -2,6 +2,10 @@ from app import db
 from app.models import Achievement
 
 def seed_achievements():
+    if Achievement.query.first():
+        print("Achievements already seeded")
+        return
+
     achievements = [
         Achievement(
             name="FIRST WIN",
