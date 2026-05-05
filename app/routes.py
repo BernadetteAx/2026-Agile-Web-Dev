@@ -2,7 +2,8 @@ from flask import Blueprint, render_template, jsonify, request
 from datetime import date
 import requests
 from app import db
-from app.models import DailyWord, Achievement, UserAchievement
+from app.models import DailyWord, Achievement, UserAchievement, User
+from app.services.achievements import check_achievement
 
 
 # Set of routes to be imported into the Flask app by __init__.py
@@ -55,19 +56,16 @@ def achievements():
 @main.route("/api/achievements")
 def get_achievements():
 
-    user_id = 1  # TEMPORARY fake user until login system exists!!!!
+    user = User.query.get(1)  # temporary fake user
 
     all_achievements = Achievement.query.all()
-    unlocked = UserAchievement.query.filter_by(user_id=user_id).all()
-
-    unlocked_ids = {ua.achievement_id for ua in unlocked}
 
     return jsonify([
         {
             "id": a.id,
             "name": a.name,
             "description": a.description,
-            "unlocked": a.id in unlocked_ids
+            "unlocked": check_achievement(user, a)
         }
         for a in all_achievements
     ])
