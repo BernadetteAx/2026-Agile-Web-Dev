@@ -53,7 +53,7 @@ class UserAchievement(db.Model):
 
     unlocked_at = db.Column(db.DateTime, server_default=db.func.now())
 
-    # optional: prevents duplicates at DB level
+    # prevents duplicates
     __table_args__ = (
         db.UniqueConstraint("user_id", "achievement_id"),
     )
