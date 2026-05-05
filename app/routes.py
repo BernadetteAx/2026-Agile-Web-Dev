@@ -62,7 +62,7 @@ def get_achievements():
         streak = 0
         achievements = []
 
-    user = _GuestUser()
+    user = _GuestUser
 
     all_achievements = Achievement.query.all()
 

@@ -6,30 +6,27 @@ def seed_achievements():
         print("Achievements already seeded")
         return
     
-    TROPHY_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='52' font-size='52'%3E%F0%9F%8F%86%3C/text%3E%3C/svg%3E"
-    STREAK_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='52' font-size='52'%3E%F0%9F%94%A5%3C/text%3E%3C/svg%3E"
-
     achievements = [
         Achievement(
             name="FIRST WIN",
             description="Win your first game",
             condition_type="win_games",
             threshold_value=1,
-            image_url=TROPHY_IMG
+            image_url= "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA2UlEQVR4nO3QQQ7DIAxEUd//0tN1LFUoEYwN/LetGg8/AgCAz1QsqokAtarfH8cHULNB9j0iwDtTXtlpjwjw9Pb32ex7RIA1B1f97+t37QcJkFTvsR8kQFK9x36QAEn1HvtBAiTVe+wHCZBU77Ef3DbAyKyHuPfYD14f4CsCNNsT7oP2B44QIDnt3hABktPuDV0fYDRwtuhOBFgrutPtAf4ZPeSYh/5DgOTt79vTbQE0WexGBJgrdqPbAmjx4PZBRICn3b7ffuB2AVaLbmQW3YgAXtXvBQDEAX6Fs5FCYTw98QAAAABJRU5ErkJggg=="
         ),
         Achievement(
             name="WIN 10 GAMES",
             description="Win 10 games",
             condition_type="win_games",
             threshold_value=10,
-            image_url=TROPHY_IMG
+            image_url= "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAABXUlEQVR4nO2buVIEMQwFxX39/59yw9IkJBZbNTtIsmWsTqem1fsCimREimIIKGQ1qAFaZDX4bwMAB07ncWuALYFkAyN7fZINVh4AOFtuAAxBwIP1Bw0fhME/oAYwvm8GY8Do92X0QZL7pguuAZx94QdS+zjyj4018MiNvH5+D/CVKjC6HzhXgoNnYIcBbP3AhRJ8egZ2GMDWD1wqwYdnYIcBbP3AlRK8ewZ2GMDWD1zXAC1vnoE/Nxqc3bZ+4EYJXmUizP3ArRK8yESY+4E7JXiWiTD3A/dK8CQT8ad+gtm6N7pHeh/c+zy6R3of3Ps8ukd6H9z7PLqnKIqiIfqPRno/2QOj/WQPjPaTPTDaT/bAaD/ZA6P9ZA+M9pM9sLcfZ2F233TBNYCzL/xAdl/4wdHvm6EGaJntfTOsPoCmvhcwstcn2WDlAVjxewELHt8LTA81QIusBqsPUEgOvgH4roQzKDEJHgAAAABJRU5ErkJggg=="
         ),
         Achievement(
             name="STREAK 5",
             description="Win 5 games in a row",
             condition_type="streak",
             threshold_value=5,
-            image_url=STREAK_IMG
+            image_url= "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA4ElEQVR4nO2QMRLDQAgD+f+nSW2KEMYcEfZue7Yk1gwAAADgRzxQfVfvS0HA8KDpvhQEBLZ9fxsXOwgBATuNFwvVvm/HkwHdB/394AgCAtl7lWrfOI6AK9l7lWrfOI6A76jnm/pABCT0XCE8cJ0Ae1hfCgICqv8dw98mwJsGqOWsHY6AppzxQrWctcMR0JQzXqiWs3Y4AppyxgvVctYOR0BTznihWs7a4QhoyhkvVMux6QHT/x3DEXDlaX1yg+QEnB4of3AEAQG1vOP42wVkB1Sx7TgC7mHb8bcLAAAA0+UD1V2111HaWt0AAAAASUVORK5CYII="
         )
     ]
 
