@@ -59,9 +59,7 @@ function maskText(text) {
 
 
 /* init */
-document.addEventListener("DOMContentLoaded", () => {
-  loadAchievements();
-});
+loadAchievements();
 
 const GLITCH_CHARS = "█▓▒░!@#$%?&*X01";
 
