@@ -1,52 +1,62 @@
-/* acheivement "database" - CHANGE */
-/* i want to change icons to custom ones after we figure out all the achievements*/
-const ACHIEVEMENTS_DB = [
-  {
-    id: "first_win",
-    title: "FIRST WIN",
-    desc: "Win your first game",
-    icon: "🏆",
-    condition: (stats) => stats.wins >= 1
-  },
-  {
-    id: "streak_5",
-    title: "STREAK 5",
-    desc: "Win 5 games in a row",
-    icon: "🔥",
-    condition: (stats) => stats.streak >= 5
-  },
-  {
-    id: "perfect_game",
-    title: "PERFECT",
-    desc: "0 mistakes in a game",
-    icon: "🎯",
-    condition: (stats) => stats.mistakes === 0
+console.log("Achievements JS loaded");
+
+let achievements = [];
+const LOCKED_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA7klEQVR4nO3QMQ7DMAxDUd7/0uwsDzWIKJVZ860yIuUDEa9gM7hhAvSCG94WgC8ffHwQJkDl9v3jDzwuAIcPmt6P6QOm92P6gOn9mD5gej/UAyjq3t+OCVCp73e697djAlS37cf0AdP7MX3A9H5MHzC9/+cHHffDqwRYuH3/sesD7A7e/YD6/nhMgO+evj8ebw+wUgPg3zABKnVujwlQqXN7TIBKndtjAlTq3B4ToFLn9pgAlTq3xwSo1Lk9JkClzu0xASp1bo8JUO3mK7hjAlS7+QrumACVOrfHBKjUuT0mQC+4YQL0ghveHiBwpg85uXYXUeyCNgAAAABJRU5ErkJggg==";
+
+async function loadAchievements() {
+  console.log("Loading achievements...");
+
+  try {
+    const res = await fetch("/api/achievements");
+
+    console.log("Response status:", res.status);
+
+    const text = await res.text();
+    console.log("Raw response:", text);
+
+    const data = JSON.parse(text);
+    console.log("ACHIEVEMENTS DATA:", data);
+
+    achievements = data;
+    renderAchievements();
+
+  } catch (err) {
+    console.error("ERROR loading achievements:", err);
   }
-];
-
-/* fake backend part - CHANGE */
-const defaultStats = {
-  wins: 0,
-  streak: 0,
-  mistakes: 0
-};
-
-let playerStats =
-  JSON.parse(localStorage.getItem("playerStats")) || defaultStats;
-
-/* unlocked tracking (prevents repeat popups) */
-let unlockedAchievements =
-  JSON.parse(localStorage.getItem("unlockedAchievements")) || [];
-
-/* save func */
-function saveStats() {
-  localStorage.setItem("playerStats", JSON.stringify(playerStats));
-  localStorage.setItem("unlockedAchievements", JSON.stringify(unlockedAchievements));
 }
 
-/* check if achievements is unlocked already */
-function isUnlocked(achievement) {
-  return achievement.condition(playerStats);
+function renderAchievements() {
+  const grid = document.querySelector(".achievement-grid");
+  if (!grid) return;
+
+  console.log("Rendering achievements into grid...");
+
+  grid.innerHTML = "";
+
+  achievements.forEach(a => {
+    console.log("Creating box for:", a.name);
+
+    const unlocked = a.unlocked;
+
+    const col = document.createElement("div");
+    col.className = "col-6 col-md-4";
+
+    col.innerHTML = `
+      <div class="achievement-box ${unlocked ? "unlocked" : "locked"}">
+        <div class="icon">
+          <img src="${unlocked ? a.image_url : LOCKED_IMG}" />
+        </div>
+        <div class="title">${unlocked ? a.name : maskText(a.name)}</div>
+        <div class="desc">${unlocked ? a.description : maskText(a.description)}</div>
+      </div>
+    `;
+
+    grid.appendChild(col);
+  });
+
+  console.log("DONE rendering");
+
+  attachGlitchListeners();
 }
 
 /* popup */
@@ -72,72 +82,9 @@ function maskText(text) {
     .join("");
 }
 
-function renderAchievements() {
-  const grid = document.querySelector(".achievement-grid");
-  if (!grid) return;
-
-  grid.innerHTML = "";
-
-  ACHIEVEMENTS_DB.forEach(a => {
-    const unlocked = isUnlocked(a);
-
-    const col = document.createElement("div");
-    col.className = "col-6 col-md-4";
-
-    const displayTitle = unlocked ? a.title : maskText(a.title);
-    const displayDesc = unlocked ? a.desc : maskText(a.desc);
-    const displayIcon = unlocked ? a.icon : "?";
-
-    col.innerHTML = `
-      <div class="achievement-box ${unlocked ? "unlocked" : "locked"}">
-        <div class="icon">${displayIcon}</div>
-        <div class="title">${displayTitle}</div>
-        <div class="desc">${displayDesc}</div>
-      </div>
-    `;
-
-    grid.appendChild(col);
-  });
-
-  attachGlitchListeners();
-}
-
-/* check and tirgger the unlock of acheivement */
-function checkAchievements() {
-  ACHIEVEMENTS_DB.forEach(a => {
-    const unlocked = isUnlocked(a);
-
-    if (unlocked && !unlockedAchievements.includes(a.id)) {
-      unlockedAchievements.push(a.id);
-
-      saveStats();
-
-      showAchievementPopup(a.title, a.icon);
-    }
-  });
-}
-
-/* game update helpers (call these from Hangman) */
-function addWin() {
-  playerStats.wins += 1;
-  playerStats.streak += 1;
-
-  saveStats();
-  checkAchievements();
-}
-
-function addLoss() {
-  playerStats.streak = 0;
-  playerStats.mistakes = 6;
-
-  saveStats();
-}
 
 /* init */
-document.addEventListener("DOMContentLoaded", () => {
-  renderAchievements();
-  checkAchievements();
-});
+loadAchievements();
 
 const GLITCH_CHARS = "█▓▒░!@#$%?&*X01";
 
@@ -167,10 +114,7 @@ function startGlitch(box) {
 
 function stopGlitch(box) {
   clearInterval(box._glitchInterval);
-  const a = ACHIEVEMENTS_DB.find(a => {
-    const titleEl = box.querySelector(".title");
-    return titleEl && box._origTitle;
-  });
+
   box.querySelector(".title").textContent = box._origTitle;
   box.querySelector(".desc").textContent = box._origDesc;
 }
