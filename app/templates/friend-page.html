@@ -5,7 +5,7 @@
 {% block nav_friends %}active-icon{% endblock %}
 
 {% block extra_css %}
-  <link rel="stylesheet" href="/static/css/friend.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/friend.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -49,85 +49,9 @@
     </div>
 
     <script>
-      const searchInput = document.getElementById("searchInput");
-      const friendsList = document.getElementById("friendsList");
+      window.usersData = {{ users | tojson }};
+    </script>
 
-      const allUsers = {{ users | tojson }};
-
-      const friends = [];
-
-      function renderFriends() {
-        friendsList.innerHTML = "";
-        if (friends.length === 0) {
-          friendsList.innerHTML = `<div class="no-results">NO FRIENDS ADDED</div>`;
-          return;
-        }
-        friends.forEach((friendData) => {
-          const friend = document.createElement("div");
-          friend.classList.add("row-item", "friend");
-          friend.innerHTML = `
-            <span class="friend-name">${friendData.name}</span>
-            <span class="friend-score">${friendData.wins} WINS</span>
-          `;
-          friendsList.appendChild(friend);
-        });
-      }
-
-      function showPopup(title, msg, color = '#ff4e4e', icon = '✕') {
-        document.getElementById('popupIcon').textContent = icon;
-        document.getElementById('popupIcon').style.color = color;
-        document.getElementById('popupTitle').textContent = title;
-        document.getElementById('popupTitle').style.color = color;
-        document.getElementById('popupMsg').innerHTML = msg;
-        document.getElementById('arcadePopup').classList.add('show');
-      }
-
-      function closePopup() {
-        document.getElementById('arcadePopup').classList.remove('show');
-      }
-
-      document.getElementById('arcadePopup').addEventListener('click', function (e) {
-        if (e.target === this) closePopup();
-      });
-
-      function addFriend(name) {
-        const user = allUsers.find((u) => u.name === name);
-
-        if (!user) {
-          showPopup('USER NOT FOUND', `No player named <span>${name}</span> exists.`);
-          return;
-        }
-        if (friends.some((f) => f.name === name)) {
-          showPopup('ALREADY FRIENDS', `You're already friends with <span>${name}</span>.`, '#f5a623', '!');
-          return;
-        }
-
-        friends.push(user);
-        const activeBtn = document.querySelector('.sort-btn.active');
-        if (activeBtn) activeBtn.click();
-        else renderFriends();
-      }
-
-      searchInput.addEventListener("keydown", (e) => {
-        if (e.key !== "Enter") return;
-        const inputName = searchInput.value.trim().toUpperCase();
-        if (!inputName) return;
-        addFriend(inputName);
-        searchInput.value = "";
-      });
-
-      renderFriends();
-
-      document.querySelectorAll(".sort-btn").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const sortType = btn.dataset.sort;
-          document.querySelectorAll(".sort-btn").forEach((b) => b.classList.remove("active"));
-          btn.classList.add("active");
-          if (sortType === "name") friends.sort((a, b) => a.name.localeCompare(b.name));
-          else if (sortType === "wins") friends.sort((a, b) => b.wins - a.wins);
-          renderFriends();
-        });
-      });
-      </script>
+    <script src="/static/js/friends.js"></script>
 
 {% endblock %}
