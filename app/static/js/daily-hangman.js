@@ -1,6 +1,6 @@
 // Hangman Game Logic for Daily Game
 
-let word = ""; // Will be fetched from the API
+let dailyWordId = null; // save state to the correct word
 const maxMistakes = 6;
 const initialTime = 90; // 1 minute 30 seconds
 let mistakes = 0;
@@ -28,16 +28,117 @@ async function fetchDailyWord() {
   try {
     const response = await fetch("/api/daily-word");
     const data = await response.json();
-    if (response.ok) {
-      word = data.word;
-      initGame();
-    } else {
+
+    if (!response.ok) {
       console.error("Failed to fetch daily word:", data.error);
       alert("Failed to load the daily word. Please try again.");
+      return;
     }
+
+    word = data.word;
+    dailyWordId = data.daily_word_id; // make sure your route returns this
+
+    initGame();
+
+    // resume a saved state if one exists
+    if (data.saved_state) {
+      restoreState(data.saved_state);
+    }
+
   } catch (error) {
     console.error("Error fetching daily word:", error);
     alert("Error connecting to the server. Please try again.");
+  }
+}
+
+// restore previously saved game state
+function restoreState(state) {
+  // if the game is already finished show the result popup
+  if (state.won !== null) {
+    gameOver = true;
+    // reveal full word on tiles for a loss
+    if (!state.won) {
+      word.split("").forEach((char, i) => {
+        tiles[i].querySelector(".tile-letter").textContent = char;
+      });
+    }
+    document.querySelectorAll(".key").forEach(k => k.style.pointerEvents = "none");
+    showResultPopup(state.won, word, state.time_left ?? 0);
+    return;
+  }
+
+  // replay each guessed letter
+  state.guessed_letters.forEach(letter => replayLetter(letter));
+
+  // restore timer position
+  if (state.time_left !== null && state.time_left !== undefined) {
+    timeRemaining = state.time_left;
+    updateTimerDisplay();
+  }
+
+  // if any letters have been guessed, timer should be running
+  if (guessedLetters.size > 0 && !gameOver) {
+    startTimer();
+  }
+}
+
+// silently replay a letter
+function replayLetter(letter) {
+  if (guessedLetters.has(letter)) return;
+  guessedLetters.add(letter);
+
+  document.querySelectorAll(".key").forEach(key => {
+    if (key.textContent.trim() === letter) {
+      key.setAttribute("data-state", "guessed");
+    }
+  });
+
+  if (word.toUpperCase().includes(letter)) {
+    word.split("").forEach((char, index) => {
+      if (char.toUpperCase() === letter) {
+        wordDisplay[index] = char;
+        tiles[index].querySelector(".tile-letter").textContent = char;
+      }
+    });
+    document.querySelectorAll(".key").forEach(key => {
+      if (key.textContent.trim() === letter) key.setAttribute("data-state", "correct");
+    });
+  } else {
+    mistakes++;
+    mistakeNum.textContent = mistakes;
+    if (mistakes <= parts.length) {
+      const partElements = document.querySelectorAll(`.${parts[mistakes - 1]}`);
+      partElements.forEach(el => {
+        el.classList.remove("revealed");
+        void el.offsetWidth;
+        el.classList.add("revealed");
+      });
+    }
+    document.querySelectorAll(".key").forEach(key => {
+      if (key.textContent.trim() === letter) key.setAttribute("data-state", "wrong");
+    });
+  }
+}
+
+// save current state to the backend
+async function saveState(won = null) {
+  if (!dailyWordId) return; // safety guard
+
+  try {
+    await fetch("/api/daily-state", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        daily_word_id: dailyWordId,
+        guessed_letters: [...guessedLetters].join(""),
+        mistakes: mistakes,
+        time_left: timeRemaining,
+        hangman_state: mistakes,   // mirrors mistakes (0–6)
+        won: won,                  // null = in progress, true = win, false = loss
+      }),
+    });
+  } catch (err) {
+    console.error("Failed to save game state:", err);
   }
 }
 
@@ -130,6 +231,35 @@ function handleGuess(letter) {
   checkGameEnd();
 }
 
+function checkGameEnd() {
+  if (mistakes >= maxMistakes) {
+    gameOver = true;
+    stopTimer();
+    saveState(false); // save loss
+
+    word.split("").forEach((char, i) => {
+      tiles[i].querySelector(".tile-letter").textContent = char;
+    });
+    document.querySelectorAll(".key").forEach(k => k.style.pointerEvents = "none");
+
+    triggerGlitch();
+    setTimeout(() => showResultPopup(false, word, timeRemaining), 950);
+
+  } else if (wordDisplay.join("") === word) {
+    gameOver = true;
+    stopTimer();
+    saveState(true); // save win
+
+    document.querySelectorAll(".key").forEach(k => k.style.pointerEvents = "none");
+    triggerConfetti();
+    setTimeout(() => showResultPopup(true, word, timeRemaining), 400);
+
+  } else {
+    // game still in progress, snapshot this guess
+    saveState(null);
+  }
+}
+
 function showResultPopup(won, word, timeRemaining) {
   const popup = document.getElementById("result-popup");
   const icon = document.getElementById("result-icon");
@@ -159,28 +289,30 @@ function showResultPopup(won, word, timeRemaining) {
   popup.classList.add("show");
 }
 
-function checkGameEnd() {
-  if (mistakes >= maxMistakes) {
-    gameOver = true;
-    stopTimer();
-    // Reveal full word on tiles
-    word.split("").forEach((char, i) => {
-      tiles[i].querySelector(".tile-letter").textContent = char;
-    });
-    document
-      .querySelectorAll(".key")
-      .forEach((k) => (k.style.pointerEvents = "none"));
-    triggerGlitch();
-    setTimeout(() => showResultPopup(false, word, timeRemaining), 950); // ← changed from 400
-  } else if (wordDisplay.join("") === word) {
-    gameOver = true;
-    stopTimer();
-    document
-      .querySelectorAll(".key")
-      .forEach((k) => (k.style.pointerEvents = "none"));
-    triggerConfetti(); // 👈 add this
-    setTimeout(() => showResultPopup(true, word, timeRemaining), 400);
-  }
+function updateTimerDisplay() {
+  const minutes = Math.floor(timeRemaining / 60);
+  const seconds = timeRemaining % 60;
+  gameTimer.textContent = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+}
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    timeRemaining--;
+    updateTimerDisplay();
+
+    if (timeRemaining <= 0) {
+      stopTimer();
+      gameOver = true;
+      saveState(false); // time out counts as a loss
+
+      document.querySelectorAll(".key").forEach(key => key.style.pointerEvents = "none");
+      setTimeout(() => showResultPopup(false, word, 0), 10);
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) clearInterval(timerInterval);
 }
 
 function triggerGlitch() {
@@ -333,35 +465,6 @@ function triggerConfetti() {
 
     requestAnimationFrame(animate);
   });
-}
-
-
-function updateTimerDisplay() {
-  const minutes = Math.floor(timeRemaining / 60);
-  const seconds = timeRemaining % 60;
-  gameTimer.textContent = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-}
-
-function startTimer() {
-  timerInterval = setInterval(() => {
-    timeRemaining--;
-    updateTimerDisplay();
-    if (timeRemaining <= 0) {
-      stopTimer();
-      gameOver = true;
-      setTimeout(() => alert("Time's up! Game Over! The word was " + word), 10);
-      // Disable further input
-      document
-        .querySelectorAll(".key")
-        .forEach((key) => (key.style.pointerEvents = "none"));
-    }
-  }, 1000);
-}
-
-function stopTimer() {
-  if (timerInterval) {
-    clearInterval(timerInterval);
-  }
 }
 
 // Start the game

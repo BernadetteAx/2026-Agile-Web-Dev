@@ -4,6 +4,7 @@ import requests
 from app import db
 from app.models import DailyWord, Achievement, UserAchievement, User
 from app.services.achievements import check_achievement
+import random
 
 
 # Set of routes to be imported into the Flask app by __init__.py
@@ -103,22 +104,29 @@ def get_daily_word():
     try:
         while retry_count < max_retries:
             response = requests.get(
-                "https://random-word-api.herokuapp.com/word?diff=1",
+                "https://api.datamuse.com/words?ml=common&max=1000",
                 headers={
                     "User-Agent": "Mozilla/5.0",
                     "Accept": "application/json"
                 },
                 timeout=10
-            )            
+            )
             response.raise_for_status()
-            
-            # Validate API response
-            word_data = response.json()
-            if not isinstance(word_data, list) or len(word_data) == 0:
+
+            word_list = response.json()
+
+            if not isinstance(word_list, list) or len(word_list) == 0:
                 retry_count += 1
                 continue
-            
-            word = word_data[0].upper()
+
+            # Pick a random word from the list that is alphabetic only
+            valid_words = [w["word"].upper() for w in word_list if w["word"].isalpha()]
+
+            if not valid_words:
+                retry_count += 1
+                continue
+
+            word = random.choice(valid_words)
             
             # Validate word is alphabetic only
             if not word.isalpha():
@@ -137,7 +145,11 @@ def get_daily_word():
             db.session.add(new_daily_word)
             db.session.commit()
             
-            return jsonify({"word": word}), 200
+            return jsonify({
+                "word": daily_word.word,
+                "daily_word_id": daily_word.id,   # ← add this
+                "saved_state": saved_state,
+            }), 200
         
         # Failed to find a unique word after max retries
         print(f"Failed to fetch unique daily word after {max_retries} retries")
