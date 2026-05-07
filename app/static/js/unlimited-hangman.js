@@ -89,20 +89,32 @@ async function initGame() {
   });
 }
  
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".key").forEach(key => {
-    key.addEventListener("click", () => handleGuess(key.textContent.trim()));
-  });
- 
-  document.addEventListener("keydown", e => {
-    const letter = e.key.toUpperCase();
-    if (letter.length === 1 && letter >= "A" && letter <= "Z") {
-      handleGuess(letter);
+document.addEventListener("DOMContentLoaded", async () => {
+  // restore streak when refreshing page
+  try {
+    const res = await fetch("/api/auth/me");
+    const data = await res.json();
+    if (data.streak) {
+      streak = data.streak;
+      score.textContent = streak;
     }
+  } catch (err) {
+    console.error("Failed to fetch streak:", err);
+  }
+
+  document.querySelectorAll(".key").forEach(key => {
+      key.addEventListener("click", () => handleGuess(key.textContent.trim()));
+    });
+
+    document.addEventListener("keydown", e => {
+      const letter = e.key.toUpperCase();
+      if (letter.length === 1 && letter >= "A" && letter <= "Z") {
+        handleGuess(letter);
+      }
+    });
+
+    initGame();
   });
- 
-  initGame();
-});
  
 // handle a guess
 function handleGuess(letter) {
