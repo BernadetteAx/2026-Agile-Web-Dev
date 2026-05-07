@@ -28,4 +28,8 @@ def create_app():
     # Import models so SQLAlchemy can create tables for them in the database.
     from . import models
 
+    with app.app_context():
+        from app.services.seed import seed_achievements
+        seed_achievements()
+
     return app
