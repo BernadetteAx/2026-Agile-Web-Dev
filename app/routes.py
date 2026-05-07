@@ -353,3 +353,22 @@ def get_active_unlimited_game():
             "hangman_state": game.hangman_state,
         }
     }), 200
+
+@main.route("/api/random-word")
+@login_required
+def get_random_word():
+    try:
+        response = requests.get(
+            "https://api.datamuse.com/words?ml=common&max=1000",
+            headers={"User-Agent": "Mozilla/5.0", "Accept": "application/json"},
+            timeout=10,
+        )
+        response.raise_for_status()
+        word_list = response.json()
+        valid_words = [w["word"].upper() for w in word_list if w["word"].isalpha()]
+        if not valid_words:
+            return jsonify({"error": "No valid words found"}), 500
+        word = random.choice(valid_words)
+        return jsonify({"word": word}), 200
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": "Failed to fetch word"}), 500
