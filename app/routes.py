@@ -120,6 +120,7 @@ def get_daily_word():
 
     return jsonify({
         "word": daily_word.word,
+        "daily_word_id": daily_word.id,
         "saved_state": saved_state,
     }), 200
 
