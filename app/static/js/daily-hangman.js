@@ -1,5 +1,6 @@
 // Hangman Game Logic for Daily Game
 
+let word = "";
 let dailyWordId = null; // save state to the correct word
 const maxMistakes = 6;
 const initialTime = 90; // 1 minute 30 seconds
@@ -36,7 +37,19 @@ async function fetchDailyWord() {
     }
 
     word = data.word;
-    dailyWordId = data.daily_word_id; // make sure your route returns this
+    dailyWordId = data.daily_word_id;
+
+    initGame();
+
+    if (data.saved_state) {
+      restoreState(data.saved_state);
+    }
+
+  } catch (error) {
+    console.error("Error fetching daily word:", error);
+    alert("Error connecting to the server. Please try again.");
+  }
+}
 
     initGame();
 
