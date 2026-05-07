@@ -52,19 +52,7 @@
       const searchInput = document.getElementById("searchInput");
       const friendsList = document.getElementById("friendsList");
 
-      const allUsers = [
-        { name: "PLAYER ONE", wins: 420 },
-        { name: "PIXELGIRL", wins: 69 },
-        { name: "RETRODUDE", wins: 911 },
-        { name: "ALPHAGHOST", wins: 210 },
-        { name: "BYTEHUNTER", wins: 67 },
-        { name: "CODEMASTER", wins: 12 },
-        { name: "HANGMANPRO", wins: 999 },
-        { name: "TEST", wins: 0 },
-        { name: "TEST1", wins: 3 },
-        { name: "TEST2", wins: 7 },
-        { name: "TEST3", wins: 1 },
-      ];
+      const allUsers = {{ users | tojson }};
 
       const friends = [];
 

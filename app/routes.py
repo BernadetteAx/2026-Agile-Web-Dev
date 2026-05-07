@@ -46,7 +46,20 @@ def unlimited_hangman():
 @main.route("/friends")
 @login_required
 def friends():
-    return render_template("friend-page.html")
+    users = User.query.all()
+
+    users_data = [
+        {
+            "name": user.username.upper(),
+            "wins": user.wins
+        }
+        for user in users
+    ]
+
+    return render_template(
+        "friend-page.html",
+        users=users_data
+    )
 
 
 @main.route("/achievements")
