@@ -91,7 +91,7 @@ if (registerBtn) {
     saveUsers(users);
 
     localStorage.setItem("pendingEmail", email);
-    window.location.href = "/confirm";
+    window.location.href = "/home";
   };
 }
 

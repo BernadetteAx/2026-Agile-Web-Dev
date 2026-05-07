@@ -99,4 +99,5 @@ def me():
         "username": user.username,
         "email": user.email,
         "wins": user.wins,
-        "streak"
+        "streak": user.streak,
+    }), 200

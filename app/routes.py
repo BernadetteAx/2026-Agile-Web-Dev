@@ -22,12 +22,6 @@ def register():
 def login():
     return render_template("login.html")
 
-
-@main.route("/confirm")
-def confirmation():
-    return render_template("confirm.html")
-
-
 # protected pages (redirect to login)
 
 @main.route("/")
