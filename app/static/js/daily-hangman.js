@@ -43,6 +43,14 @@ async function fetchDailyWord() {
     initGame();
 
     if (data.saved_state) {
+      // if game is finished show the popup and lock keybaord
+      if (data.saved_state.won !== null) {
+        restoreState(data.saved_state);
+        gameOver = true;
+        document.querySelectorAll(".key").forEach(k => k.style.pointerEvents = "none");
+        return;
+      }
+      // for game in progress restore state
       restoreState(data.saved_state);
     }
 
