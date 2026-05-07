@@ -103,24 +103,31 @@ def get_daily_word():
     try:
         while retry_count < max_retries:
             response = requests.get(
-                "https://random-word-api.herokuapp.com/word?diff=1",
+                "https://api.datamuse.com/words?ml=common&max=1000",
                 headers={
                     "User-Agent": "Mozilla/5.0",
                     "Accept": "application/json"
                 },
                 timeout=10
-            )            
+            )
             response.raise_for_status()
-            
-            # Validate API response
-            word_data = response.json()
-            if not isinstance(word_data, list) or len(word_data) == 0:
+
+            word_list = response.json()
+
+            if not isinstance(word_list, list) or len(word_list) == 0:
                 retry_count += 1
                 continue
+
+            # pick a random word in the list ONLY ALPHABETICAL CHARACTERS
+            valid_words = [w["word"].upper() for w in word_list if w["word"].isalpha()]
+
+            if not valid_words:
+                retry_count += 1
+                continue
+
+            word = random.choice(valid_words)
             
-            word = word_data[0].upper()
-            
-            # Validate word is alphabetic only
+            # check word alphabetic only
             if not word.isalpha():
                 retry_count += 1
                 continue
