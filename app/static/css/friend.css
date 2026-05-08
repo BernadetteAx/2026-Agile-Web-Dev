@@ -15,6 +15,7 @@
   margin-bottom: 12px;
   display: flex;
   justify-content: center;
+  position: relative;
 }
 
 .input {

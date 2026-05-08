@@ -27,6 +27,32 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 300);
   });
 
+  searchInput.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+  const q = searchInput.value.trim();
+  if (!q) return;
+
+  // try to find an exact match in the current dropdown
+const items = searchDropdown.querySelectorAll(".dropdown-item:not(.dropdown-empty)");
+  let matched = null;
+  items.forEach(item => {
+    if (item.querySelector(".dropdown-name").textContent === q.toUpperCase()) {
+      matched = item.querySelector(".dropdown-name").textContent;
+    }
+  });
+
+  if (matched) {
+    addFriend(matched);
+    searchInput.value = "";
+    hideDropdown();
+  } else {
+    // no match in dropdown
+    addFriend(q);
+    searchInput.value = "";
+    hideDropdown();
+  }
+});
+
   document.addEventListener("click", (e) => {
     if (!e.target.closest(".panel-section")) hideDropdown();
   });
