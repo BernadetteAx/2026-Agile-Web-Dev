@@ -214,7 +214,7 @@ def _fetch_and_store_daily_word(today):
         if not isinstance(word_list, list) or not word_list:
             continue
 
-        valid_words = [w["word"].upper() for w in word_list if w["word"].isalpha()]
+        valid_words = [w["word"].upper() for w in word_list if w["word"].isalpha() and 4 <= len(w["word"]) <= 8]
         if not valid_words:
             continue
 
@@ -437,7 +437,7 @@ def get_random_word():
         )
         response.raise_for_status()
         word_list = response.json()
-        valid_words = [w["word"].upper() for w in word_list if w["word"].isalpha()]
+        valid_words = [w["word"].upper() for w in word_list if w["word"].isalpha() and 4 <= len(w["word"]) <= 8]
         if not valid_words:
             return jsonify({"error": "No valid words found"}), 500
         word = random.choice(valid_words)
