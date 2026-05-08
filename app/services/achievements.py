@@ -17,6 +17,15 @@ def check_achievement(user, achievement):
         ).count()
 
         return friend_count >= achievement.threshold_value
+    
+    if achievement.condition_type == "no_mistakes":
+        return getattr(user, "last_mistakes", 999) == 0
+
+    if achievement.condition_type == "time_left":
+        return getattr(user, "last_time_left", 0) >= achievement.threshold_value
+
+    if achievement.condition_type == "daily_wins":
+        return getattr(user, "daily_wins", 0) >= achievement.threshold_value
 
     return False
 

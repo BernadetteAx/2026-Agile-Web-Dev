@@ -304,6 +304,23 @@ def save_daily_state():
         user = User.query.get(user_id)
         user.streak = 0   # loss breaks the streak
 
+    user = User.query.get(user_id)
+
+    achievements = Achievement.query.all()
+
+    for achievement in achievements:
+        already_unlocked = UserAchievement.query.filter_by(
+            user_id=user.id,
+            achievement_id=achievement.id
+        ).first()
+
+        if already_unlocked:
+            continue
+
+        if achievement.condition_type == "no_mistakes":
+            if int(data.get("mistakes", 0)) == 0:
+                db.session.add(UserAchievement(user_id=user.id, achievement_id=achievement.id))
+
     db.session.commit()
     return jsonify({"message": "State saved", "id": snapshot.id}), 201
 
