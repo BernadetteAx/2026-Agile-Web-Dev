@@ -8,6 +8,6 @@ default_database_location = 'sqlite:///' + os.path.join(basedir, 'app.db')
 
 # Tell Flask to use DATABASE_URL if provided, otherwise use app.db
 class Config:
-    SQLALCHEMY_DATABASE_URI = os.getenv('HANGMAN_DATABASE_URL') or default_database_location
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL') or default_database_location
     # Set a secret key for the app. This is used to protect against CSRF attacks and to sign cookies.
-    HANGMAN_SECRET_KEY = "they_could_have_taught_us_earlier"
+    SECRET_KEY = "they_could_have_taught_us_earlier"
