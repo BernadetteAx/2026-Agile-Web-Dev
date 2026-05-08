@@ -17,7 +17,8 @@ class User(db.Model):
     achievements = db.relationship("UserAchievement", backref="user", lazy=True)
     daily_states = db.relationship("DailyGameState", backref="user", lazy=True)
     unlimited_states = db.relationship("UnlimitedGameState", backref="user", lazy=True)
- 
+    friends = db.relationship('Friendship', foreign_keys='Friendship.user_id', backref='user', lazy=True)
+
     def set_password(self, raw_password):
         self.password = generate_password_hash(raw_password)
  
@@ -144,3 +145,12 @@ class UnlimitedGameState(db.Model):
             f"<UnlimitedGameState user={self.user_id} word={self.word} "
             f"score={self.score} mistakes={self.mistakes}>"
         )
+    
+class Friendship(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    friend_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    friend = db.relationship('User', foreign_keys=[friend_id])
