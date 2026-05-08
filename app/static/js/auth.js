@@ -102,7 +102,17 @@ document.getElementById("loginBtn")?.addEventListener("click", async () => {
 });
 
 // Logout
-document.getElementById("logoutBtn")?.addEventListener("click", async () => {
+document.getElementById("logoutBtn")?.addEventListener("click", () => {
+  document.getElementById("logout-overlay").classList.add("active");
+});
+
+// Cancel — hide the modal
+document.getElementById("logout-cancel")?.addEventListener("click", () => {
+  document.getElementById("logout-overlay").classList.remove("active");
+});
+
+// Confirm — actually log out
+document.getElementById("logout-confirm")?.addEventListener("click", async () => {
   await fetch("/api/auth/logout", { method: "POST" });
   window.location.href = "/login";
 });

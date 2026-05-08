@@ -10,18 +10,29 @@
 
 {% block content %}
 
-    <main class="home-page">
-      <div class="home-box">
-        <h2 id="welcomeText">WELCOME!</h2>
-        <p class="home-subtext">READY FOR A NEW ROUND?</p>
+  <main class="home-page">
+    <div class="home-box">
+      <h2 id="welcomeText">WELCOME!</h2>
+      <p class="home-subtext">READY FOR A NEW ROUND?</p>
 
-        <div class="home-buttons">
-          <button id="startGameBtn">START GAME</button>
-          <button id="logoutBtn">LOG OUT</button>
-        </div>
+      <div class="home-buttons">
+        <button id="startGameBtn">START GAME</button>
+        <button id="logoutBtn">LOG OUT</button>
       </div>
-    </main>
+    </div>
+  </main>
 
-    <script src="/static/js/auth.js"></script>
+  <!-- Logout confirmation overlay -->
+  <div id="logout-overlay">
+    <div id="logout-modal">
+      <p>ARE YOU SURE YOU WANT TO LOG OUT?</p>
+      <div class="logout-buttons">
+        <button id="logout-confirm">YES</button>
+        <button id="logout-cancel">NO</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/auth.js"></script>
 
 {% endblock %}
