@@ -1,16 +1,7 @@
 from app import db
 from app.models import Achievement
 
-def seed_achievements():
-    existing_names = {a.name for a in Achievement.query.all()}
-    new_achievements = [a for a in achievements if a.name not in existing_names]
-    if not new_achievements:
-        print("All achievements already seeded")
-        return
-    db.session.add_all(new_achievements)
-    db.session.commit()
-    print(f"Seeded {len(new_achievements)} new achievements")
-    
+def seed_achievements(): 
     achievements = [
         Achievement(
             name="FIRST WIN",
@@ -104,6 +95,15 @@ def seed_achievements():
             image_url=None
         )
     ]
+
+    existing_names = {a.name for a in Achievement.query.all()}
+    new_achievements = [a for a in achievements if a.name not in existing_names]
+    if not new_achievements:
+        print("All achievements already seeded")
+        return
+    db.session.add_all(new_achievements)
+    db.session.commit()
+    print(f"Seeded {len(new_achievements)} new achievements")
 
     db.session.add_all(achievements)
     db.session.commit()
