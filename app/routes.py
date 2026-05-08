@@ -86,6 +86,24 @@ def add_friend():
     db.session.add(new_friendship)
     db.session.commit()
 
+    user = User.query.get(user_id)
+
+    achievements = Achievement.query.all()
+
+    for achievement in achievements:
+        already_unlocked = UserAchievement.query.filter_by(
+            user_id=user.id,
+            achievement_id=achievement.id
+        ).first()
+
+        if not already_unlocked and check_achievement(user, achievement):
+            db.session.add(UserAchievement(
+                user_id=user.id,
+                achievement_id=achievement.id
+            ))
+
+    db.session.commit()
+
     return jsonify({"message": "Friend added"}), 200
 
 @main.route("/api/friends")
