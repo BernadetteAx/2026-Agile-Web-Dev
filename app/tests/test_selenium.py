@@ -251,24 +251,19 @@ class TestDailyGame:
         wait.until(EC.presence_of_element_located((By.CLASS_NAME, "tile")))
         time.sleep(1)
 
-        # get tiles to find which letters are NOT in the word
-        tiles = logged_in_driver.find_elements(By.CLASS_NAME, "tile-letter")
-        word_letters = set(t.text.strip().upper() for t in tiles if t.text.strip())
-
         mistake_el = logged_in_driver.find_element(By.ID, "mistakeNum")
         initial_mistakes = int(mistake_el.text or "0")
 
-        # click keys that are unlikely to be in the word
+        # Use JavaScript click to bypass any overlay interception
         for key_letter in ["Q", "Z", "X"]:
             keys = logged_in_driver.find_elements(By.CLASS_NAME, "key")
             for k in keys:
-                if k.text.strip() == key_letter and k.get_attribute("data-state") is None:
-                    k.click()
-                    time.sleep(0.3)
+                if k.text.strip() == key_letter:
+                    logged_in_driver.execute_script("arguments[0].click();", k)
+                    time.sleep(0.5)
                     break
 
         final_mistakes = int(mistake_el.text or "0")
-        # at least some mistakes should have been made (unless Q/Z/X are in the word)
         assert final_mistakes >= initial_mistakes
 
 # achievements page tests
