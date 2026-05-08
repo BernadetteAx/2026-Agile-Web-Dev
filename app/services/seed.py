@@ -2,9 +2,14 @@ from app import db
 from app.models import Achievement
 
 def seed_achievements():
-    if Achievement.query.first():
-        print("Achievements already seeded")
+    existing_names = {a.name for a in Achievement.query.all()}
+    new_achievements = [a for a in achievements if a.name not in existing_names]
+    if not new_achievements:
+        print("All achievements already seeded")
         return
+    db.session.add_all(new_achievements)
+    db.session.commit()
+    print(f"Seeded {len(new_achievements)} new achievements")
     
     achievements = [
         Achievement(
@@ -27,6 +32,76 @@ def seed_achievements():
             condition_type="streak",
             threshold_value=5,
             image_url= "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA4ElEQVR4nO2QMRLDQAgD+f+nSW2KEMYcEfZue7Yk1gwAAADgRzxQfVfvS0HA8KDpvhQEBLZ9fxsXOwgBATuNFwvVvm/HkwHdB/394AgCAtl7lWrfOI6AK9l7lWrfOI6A76jnm/pABCT0XCE8cJ0Ae1hfCgICqv8dw98mwJsGqOWsHY6AppzxQrWctcMR0JQzXqiWs3Y4AppyxgvVctYOR0BTznihWs7a4QhoyhkvVMux6QHT/x3DEXDlaX1yg+QEnB4of3AEAQG1vOP42wVkB1Sx7TgC7mHb8bcLAAAA0+UD1V2111HaWt0AAAAASUVORK5CYII="
+        ),
+        Achievement(
+            name="WIN 25 GAMES",
+            description="Win 25 games",
+            condition_type="win_games",
+            threshold_value=25,
+            image_url=None
+        ),
+        Achievement(
+            name="WIN 50 GAMES",
+            description="Win 50 games",
+            condition_type="win_games",
+            threshold_value=50,
+            image_url=None
+        ),
+        Achievement(
+            name="WIN 100 GAMES",
+            description="Win 100 games",
+            condition_type="win_games",
+            threshold_value=100,
+            image_url=None
+        ),
+        Achievement(
+            name="STREAK 3",
+            description="Win 3 games in a row",
+            condition_type="streak",
+            threshold_value=3,
+            image_url=None
+        ),
+        Achievement(
+            name="STREAK 10",
+            description="Win 10 games in a row",
+            condition_type="streak",
+            threshold_value=10,
+            image_url=None
+        ),
+        Achievement(
+            name="STREAK 25",
+            description="Win 25 games in a row",
+            condition_type="streak",
+            threshold_value=25,
+            image_url=None
+        ),
+        Achievement(
+            name="FLAWLESS",
+            description="Win a game without a single mistake",
+            condition_type="no_mistakes",
+            threshold_value=1,
+            image_url=None
+        ),
+        Achievement(
+            name="SPEED DEMON",
+            description="Win a game with over 60 seconds remaining",
+            condition_type="time_left",
+            threshold_value=60,
+            image_url=None
+        ),
+        Achievement(
+            name="DAILY DEVOTEE",
+            description="Complete 7 daily games",
+            condition_type="daily_wins",
+            threshold_value=7,
+            image_url=None
+        ),
+        Achievement(
+            name="SOCIAL",
+            description="Add your first friend",
+            condition_type="friends",
+            threshold_value=1,
+            image_url=None
         )
     ]
 
