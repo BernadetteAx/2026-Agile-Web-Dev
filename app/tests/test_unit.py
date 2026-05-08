@@ -10,7 +10,6 @@ from datetime import date
 # app fixture
 @pytest.fixture
 def app():
-    """Create a test Flask app with an in-memory SQLite database."""
     from app import create_app, db
 
     test_app = create_app()
@@ -22,10 +21,13 @@ def app():
     })
 
     with test_app.app_context():
-        db.create_all()
+        db.create_all()  # create tables first
+        # seed achievements after tables exist
+        from app.services.seed import seed_achievements
+        seed_achievements()
         yield test_app
         db.session.remove()
-        db.drop_all()
+        db.drop_all()  # clean up after each test
 
 
 @pytest.fixture
