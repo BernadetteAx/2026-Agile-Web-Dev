@@ -1,6 +1,6 @@
 """
 Unit Tests for Hangman Flask App
-Run with: python -m pytest tests/test_unit.py -v
+Run with: python -m pytest app/tests/test_unit.py -v
 """
 
 import pytest

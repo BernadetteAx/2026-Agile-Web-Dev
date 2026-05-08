@@ -1,6 +1,6 @@
 """
 Selenium WebDriver Tests for Hangman App
-Run with: python -m pytest tests/test_selenium.py -v
+Run with: python -m pytest app/tests/test_selenium.py -v
 
 Requirements:
     pip install selenium pytest
@@ -24,9 +24,9 @@ from selenium.common.exceptions import TimeoutException
 BASE_URL = "http://127.0.0.1:5000"
 
 # test credentials
-TEST_EMAIL = "test@test.com"
-TEST_PASSWORD = "password1"
-TEST_USERNAME = "testuser"
+TEST_EMAIL = "asd"
+TEST_PASSWORD = "asdasd1!"
+TEST_USERNAME = "asd"
 
 
 # driver fixture
