@@ -97,7 +97,6 @@ def me():
     return jsonify({
         "id": user.id,
         "username": user.username,
-        "email": user.email,
         "wins": user.wins,
         "streak": user.streak,
     }), 200
