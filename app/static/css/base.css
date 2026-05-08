@@ -100,7 +100,7 @@
     width: 100%;
   }
 
-  logout-overlay {
+  #logout-overlay {
     display: none !important;
     position: fixed !important;
     inset: 0 !important;
@@ -110,11 +110,11 @@
     justify-content: center !important;
   }
 
-  logout-overlay.active {
+  #logout-overlay.active {
     display: flex !important;
   }
 
-  logout-modal {
+  #logout-modal {
     background: #161515;
     border: 2px solid #3a3a3a;
     padding: 32px 28px;
@@ -127,7 +127,7 @@
     font-family: "Press Start 2P", system-ui;
   }
 
-  logout-modal p {
+  #logout-modal p {
     color: #ffffff;
     font-size: 11px;
     text-align: center;
@@ -140,7 +140,7 @@
     gap: 16px;
   }
 
-  logout-confirm {
+  #logout-confirm {
     cursor: pointer;
     font-family: "Press Start 2P", system-ui;
     font-size: 10px;
@@ -149,12 +149,12 @@
     color: #ff4444;
   }
 
-  logout-confirm:hover {
+  #logout-confirm:hover {
     background: #ff4444;
     color: #000;
   }
 
-  logout-cancel {
+  #logout-cancel {
     cursor: pointer;
     font-family: "Press Start 2P", system-ui;
     font-size: 10px;
@@ -163,7 +163,7 @@
     color: #888;
   }
 
-  logout-cancel:hover {
+  #logout-cancel:hover {
     background: #3a3a3a;
     color: #fff;
   }
