@@ -1,79 +1,136 @@
 document.addEventListener("DOMContentLoaded", () => {
-
   const searchInput = document.getElementById("searchInput");
   const friendsList = document.getElementById("friendsList");
+  const searchDropdown = document.getElementById("searchDropdown");
 
-  const allUsers = window.usersData || [];
-  const friends = [];
+  let friends = [];
+  let searchTimeout = null;
 
-  function renderFriends() {
-      friendsList.innerHTML = "";
+  // live search dropdown
+  searchInput.addEventListener("input", () => {
+    const q = searchInput.value.trim();
+    clearTimeout(searchTimeout);
 
-      if (friends.length === 0) {
-          friendsList.innerHTML = `<div class="no-results">NO FRIENDS ADDED</div>`;
-          return;
+    if (!q) {
+      hideDropdown();
+      return;
+    }
+
+    searchTimeout = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/users/search?q=${encodeURIComponent(q)}`);
+        const users = await res.json();
+        showDropdown(users);
+      } catch (err) {
+        console.error("Search error:", err);
       }
+    }, 300);
+  });
 
-      friends.forEach((friendData) => {
-          const friend = document.createElement("div");
-          friend.classList.add("row-item", "friend");
-          friend.innerHTML = `
-              <span class="friend-name">${friendData.name}</span>
-              <span class="friend-score">${friendData.wins} WINS</span>
-          `;
-          friendsList.appendChild(friend);
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".panel-section")) hideDropdown();
+  });
+
+  function showDropdown(users) {
+    searchDropdown.innerHTML = "";
+    searchDropdown.classList.add("open");
+
+    if (users.length === 0) {
+      searchDropdown.innerHTML = `<div class="dropdown-item dropdown-empty">NO PLAYERS FOUND</div>`;
+      return;
+    }
+
+    users.forEach(user => {
+      const item = document.createElement("div");
+      item.className = "dropdown-item";
+      item.innerHTML = `
+        <span class="dropdown-name">${user.username.toUpperCase()}</span>
+        <span class="dropdown-wins">${user.wins} WINS</span>
+      `;
+      item.addEventListener("click", () => {
+        addFriend(user.username);
+        searchInput.value = "";
+        hideDropdown();
+      });
+      searchDropdown.appendChild(item);
+    });
+  }
+
+  function hideDropdown() {
+    searchDropdown.classList.remove("open");
+    searchDropdown.innerHTML = "";
+  }
+
+  // friends list
+  function renderFriends() {
+    friendsList.innerHTML = "";
+    if (friends.length === 0) {
+      friendsList.innerHTML = `<div class="no-results" style="display:block;">NO FRIENDS ADDED</div>`;
+      return;
+    }
+    friends.forEach(friend => {
+      const div = document.createElement("div");
+      div.className = "row-item";
+      div.innerHTML = `
+        <span class="friend-name">${friend.name.toUpperCase()}</span>
+        <span class="friend-score">${friend.wins} WINS</span>
+      `;
+      friendsList.appendChild(div);
+    });
+  }
+
+  function loadFriends() {
+    fetch("/api/friends")
+      .then(res => res.json())
+      .then(data => {
+        friends = data;
+        renderFriends();
       });
   }
 
   function addFriend(name) {
-      const user = allUsers.find((u) => u.name === name);
-
-      if (!user) {
-          showPopup(
-            "USER NOT FOUND",
-            `No player named <span>${name}</span> exists.`
-          );
-          return;
+    fetch("/api/add-friend", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name })
+    })
+    .then(res => res.json().then(data => ({ status: res.status, body: data })))
+    .then(({ status, body }) => {
+      if (status !== 200) {
+        showPopup("ERROR", body.error || "Something went wrong");
+        return;
       }
-
-      if (friends.some((f) => f.name === name)) {
-          showPopup(
-            "ALREADY FRIENDS",
-            `You are already friends with <span>${name}</span>.`
-          );
-          return;
-      }
-
-      friends.push(user);
-      renderFriends();
+      loadFriends();
+    });
   }
 
-  function showPopup(title, msg, color = '#ff4e4e', icon = '✕') {
-        document.getElementById('popupIcon').textContent = icon;
-        document.getElementById('popupIcon').style.color = color;
-        document.getElementById('popupTitle').textContent = title;
-        document.getElementById('popupTitle').style.color = color;
-        document.getElementById('popupMsg').innerHTML = msg;
-        document.getElementById('arcadePopup').classList.add('show');
-    }
-
-    document.getElementById('arcadePopup').addEventListener('click', function (e) {
-        if (e.target === this) closePopup();
+// sorting buttons
+  document.querySelectorAll(".sort-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".sort-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      if (btn.dataset.sort === "name") friends.sort((a, b) => a.name.localeCompare(b.name));
+      else if (btn.dataset.sort === "wins") friends.sort((a, b) => b.wins - a.wins);
+      renderFriends();
     });
-
-  searchInput.addEventListener("keydown", (e) => {
-      if (e.key !== "Enter") return;
-
-      const inputName = searchInput.value.trim().toUpperCase();
-      if (!inputName) return;
-
-      addFriend(inputName);
-      searchInput.value = "";
   });
 
-  renderFriends();
+  function showPopup(title, msg, color = "#ff4e4e", icon = "✕") {
+    document.getElementById("popupIcon").textContent = icon;
+    document.getElementById("popupIcon").style.color = color;
+    document.getElementById("popupTitle").textContent = title;
+    document.getElementById("popupTitle").style.color = color;
+    document.getElementById("popupMsg").innerHTML = msg;
+    document.getElementById("arcadePopup").classList.add("show");
+  }
+
+  document.getElementById("arcadePopup").addEventListener("click", (e) => {
+    if (e.target === document.getElementById("arcadePopup")) closePopup();
+  });
+
+  loadFriends();
 });
 
 function closePopup() {
-    document.getElementById('arcadePopup').classList.remove('show');
+  document.getElementById("arcadePopup").classList.remove("show");
 }

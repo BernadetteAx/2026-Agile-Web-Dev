@@ -4,7 +4,7 @@ import requests
 import random
 
 from app import db
-from app.models import DailyWord, Achievement, UserAchievement, User, DailyGameState, UnlimitedGameState
+from app.models import DailyWord, Achievement, UserAchievement, User, DailyGameState, UnlimitedGameState, Friendship
 from app.services.achievements import check_achievement
 from app.decorators import login_required
 
@@ -42,25 +42,83 @@ def daily_hangman():
 def unlimited_hangman():
     return render_template("unlimited-page.html")
 
-
 @main.route("/friends")
 @login_required
 def friends():
+
     users = User.query.all()
 
     users_data = [
-        {
-            "name": user.username.upper(),
-            "wins": user.wins
-        }
-        for user in users
+        {"name": u.username.upper(), "wins": u.wins}
+        for u in users
     ]
 
-    return render_template(
-        "friend-page.html",
-        users=users_data
+    return render_template("friend-page.html", users=users_data)
+
+@main.route("/api/add-friend", methods=["POST"])
+@login_required
+def add_friend():
+    data = request.get_json()
+    user_id = session["user_id"]
+    friend_name = data.get("name", "").upper()
+
+    friend = User.query.filter(db.func.upper(User.username) == friend_name).first()
+
+    if not friend:
+        return jsonify({"error": "User not found"}), 404
+
+    if friend.id == user_id:
+        return jsonify({"error": "Cannot add yourself"}), 400
+
+    existing = Friendship.query.filter_by(
+        user_id=user_id,
+        friend_id=friend.id
+    ).first()
+
+    if existing:
+        return jsonify({"error": "Already friends"}), 400
+
+    new_friendship = Friendship(
+        user_id=user_id,
+        friend_id=friend.id
     )
 
+    db.session.add(new_friendship)
+    db.session.commit()
+
+    return jsonify({"message": "Friend added"}), 200
+
+@main.route("/api/friends")
+@login_required
+def get_friends():
+    user_id = session["user_id"]
+    friendships = Friendship.query.filter_by(user_id=user_id).all()
+    return jsonify([
+        {
+            "name": f.friend.username.upper(),
+            "wins": f.friend.wins
+        }
+        for f in friendships
+    ])
+
+@main.route("/api/users/search")
+@login_required
+def search_users():
+    q = request.args.get("q", "").strip()
+    if not q:
+        return jsonify([]), 200
+
+    current_user_id = session["user_id"]
+
+    users = User.query.filter(
+        User.username.ilike(f"%{q}%"),
+        User.id != current_user_id
+    ).limit(8).all()
+
+    return jsonify([
+        {"username": u.username, "wins": u.wins}
+        for u in users
+    ])
 
 @main.route("/achievements")
 @login_required

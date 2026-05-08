@@ -22,6 +22,9 @@
                 class="input"
                 placeholder="SEARCH FRIENDS..."
               />
+
+              <div id="searchDropdown" class="search-dropdown"></div>
+              
             </div>
 
             <!-- sorting buttons -->
@@ -47,10 +50,6 @@
         <button class="popup-close-btn" onclick="closePopup()">OK</button>
       </div>
     </div>
-
-    <script>
-      window.usersData = {{ users | tojson }};
-    </script>
 
     <script src="/static/js/friends.js"></script>
 
