@@ -231,3 +231,6 @@ __pycache__/
 
 # OS files
 .DS_Store
+
+#testing
+tests/conftest.py

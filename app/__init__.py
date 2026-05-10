@@ -28,8 +28,12 @@ def create_app():
     # Import models so SQLAlchemy can create tables for them in the database.
     from . import models
 
-    with app.app_context():
-        from app.services.seed import seed_achievements
-        seed_achievements()
+    @app.before_request
+    def seed_on_first_request():
+        if not app.config.get("TESTING"):
+            from app.services.seed import seed_achievements
+            seed_achievements()
+        # Remove itself after first run so it only fires once
+        app.before_request_funcs[None].remove(seed_on_first_request)
 
     return app
