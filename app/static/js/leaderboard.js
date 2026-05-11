@@ -124,7 +124,6 @@ function renderHeader() {
       <div>SCORE</div>
       <div>MISTAKES</div>
       <div>TIME LEFT</div>
-      <div BADGE>BADGE</div>
     `;
   } else {
     header.className = "leaderboard-header-row unlimited-grid";
@@ -134,7 +133,6 @@ function renderHeader() {
       <div>BEST STREAK</div>
       <div>TOTAL WORDS</div>
       <div>GAMES</div>
-      <div>BADGE</div>
     `;
   }
 }
@@ -258,7 +256,6 @@ function renderDailyRows(data) {
       <div class="score-green">${getDailyScore(player)}</div>
       <div>${player.mistakes}</div>
       <div>${formatTime(player.timeLeft)}</div>
-      <div><span class="badge">${getDailyBadge(player, index, data)}</span></div>
     `;
 
     body.appendChild(row);
@@ -281,7 +278,6 @@ function renderUnlimitedRows(data) {
       <div class="score-green">${player.bestStreak}</div>
       <div>${player.totalWords}</div>
       <div>${player.games}</div>
-      <div><span class="badge">${getUnlimitedBadge(player, index, data)}</span></div>
     `;
 
     body.appendChild(row);

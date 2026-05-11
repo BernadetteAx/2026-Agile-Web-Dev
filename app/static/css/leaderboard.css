@@ -149,11 +149,11 @@
 }
 
 .daily-grid {
-  grid-template-columns: 0.7fr 1.7fr 1fr 1fr 1fr 1.4fr;
+  grid-template-columns: 0.7fr 1.7fr 1fr 1fr 1fr;
 }
 
 .unlimited-grid {
-  grid-template-columns: 0.7fr 1.7fr 1.2fr 1.2fr 1fr 1.4fr;
+  grid-template-columns: 0.7fr 1.7fr 1.2fr 1.2fr 1fr;
 }
 
 .rank-cell {
@@ -320,11 +320,11 @@
   }
 
   .daily-grid {
-    grid-template-columns: 0.6fr 1.5fr 1fr 1fr 1fr 1.3fr;
+    grid-template-columns: 0.6fr 1.5fr 1fr 1fr 1fr;
   }
 
   .unlimited-grid {
-    grid-template-columns: 0.6fr 1.5fr 1.1fr 1.1fr 0.9fr 1.3fr;
+    grid-template-columns: 0.6fr 1.5fr 1.1fr 1.1fr 0.9fr;
   }
 
   .badge {
