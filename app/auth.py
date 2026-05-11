@@ -23,6 +23,9 @@ def register():
     if not email or not username or not password:
         return jsonify({"error": "email, username and password are all required"}), 400
 
+    if len(username) > 10:
+        return jsonify({"error": "Username must be 10 characters or less"}), 400
+
     if len(password) < 8:
         return jsonify({"error": "Password must be at least 8 characters"}), 400
 
