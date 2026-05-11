@@ -114,6 +114,8 @@
 }
 
 .leaderboard-panel {
+  width: min(760px, 100%);
+  margin: 0 auto;
   border: 6px solid #ffffff;
   background-color: #0c0c0c;
   overflow: hidden;
@@ -148,12 +150,17 @@
   background-color: #161616;
 }
 
-.daily-grid {
-  grid-template-columns: 0.7fr 1.7fr 1fr 1fr 1fr;
+.daily-grid,
+.unlimited-grid {
+  grid-template-columns: repeat(3, 1fr);
 }
 
-.unlimited-grid {
-  grid-template-columns: 0.7fr 1.7fr 1.2fr 1.2fr 1fr;
+.leaderboard-header-row > div,
+.table-row > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
 .rank-cell {
@@ -163,6 +170,7 @@
 .player-cell {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
 }
 
@@ -319,13 +327,10 @@
     font-size: 7px;
   }
 
-  .daily-grid {
-    grid-template-columns: 0.6fr 1.5fr 1fr 1fr 1fr;
-  }
-
-  .unlimited-grid {
-    grid-template-columns: 0.6fr 1.5fr 1.1fr 1.1fr 0.9fr;
-  }
+.daily-grid,
+.unlimited-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
 
   .badge {
     font-size: 6px;
@@ -349,13 +354,17 @@
     grid-template-columns: 1fr;
   }
 
-  .leaderboard-panel {
-    overflow-x: auto;
-  }
+.leaderboard-panel {
+  width: min(680px, 100%);
+  margin: 0 auto;
+  border: 6px solid #ffffff;
+  background-color: #0c0c0c;
+  overflow: hidden;
+}
 
   .leaderboard-header-row,
   .table-row {
-    min-width: 780px;
+    min-width: 520px;
   }
 
   .podium-stage {

@@ -116,25 +116,35 @@ function getOfficialUnlimitedRanking() {
 function renderHeader() {
   const header = document.getElementById("leaderboard-header-row");
 
+  let metricTitle = "";
+
   if (currentMode === "daily") {
+    if (currentSort === "dailyScore") {
+      metricTitle = "SCORE";
+    } else if (currentSort === "mistakes") {
+      metricTitle = "MISTAKES";
+    } else if (currentSort === "timeLeft") {
+      metricTitle = "TIME LEFT";
+    }
+
     header.className = "leaderboard-header-row daily-grid";
-    header.innerHTML = `
-      <div>RANK</div>
-      <div>USERNAME</div>
-      <div>SCORE</div>
-      <div>MISTAKES</div>
-      <div>TIME LEFT</div>
-    `;
   } else {
+    if (currentSort === "bestStreak") {
+      metricTitle = "BEST STREAK";
+    } else if (currentSort === "totalWords") {
+      metricTitle = "TOTAL WORDS";
+    } else if (currentSort === "accuracy") {
+      metricTitle = "ACCURACY";
+    }
+
     header.className = "leaderboard-header-row unlimited-grid";
-    header.innerHTML = `
-      <div>RANK</div>
-      <div>USERNAME</div>
-      <div>BEST STREAK</div>
-      <div>TOTAL WORDS</div>
-      <div>GAMES</div>
-    `;
   }
+
+  header.innerHTML = `
+    <div>RANK</div>
+    <div>USERNAME</div>
+    <div>${metricTitle}</div>
+  `;
 }
 
 function renderControls() {
@@ -248,14 +258,22 @@ function renderDailyRows(data) {
     const row = document.createElement("div");
     row.className = "table-row daily-grid";
 
+    let metricValue = "";
+
+    if (currentSort === "dailyScore") {
+      metricValue = getDailyScore(player);
+    } else if (currentSort === "mistakes") {
+      metricValue = player.mistakes;
+    } else if (currentSort === "timeLeft") {
+      metricValue = formatTime(player.timeLeft);
+    }
+
     row.innerHTML = `
       <div class="rank-cell">#${index + 1}</div>
       <div class="player-cell">
         <span>${player.username}</span>
       </div>
-      <div class="score-green">${getDailyScore(player)}</div>
-      <div>${player.mistakes}</div>
-      <div>${formatTime(player.timeLeft)}</div>
+      <div class="score-green">${metricValue}</div>
     `;
 
     body.appendChild(row);
@@ -270,14 +288,22 @@ function renderUnlimitedRows(data) {
     const row = document.createElement("div");
     row.className = "table-row unlimited-grid";
 
+    let metricValue = "";
+
+    if (currentSort === "bestStreak") {
+      metricValue = player.bestStreak;
+    } else if (currentSort === "totalWords") {
+      metricValue = player.totalWords;
+    } else if (currentSort === "accuracy") {
+      metricValue = `${player.accuracy}%`;
+    }
+
     row.innerHTML = `
       <div class="rank-cell">#${index + 1}</div>
       <div class="player-cell">
         <span>${player.username}</span>
       </div>
-      <div class="score-green">${player.bestStreak}</div>
-      <div>${player.totalWords}</div>
-      <div>${player.games}</div>
+      <div class="score-green">${metricValue}</div>
     `;
 
     body.appendChild(row);
