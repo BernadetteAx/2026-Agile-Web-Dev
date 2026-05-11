@@ -10,14 +10,14 @@ const dailyPlayers = [
 ];
 
 const unlimitedPlayers = [
-  { username: "ALEX99", bestStreak: 14, totalWords: 88, games: 12, accuracy: 82 },
-  { username: "PIXELSAM", bestStreak: 11, totalWords: 74, games: 10, accuracy: 78 },
-  { username: "NOVA", bestStreak: 9, totalWords: 61, games: 9, accuracy: 84 },
-  { username: "MOONCAT", bestStreak: 8, totalWords: 55, games: 8, accuracy: 75 },
-  { username: "BEEBEE", bestStreak: 6, totalWords: 42, games: 7, accuracy: 70 },
-  { username: "KELSEY", bestStreak: 5, totalWords: 39, games: 7, accuracy: 73 },
-  { username: "JORDAN", bestStreak: 4, totalWords: 33, games: 6, accuracy: 66 },
-  { username: "GHOST", bestStreak: 3, totalWords: 21, games: 5, accuracy: 64 }
+  { username: "ALEX99", bestStreak: 14, totalWords: 88, games: 12 },
+  { username: "PIXELSAM", bestStreak: 11, totalWords: 74, games: 10 },
+  { username: "NOVA", bestStreak: 9, totalWords: 61, games: 9 },
+  { username: "MOONCAT", bestStreak: 8, totalWords: 55, games: 8 },
+  { username: "BEEBEE", bestStreak: 6, totalWords: 42, games: 7 },
+  { username: "KELSEY", bestStreak: 5, totalWords: 39, games: 7 },
+  { username: "JORDAN", bestStreak: 4, totalWords: 33, games: 6 },
+  { username: "GHOST", bestStreak: 3, totalWords: 21, games: 5 }
 ];
 
 let currentMode = "daily";
@@ -78,15 +78,15 @@ function getSortedUnlimitedPlayers() {
 
   if (currentSort === "bestStreak") {
     data.sort(function (a, b) {
-      return b.bestStreak - a.bestStreak || b.accuracy - a.accuracy;
+      return b.bestStreak - a.bestStreak || b.totalWords - a.totalWords || b.games - a.games;
     });
   } else if (currentSort === "totalWords") {
     data.sort(function (a, b) {
-      return b.totalWords - a.totalWords || b.bestStreak - a.bestStreak;
+      return b.totalWords - a.totalWords || b.bestStreak - a.bestStreak || b.games - a.games;
     });
-  } else if (currentSort === "accuracy") {
+  } else if (currentSort === "games") {
     data.sort(function (a, b) {
-      return b.accuracy - a.accuracy || b.bestStreak - a.bestStreak;
+      return b.games - a.games || b.bestStreak - a.bestStreak || b.totalWords - a.totalWords;
     });
   }
 
@@ -107,7 +107,7 @@ function getOfficialUnlimitedRanking() {
   const data = [...unlimitedPlayers];
 
   data.sort(function (a, b) {
-    return b.bestStreak - a.bestStreak || b.accuracy - a.accuracy || b.totalWords - a.totalWords;
+    return b.bestStreak - a.bestStreak || b.totalWords - a.totalWords || b.games - a.games;
   });
 
   return data;
@@ -133,8 +133,8 @@ function renderHeader() {
       metricTitle = "BEST STREAK";
     } else if (currentSort === "totalWords") {
       metricTitle = "TOTAL WORDS";
-    } else if (currentSort === "accuracy") {
-      metricTitle = "ACCURACY";
+    } else if (currentSort === "games") {
+      metricTitle = "GAMES";
     }
 
     header.className = "leaderboard-header-row unlimited-grid";
@@ -161,7 +161,7 @@ function renderControls() {
     controls.innerHTML = `
       <button class="sort-button ${currentSort === "bestStreak" ? "active-sort" : ""}" data-sort="bestStreak">SORT BY STREAK</button>
       <button class="sort-button ${currentSort === "totalWords" ? "active-sort" : ""}" data-sort="totalWords">SORT BY WORDS</button>
-      <button class="sort-button ${currentSort === "accuracy" ? "active-sort" : ""}" data-sort="accuracy">SORT BY ACCURACY</button>
+      <button class="sort-button ${currentSort === "games" ? "active-sort" : ""}" data-sort="games">SORT BY GAMES</button>
       <button class="sort-button" id="show-podium-btn">SHOW TOP 3</button>
     `;
   }
@@ -205,7 +205,7 @@ function renderQuickStats(data) {
   } else {
     const bestStreak = Math.max(...data.map((p) => p.bestStreak));
     const totalWords = data.reduce((sum, p) => sum + p.totalWords, 0);
-    const topAccuracy = Math.max(...data.map((p) => p.accuracy));
+    const totalGames = data.reduce((sum, p) => sum + p.games, 0);
 
     quickStats.innerHTML = `
       <div class="stat-card">
@@ -221,8 +221,8 @@ function renderQuickStats(data) {
         <div class="stat-value">${totalWords}</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">TOP ACCURACY</div>
-        <div class="stat-value">${topAccuracy}%</div>
+        <div class="stat-label">TOTAL GAMES</div>
+        <div class="stat-value">${totalGames}</div>
       </div>
     `;
   }
@@ -246,7 +246,7 @@ function renderChampion() {
     championLabel.textContent = "ENDLESS CHAMPION";
     championName.textContent = champion.username;
     championScore.textContent = `${champion.bestStreak} WORD STREAK`;
-    championDetail.textContent = `${champion.totalWords} total words · ${champion.games} games · ${champion.accuracy}% accuracy`;
+    championDetail.textContent = `${champion.totalWords} total words · ${champion.games} games`;
   }
 }
 
@@ -294,8 +294,8 @@ function renderUnlimitedRows(data) {
       metricValue = player.bestStreak;
     } else if (currentSort === "totalWords") {
       metricValue = player.totalWords;
-    } else if (currentSort === "accuracy") {
-      metricValue = `${player.accuracy}%`;
+    } else if (currentSort === "games") {
+      metricValue = player.games;
     }
 
     row.innerHTML = `
@@ -384,7 +384,7 @@ function showPodiumPopup() {
           ${first.username}
           <span class="medal-icon">🥇</span>
         </div>
-        <div class="podium-points">${first.bestStreak} STREAK<br>${first.totalWords} words<br>${first.accuracy}% accuracy</div>
+        <div class="podium-points">${first.bestStreak} STREAK<br>${first.totalWords} words<br>${first.games} games</div>
       </div>
 
       <div class="podium-player second">
@@ -394,7 +394,7 @@ function showPodiumPopup() {
           ${second.username}
           <span class="medal-icon">🥈</span>
         </div>
-        <div class="podium-points">${second.bestStreak} STREAK<br>${second.totalWords} words<br>${second.accuracy}% accuracy</div>
+        <div class="podium-points">${second.bestStreak} STREAK<br>${second.totalWords} words<br>${second.games} games</div>
       </div>
 
       <div class="podium-player third">
@@ -404,7 +404,7 @@ function showPodiumPopup() {
           ${third.username}
           <span class="medal-icon">🥉</span>
         </div>
-        <div class="podium-points">${third.bestStreak} STREAK<br>${third.totalWords} words<br>${third.accuracy}% accuracy</div>
+        <div class="podium-points">${third.bestStreak} STREAK<br>${third.totalWords} words<br>${third.games} games</div>
       </div>
     `;
   }
