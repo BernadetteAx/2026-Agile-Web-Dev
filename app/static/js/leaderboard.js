@@ -296,15 +296,11 @@ function renderLeaderboard() {
 
   if (currentMode === "daily") {
     data = getSortedDailyPlayers();
-    document.getElementById("leaderboard-description").textContent =
-      "Daily ranking is based on a combined score from fewer mistakes and more time left.";
     renderQuickStats(data);
     renderChampion();
     renderDailyRows(data);
   } else {
     data = getSortedUnlimitedPlayers();
-    document.getElementById("leaderboard-description").textContent =
-      "Unlimited ranking is based on the strongest run, total words guessed, and player accuracy.";
     renderQuickStats(data);
     renderChampion();
     renderUnlimitedRows(data);
