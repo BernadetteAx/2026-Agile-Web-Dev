@@ -150,6 +150,128 @@ def leaderboard():
     return render_template("leaderboard.html")
 
 
+# leaderboard API
+
+
+@main.route("/api/leaderboard")
+@login_required
+def api_leaderboard():
+    mode = request.args.get("mode", "daily")
+    sort_by = request.args.get("sort", "dailyScore")
+
+    if mode == "daily":
+        return build_daily_leaderboard(sort_by)
+
+    if mode == "unlimited":
+        return build_unlimited_leaderboard(sort_by)
+
+    return jsonify({"error": "Invalid leaderboard mode"}), 400
+
+def build_daily_leaderboard(sort_by):
+    today = date.today()
+    daily_word = DailyWord.query.filter_by(date=today).first()
+
+    if not daily_word:
+        return jsonify([]), 200
+
+    states = (
+        DailyGameState.query
+        .filter(
+            DailyGameState.daily_word_id == daily_word.id,
+            DailyGameState.won.isnot(None)
+        )
+        .order_by(DailyGameState.id.desc())
+        .all()
+    )
+
+    rows = []
+    used_users = set()
+
+    for state in states:
+        if state.user_id in used_users:
+            continue
+
+        used_users.add(state.user_id)
+
+        time_left = state.time_left or 0
+        score = 100 + time_left - state.mistakes * 15
+
+        rows.append({
+            "username": state.user.username.upper(),
+            "score": score,
+            "mistakes": state.mistakes,
+            "timeLeft": time_left
+        })
+
+    if sort_by == "mistakes":
+        rows.sort(key=lambda row: (row["mistakes"], -row["timeLeft"]))
+    elif sort_by == "timeLeft":
+        rows.sort(key=lambda row: (-row["timeLeft"], row["mistakes"]))
+    else:
+        rows.sort(key=lambda row: (-row["score"], row["mistakes"], -row["timeLeft"]))
+
+    for index, row in enumerate(rows):
+        row["rank"] = index + 1
+
+    return jsonify(rows), 200
+
+
+def build_unlimited_leaderboard(sort_by):
+    games = (
+        UnlimitedGameState.query
+        .filter(UnlimitedGameState.won.isnot(None))
+        .order_by(UnlimitedGameState.user_id, UnlimitedGameState.started_at)
+        .all()
+    )
+
+    games_by_user = {}
+
+    for game in games:
+        if game.user_id not in games_by_user:
+            games_by_user[game.user_id] = []
+
+        games_by_user[game.user_id].append(game)
+
+    rows = []
+
+    for user_id, user_games in games_by_user.items():
+        user = User.query.get(user_id)
+
+        total_games = len(user_games)
+        total_words = 0
+        current_streak = 0
+        best_streak = 0
+
+        for game in user_games:
+            if game.won:
+                total_words += 1
+                current_streak += 1
+
+                if current_streak > best_streak:
+                    best_streak = current_streak
+            else:
+                current_streak = 0
+
+        rows.append({
+            "username": user.username.upper(),
+            "bestStreak": best_streak,
+            "totalWords": total_words,
+            "games": total_games
+        })
+        
+    if sort_by == "totalWords":
+        rows.sort(key=lambda row: (-row["totalWords"], -row["bestStreak"], -row["games"]))
+    elif sort_by == "games":
+        rows.sort(key=lambda row: (-row["games"], -row["bestStreak"], -row["totalWords"]))
+    else:
+        rows.sort(key=lambda row: (-row["bestStreak"], -row["totalWords"], -row["games"]))
+
+    for index, row in enumerate(rows):
+        row["rank"] = index + 1
+
+    return jsonify(rows), 200
+
+
 # achievements API
 
 @main.route("/api/achievements")

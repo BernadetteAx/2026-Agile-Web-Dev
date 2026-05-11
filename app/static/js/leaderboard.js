@@ -23,6 +23,16 @@ const unlimitedPlayers = [
 let currentMode = "daily";
 let currentSort = "dailyScore";
 
+async function fetchLeaderboardData() {
+  const response = await fetch(`/api/leaderboard?mode=${currentMode}&sort=${currentSort}`);
+
+  if (!response.ok) {
+    throw new Error("Failed to load leaderboard data");
+  }
+
+  return await response.json();
+}
+
 function getDailyScore(player) {
   return 100 + player.timeLeft - player.mistakes * 15;
 }
@@ -228,19 +238,26 @@ function renderQuickStats(data) {
   }
 }
 
-function renderChampion() {
-  const officialData = currentMode === "daily" ? getOfficialDailyRanking() : getOfficialUnlimitedRanking();
-  const champion = officialData[0];
-
+function renderChampion(data) {
   const championLabel = document.getElementById("champion-label");
   const championName = document.getElementById("champion-name");
   const championScore = document.getElementById("champion-score");
   const championDetail = document.getElementById("champion-detail");
 
+  if (!data || data.length === 0) {
+    championLabel.textContent = currentMode === "daily" ? "TODAY'S CHAMPION" : "ENDLESS CHAMPION";
+    championName.textContent = "---";
+    championScore.textContent = "NO DATA YET";
+    championDetail.textContent = "Play a game to appear on the leaderboard.";
+    return;
+  }
+
+  const champion = data[0];
+
   if (currentMode === "daily") {
     championLabel.textContent = "TODAY'S CHAMPION";
     championName.textContent = champion.username;
-    championScore.textContent = `${getDailyScore(champion)} PTS`;
+    championScore.textContent = `${champion.score} PTS`;
     championDetail.textContent = `${champion.mistakes} mistake${champion.mistakes !== 1 ? "s" : ""} · ${formatTime(champion.timeLeft)} left`;
   } else {
     championLabel.textContent = "ENDLESS CHAMPION";
@@ -310,31 +327,43 @@ function renderUnlimitedRows(data) {
   });
 }
 
-function renderLeaderboard() {
-  let data;
+async function renderLeaderboard() {
+
+  let data = [];
+
+  try {
+    data = await fetchLeaderboardData();
+  } catch (error) {
+    console.error(error);
+  }
 
   renderHeader();
   renderControls();
 
   if (currentMode === "daily") {
-    data = getSortedDailyPlayers();
     renderQuickStats(data);
-    renderChampion();
+    renderChampion(data);
     renderDailyRows(data);
   } else {
-    data = getSortedUnlimitedPlayers();
     renderQuickStats(data);
-    renderChampion();
+    renderChampion(data);
     renderUnlimitedRows(data);
   }
 }
 
-function showPodiumPopup() {
+async function showPodiumPopup() {
   const popup = document.getElementById("podium-popup");
   const stage = document.getElementById("podium-stage");
   const title = document.getElementById("podium-title");
 
-  const data = currentMode === "daily" ? getOfficialDailyRanking() : getOfficialUnlimitedRanking();
+  let data = [];
+
+  try {
+    data = await fetchLeaderboardData();
+  } catch (error) {
+    console.error(error);
+  }
+
   const topThree = data.slice(0, 3);
 
   title.textContent = currentMode === "daily" ? "DAILY TOP 3" : "UNLIMITED TOP 3";
@@ -343,71 +372,41 @@ function showPodiumPopup() {
   const second = topThree[1];
   const third = topThree[2];
 
-  if (currentMode === "daily") {
-    stage.innerHTML = `
-      <div class="podium-player first">
-        <div class="podium-rank">#1</div>
-        <div class="podium-name">
-          <span class="medal-icon">🥇</span>
-          ${first.username}
-          <span class="medal-icon">🥇</span>
-        </div>
-        <div class="podium-points">${getDailyScore(first)} PTS<br>${first.mistakes} mistakes<br>${formatTime(first.timeLeft)} left</div>
-      </div>
-
-      <div class="podium-player second">
-        <div class="podium-rank">#2</div>
-        <div class="podium-name">
-          <span class="medal-icon">🥈</span>
-          ${second.username}
-          <span class="medal-icon">🥈</span>
-        </div>
-        <div class="podium-points">${getDailyScore(second)} PTS<br>${second.mistakes} mistakes<br>${formatTime(second.timeLeft)} left</div>
-      </div>
-
-      <div class="podium-player third">
-        <div class="podium-rank">#3</div>
-        <div class="podium-name">
-          <span class="medal-icon">🥉</span>
-          ${third.username}
-          <span class="medal-icon">🥉</span>
-        </div>
-        <div class="podium-points">${getDailyScore(third)} PTS<br>${third.mistakes} mistakes<br>${formatTime(third.timeLeft)} left</div>
-      </div>
-    `;
-  } else {
-    stage.innerHTML = `
-      <div class="podium-player first">
-        <div class="podium-rank">#1</div>
-        <div class="podium-name">
-          <span class="medal-icon">🥇</span>
-          ${first.username}
-          <span class="medal-icon">🥇</span>
-        </div>
-        <div class="podium-points">${first.bestStreak} STREAK<br>${first.totalWords} words<br>${first.games} games</div>
-      </div>
-
-      <div class="podium-player second">
-        <div class="podium-rank">#2</div>
-        <div class="podium-name">
-          <span class="medal-icon">🥈</span>
-          ${second.username}
-          <span class="medal-icon">🥈</span>
-        </div>
-        <div class="podium-points">${second.bestStreak} STREAK<br>${second.totalWords} words<br>${second.games} games</div>
-      </div>
-
-      <div class="podium-player third">
-        <div class="podium-rank">#3</div>
-        <div class="podium-name">
-          <span class="medal-icon">🥉</span>
-          ${third.username}
-          <span class="medal-icon">🥉</span>
-        </div>
-        <div class="podium-points">${third.bestStreak} STREAK<br>${third.totalWords} words<br>${third.games} games</div>
-      </div>
-    `;
+  if (topThree.length === 0) {
+    stage.innerHTML = `<div class="podium-player first">NO DATA YET</div>`;
+    popup.classList.remove("hidden");
+    return;
   }
+
+  const podiumPlayers = [
+    { player: first, place: "first", medal: "🥇", rank: "#1" },
+    { player: second, place: "second", medal: "🥈", rank: "#2" },
+    { player: third, place: "third", medal: "🥉", rank: "#3" }
+  ].filter((item) => item.player);
+
+stage.innerHTML = podiumPlayers.map((item) => {
+  const player = item.player;
+
+  let points = "";
+
+  if (currentMode === "daily") {
+    points = `${player.score} PTS<br>${player.mistakes} mistakes<br>${formatTime(player.timeLeft)} left`;
+  } else {
+    points = `${player.bestStreak} STREAK<br>${player.totalWords} words<br>${player.games} games`;
+  }
+
+  return `
+    <div class="podium-player ${item.place}">
+      <div class="podium-rank">${item.rank}</div>
+      <div class="podium-name">
+        <span class="medal-icon">${item.medal}</span>
+        ${player.username}
+        <span class="medal-icon">${item.medal}</span>
+      </div>
+      <div class="podium-points">${points}</div>
+    </div>
+  `;
+}).join("");
 
   popup.classList.remove("hidden");
   triggerPodiumFireworks();
