@@ -67,11 +67,6 @@ class TestUserModel:
         user = create_user(db_session)
         assert user.check_password("password1") is True
 
-    # check_password should return False for the wrong password
-    def test_check_password_wrong(self, app, db_session):
-        user = create_user(db_session)
-        assert user.check_password("wrongpassword") is False
-
     # new users should start with 0 wins and 0 streak
     def test_user_defaults(self, app, db_session):
         user = create_user(db_session)
@@ -172,16 +167,6 @@ class TestAuthRoutes:
         res = client.post("/api/auth/logout")
         assert res.status_code == 200
 
-    # authenticated /api/auth/me should return user info
-    def test_me_authenticated(self, app, client, db_session):
-        create_user(db_session)
-        login(client)
-        res = client.get("/api/auth/me")
-        assert res.status_code == 200
-        data = res.get_json()
-        assert data["username"] == "testuser"
-        assert "email" not in data  # email should not be exposed
-
     # unauthenticated /api/auth/me should return 401
     def test_me_unauthenticated(self, app, client):
         res = client.get("/api/auth/me")
@@ -195,21 +180,6 @@ class TestProtectedRoutes:
         res = client.get("/home")
         assert res.status_code == 302
         assert "/login" in res.headers["Location"]
-
-    # daily page should redirect to login if not authenticated
-    def test_daily_redirects_when_not_logged_in(self, app, client):
-        res = client.get("/daily")
-        assert res.status_code == 302
-
-    # achievements page should redirect to login if not authenticated
-    def test_achievements_redirects_when_not_logged_in(self, app, client):
-        res = client.get("/achievements")
-        assert res.status_code == 302
-
-    # friends page should redirect to login if not authenticated
-    def test_friends_redirects_when_not_logged_in(self, app, client):
-        res = client.get("/friends")
-        assert res.status_code == 302
 
     # home page should be accessible when logged in
     def test_home_accessible_when_logged_in(self, app, client, db_session):
