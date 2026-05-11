@@ -1,14 +1,6 @@
 """
-Selenium WebDriver Tests for Hangman App
-Run with: python -m pytest app/tests/test_selenium.py -v
-
-Requirements:
-    pip install selenium pytest
-    Chrome + ChromeDriver must be installed and on PATH
-    Flask app must be running at http://127.0.0.1:5000
-
 Start the app first: flask run
-Then run tests in a separate terminal.
+Run with on seperate terminal: python -m pytest app/tests/test_selenium.py -v
 """
 
 import pytest
@@ -24,15 +16,16 @@ from selenium.common.exceptions import TimeoutException
 BASE_URL = "http://127.0.0.1:5000"
 
 # test credentials
+# this is an existing account in MY database
+#change for an exitsing account in your own databases
 TEST_EMAIL = "asd"
 TEST_PASSWORD = "asdasd1!"
 TEST_USERNAME = "asd"
 
-
 # driver fixture
+# set up headless Chrome for all tests in this module
 @pytest.fixture(scope="module")
 def driver():
-    """Set up headless Chrome for all tests in this module."""
     options = Options()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
@@ -44,10 +37,9 @@ def driver():
     yield driver
     driver.quit()
 
-
+# Log in once and reuse the session for all tests that need auth
 @pytest.fixture(scope="module")
 def logged_in_driver(driver):
-    """Log in once and reuse the session for all tests that need auth."""
     driver.get(f"{BASE_URL}/login")
     wait = WebDriverWait(driver, 10)
 
@@ -62,12 +54,13 @@ def logged_in_driver(driver):
 
 
 # helper
+# these functions can be used in tests to wait for elements to appear
 def wait_for(driver, by, value, timeout=10):
     return WebDriverWait(driver, timeout).until(
         EC.presence_of_element_located((by, value))
     )
 
-
+# wait for element to be visible
 def wait_for_visible(driver, by, value, timeout=10):
     return WebDriverWait(driver, timeout).until(
         EC.visibility_of_element_located((by, value))
@@ -76,16 +69,16 @@ def wait_for_visible(driver, by, value, timeout=10):
 # auth tests
 class TestAuthUI:
 
+    # login page should load and show the login form
     def test_login_page_loads(self, driver):
-        """Login page should load and show the login form."""
         driver.get(f"{BASE_URL}/login")
         assert "LOGIN" in driver.title.upper() or "HANGMAN" in driver.title.upper()
         assert driver.find_element(By.ID, "loginEmail")
         assert driver.find_element(By.ID, "loginPassword")
         assert driver.find_element(By.ID, "loginBtn")
 
+    # register page should load and show the registration form
     def test_register_page_loads(self, driver):
-        """Register page should load and show the registration form."""
         driver.get(f"{BASE_URL}/register")
         assert driver.find_element(By.ID, "registerUsername")
         assert driver.find_element(By.ID, "registerEmail")
@@ -93,16 +86,16 @@ class TestAuthUI:
         assert driver.find_element(By.ID, "registerConfirmPassword")
         assert driver.find_element(By.ID, "registerBtn")
 
+    # submitting empty login form should show an error message
     def test_login_empty_fields_shows_error(self, driver):
-        """Submitting empty login form should show an error message."""
         driver.get(f"{BASE_URL}/login")
         driver.find_element(By.ID, "loginBtn").click()
         time.sleep(0.5)
         msg = driver.find_element(By.ID, "loginMessage")
         assert msg.text != ""
 
+    # wrong password should show an error message
     def test_login_wrong_password_shows_error(self, driver):
-        """Wrong password should show an error message."""
         driver.get(f"{BASE_URL}/login")
         driver.find_element(By.ID, "loginEmail").send_keys(TEST_EMAIL)
         driver.find_element(By.ID, "loginPassword").send_keys("wrongpassword")
@@ -111,8 +104,8 @@ class TestAuthUI:
         msg = driver.find_element(By.ID, "loginMessage")
         assert msg.text != ""
 
+    # successful login should redirect to /home
     def test_login_success_redirects_to_home(self, driver):
-        """Successful login should redirect to /home."""
         driver.get(f"{BASE_URL}/login")
         wait = WebDriverWait(driver, 10)
         wait.until(EC.presence_of_element_located((By.ID, "loginEmail")))
@@ -126,8 +119,8 @@ class TestAuthUI:
         wait.until(EC.url_contains("/home"))
         assert "/home" in driver.current_url
 
+    # mismatched passwords should show an error message
     def test_register_password_mismatch_shows_error(self, driver):
-        """Mismatched passwords should show an error message."""
         driver.get(f"{BASE_URL}/register")
         driver.find_element(By.ID, "registerUsername").send_keys("newplayer")
         driver.find_element(By.ID, "registerEmail").send_keys("newplayer@test.com")
@@ -138,8 +131,8 @@ class TestAuthUI:
         msg = driver.find_element(By.ID, "registerMessage")
         assert msg.text != ""
 
+    #   password under 8 characters should show an erro
     def test_register_short_password_shows_error(self, driver):
-        """Password under 8 characters should show an error."""
         driver.get(f"{BASE_URL}/register")
         driver.find_element(By.ID, "registerUsername").send_keys("shortpwuser")
         driver.find_element(By.ID, "registerEmail").send_keys("shortpw@test.com")
@@ -153,29 +146,29 @@ class TestAuthUI:
 # navigation / access control tests
 class TestNavigation:
 
+    # visiting /home without login should redirect to /login
     def test_unauthenticated_home_redirects_to_login(self, driver):
-        """Visiting /home without login should redirect to /login."""
         driver.delete_all_cookies()
         driver.get(f"{BASE_URL}/home")
         time.sleep(1)
         assert "/login" in driver.current_url
 
+    # visiting /daily without login should redirect to /login
     def test_unauthenticated_daily_redirects_to_login(self, driver):
-        """Visiting /daily without login should redirect to /login."""
         driver.delete_all_cookies()
         driver.get(f"{BASE_URL}/daily")
         time.sleep(1)
         assert "/login" in driver.current_url
 
+    # visiting /achievements without login should redirect to /login
     def test_unauthenticated_achievements_redirects_to_login(self, driver):
-        """Visiting /achievements without login should redirect to /login."""
         driver.delete_all_cookies()
         driver.get(f"{BASE_URL}/achievements")
         time.sleep(1)
         assert "/login" in driver.current_url
 
+    # navigation icons should be present in the header when logged in
     def test_header_nav_links_present(self, logged_in_driver):
-        """Navigation icons should be present in the header when logged in."""
         logged_in_driver.get(f"{BASE_URL}/home")
         header = logged_in_driver.find_element(By.TAG_NAME, "header")
         links = header.find_elements(By.TAG_NAME, "a")
@@ -185,8 +178,8 @@ class TestNavigation:
         assert any("/achievements" in h for h in hrefs)
         assert any("/friends" in h for h in hrefs)
 
+    # clicking the login/logout icon should show the logout confirmation modal
     def test_logout_popup_appears(self, logged_in_driver):
-        """Clicking the login/logout icon should show the logout confirmation modal."""
         logged_in_driver.get(f"{BASE_URL}/home")
         wait = WebDriverWait(logged_in_driver, 10)
         login_link = wait.until(EC.element_to_be_clickable((By.ID, "login-icon-link")))
@@ -195,8 +188,8 @@ class TestNavigation:
         overlay = logged_in_driver.find_element(By.ID, "logout-overlay")
         assert "active" in overlay.get_attribute("class")
 
+    # Clicking Cancel should close the logout modal
     def test_logout_cancel_closes_popup(self, logged_in_driver):
-        """Clicking Cancel should close the logout modal."""
         logged_in_driver.get(f"{BASE_URL}/home")
         wait = WebDriverWait(logged_in_driver, 10)
         login_link = wait.until(EC.element_to_be_clickable((By.ID, "login-icon-link")))
@@ -210,25 +203,26 @@ class TestNavigation:
 # daily game tests
 class TestDailyGame:
 
+    # daily game page should load successfully
     def test_daily_page_loads(self, logged_in_driver):
         """Daily game page should load successfully."""
         logged_in_driver.get(f"{BASE_URL}/daily")
         assert logged_in_driver.find_element(By.CLASS_NAME, "word-row")
 
+    # On-screen keyboard keys should be present
     def test_keyboard_renders(self, logged_in_driver):
-        """On-screen keyboard keys should be present."""
         logged_in_driver.get(f"{BASE_URL}/daily")
         keys = logged_in_driver.find_elements(By.CLASS_NAME, "key")
         assert len(keys) == 26
 
+    # timer should be visible on the daily page
     def test_timer_displays(self, logged_in_driver):
-        """Timer should be visible on the daily page."""
         logged_in_driver.get(f"{BASE_URL}/daily")
         timer = wait_for_visible(logged_in_driver, By.CLASS_NAME, "game-timer")
         assert timer.is_displayed()
 
+    # clicking a key should change its data-state attribute
     def test_guessing_letter_marks_key(self, logged_in_driver):
-        """Clicking a key should change its data-state attribute."""
         logged_in_driver.get(f"{BASE_URL}/daily")
         wait = WebDriverWait(logged_in_driver, 10)
 
@@ -244,8 +238,8 @@ class TestDailyGame:
         state = first_key.get_attribute("data-state")
         assert state in ("correct", "wrong", "guessed")
 
+    # mistake counter should update after a wrong guess
     def test_mistake_count_updates(self, logged_in_driver):
-        """Mistake counter should update after a wrong guess."""
         logged_in_driver.get(f"{BASE_URL}/daily")
         wait = WebDriverWait(logged_in_driver, 10)
         wait.until(EC.presence_of_element_located((By.CLASS_NAME, "tile")))
@@ -269,24 +263,24 @@ class TestDailyGame:
 # achievements page tests
 class TestAchievementsPage:
 
+    # achievements page should load and render achievement boxes
     def test_achievements_page_loads(self, logged_in_driver):
-        """Achievements page should load and render achievement boxes."""
         logged_in_driver.get(f"{BASE_URL}/achievements")
         wait = WebDriverWait(logged_in_driver, 10)
         wait.until(EC.presence_of_element_located((By.CLASS_NAME, "achievement-box")))
         boxes = logged_in_driver.find_elements(By.CLASS_NAME, "achievement-box")
         assert len(boxes) > 0
 
+    # each achievement box should have a title element
     def test_achievements_have_titles(self, logged_in_driver):
-        """Each achievement box should have a title element."""
         logged_in_driver.get(f"{BASE_URL}/achievements")
         wait = WebDriverWait(logged_in_driver, 10)
         wait.until(EC.presence_of_element_located((By.CLASS_NAME, "achievement-box")))
         titles = logged_in_driver.find_elements(By.CLASS_NAME, "title")
         assert len(titles) > 0
 
+    # locked achievements should show masked text
     def test_locked_achievements_show_question_marks(self, logged_in_driver):
-        """Locked achievements should show masked text."""
         logged_in_driver.get(f"{BASE_URL}/achievements")
         wait = WebDriverWait(logged_in_driver, 10)
         wait.until(EC.presence_of_element_located((By.CLASS_NAME, "achievement-box")))
@@ -297,14 +291,14 @@ class TestAchievementsPage:
 # friends page tests
 class TestFriendsPage:
 
+    # friends page should load with search input and friends list
     def test_friends_page_loads(self, logged_in_driver):
-        """Friends page should load with search input and friends list."""
         logged_in_driver.get(f"{BASE_URL}/friends")
         assert logged_in_driver.find_element(By.ID, "searchInput")
         assert logged_in_driver.find_element(By.ID, "friendsList")
 
+    # typing in search box should trigger the dropdown
     def test_search_input_triggers_dropdown(self, logged_in_driver):
-        """Typing in search box should trigger the dropdown."""
         logged_in_driver.get(f"{BASE_URL}/friends")
         wait = WebDriverWait(logged_in_driver, 10)
         search = wait.until(EC.element_to_be_clickable((By.ID, "searchInput")))
@@ -314,8 +308,8 @@ class TestFriendsPage:
         dropdown = logged_in_driver.find_element(By.ID, "searchDropdown")
         assert "open" in dropdown.get_attribute("class")
 
+    # searching for a nonexistent username should show no results message
     def test_search_nonexistent_user_shows_no_results(self, logged_in_driver):
-        """Searching for a nonexistent username should show no results message."""
         logged_in_driver.get(f"{BASE_URL}/friends")
         wait = WebDriverWait(logged_in_driver, 10)
         search = wait.until(EC.element_to_be_clickable((By.ID, "searchInput")))
@@ -325,8 +319,8 @@ class TestFriendsPage:
         dropdown = logged_in_driver.find_element(By.ID, "searchDropdown")
         assert "NO PLAYERS FOUND" in dropdown.text or dropdown.text == ""
 
+    # sort buttons A-Z and WINS should be present on the friends page
     def test_sort_buttons_present(self, logged_in_driver):
-        """Sort buttons A-Z and WINS should be present on the friends page."""
         logged_in_driver.get(f"{BASE_URL}/friends")
         sort_buttons = logged_in_driver.find_elements(By.CLASS_NAME, "sort-btn")
         labels = [btn.text.strip() for btn in sort_buttons]

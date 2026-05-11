@@ -57,37 +57,37 @@ def login(client, email="test@test.com", password="password1"):
 # user model tests
 class TestUserModel:
 
+    # password should be hashed not stored as plaintext
     def test_password_is_hashed(self, app, db_session):
-        """Password should never be stored as plaintext."""
         user = create_user(db_session)
         assert user.password != "password1"
 
+    # check_password should return True for the correct password
     def test_check_password_correct(self, app, db_session):
-        """check_password should return True for the correct password."""
         user = create_user(db_session)
         assert user.check_password("password1") is True
 
+    # check_password should return False for the wrong password
     def test_check_password_wrong(self, app, db_session):
-        """check_password should return False for the wrong password."""
         user = create_user(db_session)
         assert user.check_password("wrongpassword") is False
 
+    # new users should start with 0 wins and 0 streak
     def test_user_defaults(self, app, db_session):
-        """New users should have 0 wins and 0 streak."""
         user = create_user(db_session)
         assert user.wins == 0
         assert user.streak == 0
 
+    # username should be unique
     def test_username_is_unique(self, app, db_session):
-        """Two users cannot share the same username."""
         from app import db
         from sqlalchemy.exc import IntegrityError
         create_user(db_session, username="dupeuser", email="a@a.com")
         with pytest.raises(IntegrityError):
             create_user(db_session, username="dupeuser", email="b@b.com")
 
+    # email should be unique
     def test_email_is_unique(self, app, db_session):
-        """Two users cannot share the same email."""
         from app import db
         from sqlalchemy.exc import IntegrityError
         create_user(db_session, username="user1", email="same@same.com")
@@ -97,8 +97,8 @@ class TestUserModel:
 # auth route tests
 class TestAuthRoutes:
 
+    # valid registration should create a user and return 201
     def test_register_success(self, app, client):
-        """Valid registration should return 201 and create a user."""
         res = client.post("/api/auth/register", json={
             "username": "newuser",
             "email": "new@test.com",
@@ -107,13 +107,13 @@ class TestAuthRoutes:
         assert res.status_code == 201
         assert res.get_json()["username"] == "newuser"
 
+    # registration without all fields should return 400
     def test_register_missing_fields(self, app, client):
-        """Registration without all fields should return 400."""
         res = client.post("/api/auth/register", json={"email": "x@x.com"})
         assert res.status_code == 400
 
+    # password under 8 characters should be rejected
     def test_register_short_password(self, app, client):
-        """Password under 8 characters should be rejected."""
         res = client.post("/api/auth/register", json={
             "username": "shortpw",
             "email": "short@test.com",
@@ -121,8 +121,8 @@ class TestAuthRoutes:
         })
         assert res.status_code == 400
 
+    # registering with an existing email should return 400
     def test_register_duplicate_email(self, app, client, db_session):
-        """Registering with an existing email should return 400."""
         create_user(db_session)
         res = client.post("/api/auth/register", json={
             "username": "another",
@@ -131,8 +131,8 @@ class TestAuthRoutes:
         })
         assert res.status_code == 400
 
+    # registering with an existing username should return 400
     def test_register_duplicate_username(self, app, client, db_session):
-        """Registering with an existing username should return 400."""
         create_user(db_session)
         res = client.post("/api/auth/register", json={
             "username": "testuser",
@@ -141,15 +141,15 @@ class TestAuthRoutes:
         })
         assert res.status_code == 400
 
+    # valid login should return 200 and user info
     def test_login_success(self, app, client, db_session):
-        """Valid credentials should return 200."""
         create_user(db_session)
         res = login(client)
         assert res.status_code == 200
         assert "username" in res.get_json()
 
+    # wrong password should return 401
     def test_login_wrong_password(self, app, client, db_session):
-        """Wrong password should return 401."""
         create_user(db_session)
         res = client.post("/api/auth/login", json={
             "email": "test@test.com",
@@ -157,23 +157,23 @@ class TestAuthRoutes:
         })
         assert res.status_code == 401
 
+    # logging in with an unknown email should return 401
     def test_login_nonexistent_user(self, app, client):
-        """Login with unknown email should return 401."""
         res = client.post("/api/auth/login", json={
             "email": "nobody@test.com",
             "password": "password1"
         })
         assert res.status_code == 401
 
+    # logout should return 200 and clear the session
     def test_logout(self, app, client, db_session):
-        """Logout should return 200 and clear the session."""
         create_user(db_session)
         login(client)
         res = client.post("/api/auth/logout")
         assert res.status_code == 200
 
+    # authenticated /api/auth/me should return user info
     def test_me_authenticated(self, app, client, db_session):
-        """Authenticated /api/auth/me should return user info."""
         create_user(db_session)
         login(client)
         res = client.get("/api/auth/me")
@@ -182,47 +182,52 @@ class TestAuthRoutes:
         assert data["username"] == "testuser"
         assert "email" not in data  # email should not be exposed
 
+    # unauthenticated /api/auth/me should return 401
     def test_me_unauthenticated(self, app, client):
-        """/api/auth/me should return 401 when not logged in."""
         res = client.get("/api/auth/me")
         assert res.status_code == 401
 
 # protected route tests
 class TestProtectedRoutes:
 
+    # accessing protected routes without login should redirect to login page
     def test_home_redirects_when_not_logged_in(self, app, client):
-        """Home page should redirect to login if not authenticated."""
         res = client.get("/home")
         assert res.status_code == 302
         assert "/login" in res.headers["Location"]
 
+    # daily page should redirect to login if not authenticated
     def test_daily_redirects_when_not_logged_in(self, app, client):
-        """Daily page should redirect to login if not authenticated."""
         res = client.get("/daily")
         assert res.status_code == 302
 
+    # achievements page should redirect to login if not authenticated
     def test_achievements_redirects_when_not_logged_in(self, app, client):
-        """Achievements page should redirect to login if not authenticated."""
         res = client.get("/achievements")
         assert res.status_code == 302
 
+    # friends page should redirect to login if not authenticated
+    def test_friends_redirects_when_not_logged_in(self, app, client):
+        res = client.get("/friends")
+        assert res.status_code == 302
+
+    # home page should be accessible when logged in
     def test_home_accessible_when_logged_in(self, app, client, db_session):
-        """Home page should be accessible when authenticated."""
         create_user(db_session)
         login(client)
         res = client.get("/home")
         assert res.status_code == 200
 
+    # daily page should be accessible when logged in
     def test_api_achievements_requires_login(self, app, client):
-        """/api/achievements should return 401 when not logged in."""
         res = client.get("/api/achievements")
         assert res.status_code == 401
 
 # achievement logic tests
 class TestAchievementLogic:
 
+    # win games achievement should unlock when user has enough wins
     def test_win_games_achievement_unlocked(self, app, db_session):
-        """Win achievement should unlock when user has enough wins."""
         from app.models import Achievement
         from app.services.achievements import check_achievement
 
@@ -235,8 +240,8 @@ class TestAchievementLogic:
         )
         assert check_achievement(user, achievement) is True
 
+    # win games achievement should not unlock when user has too few wins
     def test_win_games_achievement_locked(self, app, db_session):
-        """Win achievement should not unlock when user has too few wins."""
         from app.models import Achievement
         from app.services.achievements import check_achievement
 
@@ -249,8 +254,8 @@ class TestAchievementLogic:
         )
         assert check_achievement(user, achievement) is False
 
+    # streak achievement should unlock when user has enough streak
     def test_streak_achievement_unlocked(self, app, db_session):
-        """Streak achievement should unlock when user has enough streak."""
         from app.models import Achievement
         from app.services.achievements import check_achievement
 
@@ -263,8 +268,8 @@ class TestAchievementLogic:
         )
         assert check_achievement(user, achievement) is True
 
+    # streak achievement should not unlock when user has too low streak
     def test_streak_achievement_locked(self, app, db_session):
-        """Streak achievement should not unlock when streak is too low."""
         from app.models import Achievement
         from app.services.achievements import check_achievement
 
@@ -277,8 +282,8 @@ class TestAchievementLogic:
         )
         assert check_achievement(user, achievement) is False
 
+    # achievements with unknown condition types should return False
     def test_unknown_condition_returns_false(self, app, db_session):
-        """Unknown condition types should return False safely."""
         from app.models import Achievement
         from app.services.achievements import check_achievement
 
@@ -294,14 +299,14 @@ class TestAchievementLogic:
 # daily word API tests
 class TestDailyWordAPI:
 
+    # accessing daily word without login should return 401
     def test_daily_word_requires_login(self, app, client):
-        """/api/daily-word should return 401 when not logged in."""
         res = client.get("/api/daily-word")
         assert res.status_code == 401
 
+    # daily word endpoint should return a word when logged in
     @patch("app.routes.requests.get")
     def test_daily_word_returns_word(self, mock_get, app, client, db_session):
-        """Daily word endpoint should return a word when logged in."""
         mock_response = MagicMock()
         mock_response.json.return_value = [
             {"word": "python"}, {"word": "flask"}, {"word": "hangman"}
@@ -318,9 +323,9 @@ class TestDailyWordAPI:
         assert "word" in data
         assert "daily_word_id" in data
 
+    # the same word should be returned on repeated calls for the same day
     @patch("app.routes.requests.get")
     def test_same_word_returned_for_today(self, mock_get, app, client, db_session):
-        """Same word should be returned on repeated calls for the same day."""
         from app.models import DailyWord
         from app import db
 
@@ -342,6 +347,7 @@ class TestDailyWordAPI:
 # daily game state tests
 class TestDailyGameState:
 
+    # helper to seed a daily word for testing
     def _seed_daily_word(self, db_session):
         from app.models import DailyWord
         from app import db
@@ -350,12 +356,13 @@ class TestDailyGameState:
         db.session.commit()
         return dw
 
+    # saving game state without login should return 401
     def test_save_state_requires_login(self, app, client):
         res = client.post("/api/daily-state", json={})
         assert res.status_code == 401
 
+    # saving a valid game state should return 201
     def test_save_state_success(self, app, client, db_session):
-        """Saving a valid game state should return 201."""
         dw = self._seed_daily_word(db_session)
         create_user(db_session)
         login(client)
@@ -370,8 +377,8 @@ class TestDailyGameState:
         })
         assert res.status_code == 201
 
+    # saving a win should increment user wins and streak
     def test_save_state_updates_wins_on_win(self, app, client, db_session):
-        """Saving a win should increment user.wins."""
         from app.models import User
         dw = self._seed_daily_word(db_session)
         user = create_user(db_session)
@@ -390,8 +397,8 @@ class TestDailyGameState:
         assert updated.wins == 1
         assert updated.streak == 1
 
+    # saving a loss should reset user streak to 0
     def test_save_state_resets_streak_on_loss(self, app, client, db_session):
-        """Saving a loss should reset user.streak to 0."""
         from app.models import User
         dw = self._seed_daily_word(db_session)
         user = create_user(db_session, streak=3)
@@ -409,8 +416,8 @@ class TestDailyGameState:
         updated = User.query.get(user.id)
         assert updated.streak == 0
 
+    # missing required fields should return 400
     def test_save_state_missing_fields(self, app, client, db_session):
-        """Missing required fields should return 400."""
         create_user(db_session)
         login(client)
 
@@ -420,8 +427,8 @@ class TestDailyGameState:
 # friends API tests
 class TestFriendsAPI:
 
+    # adding a valid friend should return 200
     def test_add_friend_success(self, app, client, db_session):
-        """Adding a valid friend should return 200."""
         user = create_user(db_session, username="user1", email="u1@test.com")
         friend = create_user(db_session, username="user2", email="u2@test.com")
         login(client, email="u1@test.com")
@@ -429,24 +436,24 @@ class TestFriendsAPI:
         res = client.post("/api/add-friend", json={"name": "user2"})
         assert res.status_code == 200
 
+    # adding a non-existent user should return 404
     def test_add_friend_not_found(self, app, client, db_session):
-        """Adding a non-existent user should return 404."""
         create_user(db_session)
         login(client)
 
         res = client.post("/api/add-friend", json={"name": "ghostuser"})
         assert res.status_code == 404
 
+    # adding yourself as a friend should return 400
     def test_add_yourself_rejected(self, app, client, db_session):
-        """Adding yourself as a friend should return 400."""
         create_user(db_session)
         login(client)
 
         res = client.post("/api/add-friend", json={"name": "testuser"})
         assert res.status_code == 400
 
+    # adding the same friend twice should return 400
     def test_add_duplicate_friend_rejected(self, app, client, db_session):
-        """Adding the same friend twice should return 400."""
         create_user(db_session, username="user1", email="u1@test.com")
         create_user(db_session, username="user2", email="u2@test.com")
         login(client, email="u1@test.com")
@@ -455,8 +462,8 @@ class TestFriendsAPI:
         res = client.post("/api/add-friend", json={"name": "user2"})
         assert res.status_code == 400
 
+    # getting friends list should return the user's friends
     def test_get_friends_returns_list(self, app, client, db_session):
-        """GET /api/friends should return the user's friends list."""
         create_user(db_session, username="user1", email="u1@test.com")
         create_user(db_session, username="user2", email="u2@test.com")
         login(client, email="u1@test.com")
@@ -469,8 +476,8 @@ class TestFriendsAPI:
         assert len(friends) == 1
         assert friends[0]["name"] == "USER2"
 
+    # searching for users should return matching users
     def test_search_users(self, app, client, db_session):
-        """User search should return matching users."""
         create_user(db_session, username="alice", email="alice@test.com")
         create_user(db_session, username="bob", email="bob@test.com")
         login(client, email="alice@test.com")
@@ -480,8 +487,8 @@ class TestFriendsAPI:
         results = res.get_json()
         assert any(u["username"] == "bob" for u in results)
 
+    # searching for users should be case-insensitive
     def test_search_excludes_self(self, app, client, db_session):
-        """User search should not return the logged-in user."""
         create_user(db_session, username="alice", email="alice@test.com")
         login(client, email="alice@test.com")
 
