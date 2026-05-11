@@ -1,5 +1,4 @@
 """
-Unit Tests for Hangman Flask App
 Run with: python -m pytest app/tests/test_unit.py -v
 """
 
@@ -61,6 +60,7 @@ class TestUserModel:
     def test_password_is_hashed(self, app, db_session):
         user = create_user(db_session)
         assert user.password != "password1"
+        assert user.check_password("password1") is True
 
     # check_password should return True for the correct password
     def test_check_password_correct(self, app, db_session):
