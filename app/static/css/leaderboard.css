@@ -1,24 +1,7 @@
 .leaderboard-page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 28px 24px 90px;
-}
-
-.leaderboard-title-section {
-  text-align: center;
-  margin-bottom: 28px;
-}
-
-.leaderboard-title-section h2 {
-  margin: 0 0 18px;
-  font-size: 24px;
-}
-
-.leaderboard-title-section p {
-  margin: 0;
-  color: #cfcfcf;
-  font-size: 10px;
-  line-height: 1.8;
+  padding: 8px 24px 90px;
 }
 
 .mode-tabs {
@@ -131,6 +114,8 @@
 }
 
 .leaderboard-panel {
+  width: min(760px, 100%);
+  margin: 0 auto;
   border: 6px solid #ffffff;
   background-color: #0c0c0c;
   overflow: hidden;
@@ -165,12 +150,17 @@
   background-color: #161616;
 }
 
-.daily-grid {
-  grid-template-columns: 0.7fr 1.7fr 1fr 1fr 1fr 1.4fr;
+.daily-grid,
+.unlimited-grid {
+  grid-template-columns: repeat(3, 1fr);
 }
 
-.unlimited-grid {
-  grid-template-columns: 0.7fr 1.7fr 1.2fr 1.2fr 1fr 1.4fr;
+.leaderboard-header-row > div,
+.table-row > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
 .rank-cell {
@@ -180,6 +170,7 @@
 .player-cell {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
 }
 
@@ -336,13 +327,10 @@
     font-size: 7px;
   }
 
-  .daily-grid {
-    grid-template-columns: 0.6fr 1.5fr 1fr 1fr 1fr 1.3fr;
-  }
-
-  .unlimited-grid {
-    grid-template-columns: 0.6fr 1.5fr 1.1fr 1.1fr 0.9fr 1.3fr;
-  }
+.daily-grid,
+.unlimited-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
 
   .badge {
     font-size: 6px;
@@ -353,14 +341,6 @@
 @media (max-width: 640px) {
   .leaderboard-page {
     padding: 30px 12px 50px;
-  }
-
-  .leaderboard-title-section h2 {
-    font-size: 18px;
-  }
-
-  .leaderboard-title-section p {
-    font-size: 7px;
   }
 
   .mode-tab,
@@ -374,13 +354,17 @@
     grid-template-columns: 1fr;
   }
 
-  .leaderboard-panel {
-    overflow-x: auto;
-  }
+.leaderboard-panel {
+  width: min(680px, 100%);
+  margin: 0 auto;
+  border: 6px solid #ffffff;
+  background-color: #0c0c0c;
+  overflow: hidden;
+}
 
   .leaderboard-header-row,
   .table-row {
-    min-width: 780px;
+    min-width: 520px;
   }
 
   .podium-stage {
