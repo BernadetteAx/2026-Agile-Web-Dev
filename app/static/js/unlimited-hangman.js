@@ -170,6 +170,11 @@ async function initGame(skipFetch = false) {
     key.removeAttribute("data-state");
     key.style.pointerEvents = "auto";
   });
+
+  // Save initial game state to backend so word is persisted even with 0 guesses
+  if (!skipFetch) {
+    await saveState(null);
+  }
 }
  
 document.addEventListener("DOMContentLoaded", async () => {
