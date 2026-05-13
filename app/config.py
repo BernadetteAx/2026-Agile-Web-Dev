@@ -13,4 +13,4 @@ class Config:
     SECRET_KEY = os.getenv("HANGMAN_SECRET_KEY")
     # Ensure that the SECRET_KEY environment variable is set. If not, raise an error to prevent the app from running without a secret key.
     if not SECRET_KEY:
-        raise RuntimeError("SECRET_KEY environment variable is not set")
+        raise RuntimeError("HANGMAN_SECRET_KEY environment variable is not set")

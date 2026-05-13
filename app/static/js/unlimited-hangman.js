@@ -19,6 +19,86 @@ const parts = [
   "part-right-arm", "part-left-leg", "part-right-leg"
 ];
 
+// Fetch active game state from backend and restore if it exists
+async function fetchActiveGame() {
+  try {
+    const response = await fetch("/api/unlimited-state/active");
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Failed to fetch active game:", data.error);
+      return false;
+    }
+
+    if (data.active_game) {
+      const activeGame = data.active_game;
+      word = activeGame.word;
+      gameId = activeGame.game_id;
+
+      initGame(true); // Initialize without fetching a new word
+
+      // Restore the saved state
+      restoreState(activeGame);
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    console.error("Error fetching active game:", error);
+    return false;
+  }
+}
+
+// Restore a previously saved game state
+function restoreState(state) {
+  // Replay all guessed letters
+  if (state.guessed_letters && state.guessed_letters.length > 0) {
+    state.guessed_letters.forEach(letter => replayLetter(letter));
+  }
+
+  // Update the displayed score
+  if (state.score !== undefined) {
+    streak = state.score;
+    score.textContent = streak;
+  }
+}
+
+// Silently replay a letter without triggering game end logic
+function replayLetter(letter) {
+  if (guessedLetters.has(letter)) return;
+  guessedLetters.add(letter);
+
+  document.querySelectorAll(".key").forEach(key => {
+    if (key.textContent.trim() === letter) key.setAttribute("data-state", "guessed");
+  });
+
+  if (word.toUpperCase().includes(letter)) {
+    word.split("").forEach((char, index) => {
+      if (char.toUpperCase() === letter) {
+        wordDisplay[index] = char;
+        tiles[index].querySelector(".tile-letter").textContent = char;
+      }
+    });
+    document.querySelectorAll(".key").forEach(key => {
+      if (key.textContent.trim() === letter) key.setAttribute("data-state", "correct");
+    });
+  } else {
+    mistakes++;
+    mistakeNum.textContent = mistakes;
+    if (mistakes <= parts.length) {
+      const partElements = document.querySelectorAll(`.${parts[mistakes - 1]}`);
+      partElements.forEach(el => {
+        el.classList.remove("revealed");
+        void el.offsetWidth;
+        el.classList.add("revealed");
+      });
+    }
+    document.querySelectorAll(".key").forEach(key => {
+      if (key.textContent.trim() === letter) key.setAttribute("data-state", "wrong");
+    });
+  }
+}
+
 
 // Backend state saving
 async function saveState(won = null) {
@@ -51,22 +131,25 @@ async function saveState(won = null) {
   }
 }
  
-// Initialise game
-async function initGame() {
-  try {
-    const response = await fetch("/api/random-word");
-    const data = await response.json();
-    if (!response.ok) {
-      console.error("Failed to fetch word:", data.error);
+// Initialise game (skipFetch is true when restoring from active game)
+async function initGame(skipFetch = false) {
+  // Fetch a new word only if we're not restoring from an active game
+  if (!skipFetch) {
+    try {
+      const response = await fetch("/api/random-word");
+      const data = await response.json();
+      if (!response.ok) {
+        console.error("Failed to fetch word:", data.error);
+        return;
+      }
+      word = data.word;
+    } catch (err) {
+      console.error("Error fetching word:", err);
       return;
     }
-    word = data.word;
-  } catch (err) {
-    console.error("Error fetching word:", err);
-    return;
-  }
 
-  gameId = null;
+    gameId = null;
+  }
 
   document.querySelectorAll(".part").forEach(el => el.classList.remove("revealed"));
 
@@ -87,10 +170,15 @@ async function initGame() {
     key.removeAttribute("data-state");
     key.style.pointerEvents = "auto";
   });
+
+  // Save initial game state to backend so word is persisted even with 0 guesses
+  if (!skipFetch) {
+    await saveState(null);
+  }
 }
  
 document.addEventListener("DOMContentLoaded", async () => {
-  // restore streak when refreshing page
+  // Restore streak when refreshing page
   try {
     const res = await fetch("/api/auth/me");
     const data = await res.json();
@@ -103,18 +191,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   document.querySelectorAll(".key").forEach(key => {
-      key.addEventListener("click", () => handleGuess(key.textContent.trim()));
-    });
-
-    document.addEventListener("keydown", e => {
-      const letter = e.key.toUpperCase();
-      if (letter.length === 1 && letter >= "A" && letter <= "Z") {
-        handleGuess(letter);
-      }
-    });
-
-    initGame();
+    key.addEventListener("click", () => handleGuess(key.textContent.trim()));
   });
+
+  document.addEventListener("keydown", e => {
+    const letter = e.key.toUpperCase();
+    if (letter.length === 1 && letter >= "A" && letter <= "Z") {
+      handleGuess(letter);
+    }
+  });
+
+  // Try to restore active game; if none exists, start a new one
+  const hasActiveGame = await fetchActiveGame();
+  if (!hasActiveGame) {
+    initGame();
+  }
+});
  
 // handle a guess
 function handleGuess(letter) {
