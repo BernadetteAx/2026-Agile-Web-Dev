@@ -33,15 +33,20 @@ document.getElementById("registerBtn")?.addEventListener("click", async () => {
 
   msg.textContent = "";
 
-  if (!username || !email || !password || !confirm) {
-    showMessage(msg, "PLEASE FILL IN ALL FIELDS.", "error");
-    return;
-  }
+if (!username || !email || !password || !confirm) {
+  showMessage(msg, "PLEASE FILL IN ALL FIELDS.", "error");
+  return;
+}
 
-  if (password !== confirm) {
-    showMessage(msg, "PASSWORDS DO NOT MATCH.", "error");
-    return;
-  }
+if (username.length > 10) {
+  showMessage(msg, "USERNAME MUST BE 10 CHARACTERS OR LESS.", "error");
+  return;
+}
+
+if (password !== confirm) {
+  showMessage(msg, "PASSWORDS DO NOT MATCH.", "error");
+  return;
+}
 
   if (password.length < 8 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
     showMessage(msg, "PASSWORD MUST BE 8+ CHARACTERS WITH LETTERS AND NUMBERS.", "error");
