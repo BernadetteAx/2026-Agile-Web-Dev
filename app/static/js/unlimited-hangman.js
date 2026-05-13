@@ -61,6 +61,11 @@ function restoreState(state) {
     streak = state.score;
     score.textContent = streak;
   }
+
+  // Restore used words from the saved state
+  if (state.used_words && state.used_words.length > 0) {
+    usedWords = new Set(state.used_words);
+  }
 }
 
 // Silently replay a letter without triggering game end logic
@@ -112,6 +117,7 @@ async function saveState(won = null) {
       time_left: null,
       hangman_state: mistakes,
       won: won,
+      used_words: [...usedWords].join(","),
     };
  
     const response = await fetch("/api/unlimited-state", {
@@ -135,19 +141,26 @@ async function saveState(won = null) {
 async function initGame(skipFetch = false) {
   // Fetch a new word only if we're not restoring from an active game
   if (!skipFetch) {
-    try {
-      const response = await fetch("/api/random-word");
-      const data = await response.json();
-      if (!response.ok) {
-        console.error("Failed to fetch word:", data.error);
+    // Keep fetching until we get a word not in usedWords
+    let newWord;
+    let attempts = 0;
+    do {
+      try {
+        const response = await fetch("/api/random-word");
+        const data = await response.json();
+        if (!response.ok) {
+          console.error("Failed to fetch word:", data.error);
+          return;
+        }
+        newWord = data.word;
+        attempts++;
+      } catch (err) {
+        console.error("Error fetching word:", err);
         return;
       }
-      word = data.word;
-    } catch (err) {
-      console.error("Error fetching word:", err);
-      return;
-    }
+    } while (usedWords.has(newWord) && attempts < 10);
 
+    word = newWord;
     gameId = null;
   }
 
