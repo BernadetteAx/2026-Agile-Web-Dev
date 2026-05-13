@@ -1,25 +1,3 @@
-const dailyPlayers = [
-  { username: "PIXELSAM", mistakes: 1, timeLeft: 72 },
-  { username: "MOONCAT", mistakes: 0, timeLeft: 58 },
-  { username: "ALEX99", mistakes: 2, timeLeft: 80 },
-  { username: "BEEBEE", mistakes: 2, timeLeft: 45 },
-  { username: "KELSEY", mistakes: 3, timeLeft: 64 },
-  { username: "JORDAN", mistakes: 4, timeLeft: 35 },
-  { username: "NOVA", mistakes: 1, timeLeft: 49 },
-  { username: "GHOST", mistakes: 5, timeLeft: 22 }
-];
-
-const unlimitedPlayers = [
-  { username: "ALEX99", bestStreak: 14, totalWords: 88, games: 12 },
-  { username: "PIXELSAM", bestStreak: 11, totalWords: 74, games: 10 },
-  { username: "NOVA", bestStreak: 9, totalWords: 61, games: 9 },
-  { username: "MOONCAT", bestStreak: 8, totalWords: 55, games: 8 },
-  { username: "BEEBEE", bestStreak: 6, totalWords: 42, games: 7 },
-  { username: "KELSEY", bestStreak: 5, totalWords: 39, games: 7 },
-  { username: "JORDAN", bestStreak: 4, totalWords: 33, games: 6 },
-  { username: "GHOST", bestStreak: 3, totalWords: 21, games: 5 }
-];
-
 let currentMode = "daily";
 let currentSort = "dailyScore";
 
@@ -63,65 +41,7 @@ function getUnlimitedBadge(player, index, sortedData) {
   return "RUNNER";
 }
 
-function getSortedDailyPlayers() {
-  const data = [...dailyPlayers];
 
-  if (currentSort === "dailyScore") {
-    data.sort(function (a, b) {
-      return getDailyScore(b) - getDailyScore(a) || a.mistakes - b.mistakes || b.timeLeft - a.timeLeft;
-    });
-  } else if (currentSort === "mistakes") {
-    data.sort(function (a, b) {
-      return a.mistakes - b.mistakes || b.timeLeft - a.timeLeft;
-    });
-  } else if (currentSort === "timeLeft") {
-    data.sort(function (a, b) {
-      return b.timeLeft - a.timeLeft || a.mistakes - b.mistakes;
-    });
-  }
-
-  return data;
-}
-
-function getSortedUnlimitedPlayers() {
-  const data = [...unlimitedPlayers];
-
-  if (currentSort === "bestStreak") {
-    data.sort(function (a, b) {
-      return b.bestStreak - a.bestStreak || b.totalWords - a.totalWords || b.games - a.games;
-    });
-  } else if (currentSort === "totalWords") {
-    data.sort(function (a, b) {
-      return b.totalWords - a.totalWords || b.bestStreak - a.bestStreak || b.games - a.games;
-    });
-  } else if (currentSort === "games") {
-    data.sort(function (a, b) {
-      return b.games - a.games || b.bestStreak - a.bestStreak || b.totalWords - a.totalWords;
-    });
-  }
-
-  return data;
-}
-
-function getOfficialDailyRanking() {
-  const data = [...dailyPlayers];
-
-  data.sort(function (a, b) {
-    return getDailyScore(b) - getDailyScore(a) || a.mistakes - b.mistakes || b.timeLeft - a.timeLeft;
-  });
-
-  return data;
-}
-
-function getOfficialUnlimitedRanking() {
-  const data = [...unlimitedPlayers];
-
-  data.sort(function (a, b) {
-    return b.bestStreak - a.bestStreak || b.totalWords - a.totalWords || b.games - a.games;
-  });
-
-  return data;
-}
 
 function renderHeader() {
   const header = document.getElementById("leaderboard-header-row");
