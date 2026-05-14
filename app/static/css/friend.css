@@ -246,6 +246,7 @@
 .panel-label {
   font-size: 0.55rem;
   color: #555;
+  padding-top: 6px;
   letter-spacing: 0.08em;
   margin-bottom: 6px;
   text-align: center;

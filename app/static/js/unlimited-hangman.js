@@ -204,10 +204,10 @@ function showChallengeBanner(fromName) {
     banner.id = "challenge-banner";
     banner.style.cssText =
       "text-align:center;font-size:0.5rem;letter-spacing:.08em;" +
-      "color:#00dc82;opacity:.85;margin-bottom:8px;font-family:var(--font-press,monospace);";
+      "color:#4e7f6a;opacity:.85;margin-bottom:8px;font-family:var(--font-press,monospace);";
     document.querySelector(".word-row")?.parentElement?.prepend(banner);
   }
-  banner.textContent = `⚔ CHALLENGE FROM ${fromName}`;
+  banner.textContent = `CHALLENGE FROM ${fromName}`;
 }
 
 // shown if the challenge was already played
@@ -328,42 +328,59 @@ function checkGameEnd() {
     gameOver = true;
     const finalStreak = streak;
 
-    // only reset streak for real games
     if (challengeId === null) {
       streak = 0;
       score.textContent = streak;
       usedWords.clear();
     }
- 
+
     word.split("").forEach((char, i) => {
       tiles[i].querySelector(".tile-letter").textContent = char;
     });
     document.querySelectorAll(".key").forEach(k => k.style.pointerEvents = "none");
- 
+
     saveState(false);
- 
-    triggerGlitch();
-    setTimeout(() => showResultPopup(false, word, finalStreak), 400);
- 
+
+    if (challengeId !== null) {
+      triggerGlitch();
+      setTimeout(() => redirectAfterChallenge(false, word), 400);
+    } else {
+      triggerGlitch();
+      setTimeout(() => showResultPopup(false, word, finalStreak), 400);
+    }
+
   } else if (wordDisplay.join("") === word) {
     gameOver = true;
 
-    // only increment streak for real games
     if (challengeId === null) {
       streak++;
       score.textContent = streak;
       usedWords.add(word);
     }
- 
+
     document.querySelectorAll(".key").forEach(k => k.style.pointerEvents = "none");
- 
+
     saveState(true);
- 
-    setTimeout(() => initGame(), 1000);
- 
+
+    if (challengeId !== null) {
+      setTimeout(() => redirectAfterChallenge(true, word), 1000);
+    } else {
+      setTimeout(() => initGame(), 1000);
+    }
+
   } else {
     saveState(null);
   }
+}
+
+function redirectAfterChallenge(won, word) {
+  // clear the banner
+  const banner = document.getElementById("challenge-banner");
+  if (banner) banner.remove();
+
+  // redirect to friends page with a result flag so they see feedback
+  const result = won ? "won" : "lost";
+  window.location.href = `/friends?challenge=${result}&word=${word}`;
 }
  
 function closePopupAndPlay() {
