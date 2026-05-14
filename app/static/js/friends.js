@@ -16,9 +16,49 @@ document.addEventListener("DOMContentLoaded", async () => {
   const searchInput = document.getElementById("searchInput");
   const friendsList = document.getElementById("friendsList");
   const searchDropdown = document.getElementById("searchDropdown");
+  const inboxList      = document.getElementById("inboxList");
+  const inboxSection   = document.getElementById("inboxSection");
 
   let friends = [];
   let searchTimeout = null;
+
+  // loads pending challenges into the inbox section whish is called on page load and after accepting a challenge
+  async function loadInbox() {
+    try {
+      const res  = await fetch("/api/challenge/inbox");
+      const data = await res.json();
+
+      if (!Array.isArray(data) || data.length === 0) {
+        inboxSection.style.display = "none";
+        return;
+      }
+
+      inboxSection.style.display = "";
+      inboxList.innerHTML = "";
+
+      data.forEach(c => {
+        const div = document.createElement("div");
+        div.className = "row-item";
+        div.innerHTML = `
+          <span class="friend-name">
+            FROM ${c.from} &mdash; ${c.word_length} LETTERS
+          </span>
+          <button
+            class="btn-arcade"
+            style="padding:4px 12px;font-size:11px;"
+            onclick="playChallenge(${c.challenge_id})"
+          >PLAY</button>
+        `;
+        inboxList.appendChild(div);
+      });
+    } catch (err) {
+      console.error("Inbox load error:", err);
+    }
+  }
+
+  window.playChallenge = function(challengeId) {
+    window.location.href = `/unlimited?challenge_id=${challengeId}`;
+  };
 
   // live search dropdown
   searchInput.addEventListener("input", () => {
@@ -47,7 +87,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!q) return;
 
   // try to find an exact match in the current dropdown
-const items = searchDropdown.querySelectorAll(".dropdown-item:not(.dropdown-empty)");
+  const items = searchDropdown.querySelectorAll(".dropdown-item:not(.dropdown-empty)");
   let matched = null;
   items.forEach(item => {
     if (item.querySelector(".dropdown-name").textContent === q.toUpperCase()) {
@@ -114,6 +154,11 @@ const items = searchDropdown.querySelectorAll(".dropdown-item:not(.dropdown-empt
       div.innerHTML = `
         <span class="friend-name">${friend.name.toUpperCase()}</span>
         <span class="friend-score">${friend.wins} WINS</span>
+        <button
+          class="btn-arcade"
+          style="padding:4px 10px;font-size:11px;"
+          onclick="openChallengeModal('${friend.name.toUpperCase()}')"
+        >SEND WORD</button>
       `;
       friendsList.appendChild(div);
     });
@@ -143,6 +188,47 @@ const items = searchDropdown.querySelectorAll(".dropdown-item:not(.dropdown-empt
       loadFriends();
     });
   }
+
+  // challenge mode
+  window.openChallengeModal = function(friendName) {
+    document.getElementById("challengeTargetName").textContent = friendName;
+    document.getElementById("challengeWordInput").value = "";
+    document.getElementById("challengeModal").classList.add("show");
+  };
+
+  window.closeChallengeModal = function() {
+    document.getElementById("challengeModal").classList.remove("show");
+  };
+
+  window.sendChallenge = async function() {
+    const friendName = document.getElementById("challengeTargetName").textContent;
+    const word = document.getElementById("challengeWordInput").value.trim().toUpperCase();
+
+    if (!word || !/^[A-Z]{4,8}$/.test(word)) {
+      showPopup("ERROR", "Word must be 4–8 letters, A–Z only.");
+      return;
+    }
+
+    try {
+      const res  = await fetch("/api/challenge/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ friend_username: friendName, word }),
+      });
+      const body = await res.json();
+
+      closeChallengeModal();
+
+      if (res.ok) {
+        showPopup("SENT!", `Challenge sent to ${friendName}.`, "#00dc82", "✓");
+      } else {
+        showPopup("ERROR", body.error || "Could not send challenge.");
+      }
+    } catch (err) {
+      console.error("Send challenge error:", err);
+      showPopup("ERROR", "Network error. Try again.");
+    }
+  };
 
 // sorting buttons
   document.querySelectorAll(".sort-btn").forEach(btn => {
