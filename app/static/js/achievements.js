@@ -83,8 +83,22 @@ function maskText(text) {
 }
 
 
+function closeInstructions() {
+  const popup = document.getElementById("instructions-popup");
+  popup.classList.add("hidden");
+  localStorage.setItem(`achievementsFirstVisit_${window.currentUserId}`, "false");
+}
+
 /* init */
-loadAchievements();
+document.addEventListener("DOMContentLoaded", () => {
+  if (localStorage.getItem(`achievementsFirstVisit_${window.currentUserId}`) !== "false") {
+    const popup = document.getElementById("instructions-popup");
+    popup.classList.remove("hidden");
+    popup.offsetHeight;
+    popup.classList.add("show");
+  }
+  loadAchievements();
+});
 
 const GLITCH_CHARS = "█▓▒░!@#$%?&*X01";
 

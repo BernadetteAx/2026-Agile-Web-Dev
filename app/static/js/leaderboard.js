@@ -386,7 +386,20 @@ function closePodiumPopup() {
   document.getElementById("podium-popup").classList.add("hidden");
 }
 
+function closeInstructions() {
+  const popup = document.getElementById("instructions-popup");
+  popup.classList.add("hidden");
+  localStorage.setItem(`leaderboardFirstVisit_${window.currentUserId}`, "false");
+}
+
 document.addEventListener("DOMContentLoaded", function () {
+  if (localStorage.getItem(`leaderboardFirstVisit_${window.currentUserId}`) !== "false") {
+    const popup = document.getElementById("instructions-popup");
+    popup.classList.remove("hidden");
+    popup.offsetHeight;
+    popup.classList.add("show");
+  }
+
   document.getElementById("daily-tab").addEventListener("click", function () {
     currentMode = "daily";
     currentSort = "dailyScore";

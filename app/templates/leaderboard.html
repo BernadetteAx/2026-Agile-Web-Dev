@@ -44,6 +44,19 @@
   </div>
 </div>
 
+<!-- instructions popup -->
+<div id="instructions-popup" class="podium-popup hidden">
+  <div class="instructions-box">
+    <div class="podium-title">LEADERBOARD</div>
+    <div style="text-align: center; color: #fff; font-family: var(--font-press); font-size: 0.6rem; line-height: 1.8;">
+      View the top players for Daily Challenge and Unlimited Run.<br><br>
+      Switch between modes using the tabs above.<br><br>
+      Click on a player to see their podium stats.
+    </div>
+    <button class="podium-close-btn" onclick="closeInstructions()">GOT IT</button>
+  </div>
+</div>
+
 <script src="/static/js/leaderboard.js"></script>
 
 {% endblock %}

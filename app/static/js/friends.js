@@ -1,4 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
+  if (localStorage.getItem(`friendsFirstVisit_${window.currentUserId}`) !== "false") {
+    document.getElementById("instructionsPopup").classList.add("show");
+  }
+
   const searchInput = document.getElementById("searchInput");
   const friendsList = document.getElementById("friendsList");
   const searchDropdown = document.getElementById("searchDropdown");
@@ -159,4 +163,9 @@ const items = searchDropdown.querySelectorAll(".dropdown-item:not(.dropdown-empt
 
 function closePopup() {
   document.getElementById("arcadePopup").classList.remove("show");
+}
+
+function closeInstructions() {
+  document.getElementById("instructionsPopup").classList.remove("show");
+  localStorage.setItem(`friendsFirstVisit_${window.currentUserId}`, "false");
 }

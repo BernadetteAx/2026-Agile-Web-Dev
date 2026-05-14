@@ -177,7 +177,21 @@ async function initGame(skipFetch = false) {
   }
 }
  
+function closeInstructions() {
+  const popup = document.getElementById("instructions-popup");
+  popup.classList.remove("show");
+  popup.classList.add("hidden");
+  localStorage.setItem(`unlimitedFirstVisit_${window.currentUserId}`, "false");
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
+  if (localStorage.getItem(`unlimitedFirstVisit_${window.currentUserId}`) !== "false") {
+    const popup = document.getElementById("instructions-popup");
+    popup.classList.remove("hidden");
+    popup.offsetHeight;
+    popup.classList.add("show");
+  }
+
   // Restore streak when refreshing page
   try {
     const res = await fetch("/api/auth/me");
