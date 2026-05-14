@@ -110,6 +110,8 @@ async function saveState(won = null) {
     if (challengeId !== null) {
       body.challenge_id = challengeId;
     }
+
+    console.log("Saving state:", body);
  
     const response = await fetch("/api/unlimited-state", {
       method: "POST",
@@ -186,7 +188,8 @@ async function loadChallenge(id) {
     }
 
     challengeId = data.challenge_id;
-    word        = data.word;
+    console.log("challengeId set to:", challengeId);
+    word = data.word;
 
     showChallengeBanner(data.from);
     await initGame(true);

@@ -504,6 +504,8 @@ def save_unlimited_state():
     data = request.get_json(silent=True)
     if not data:
         return jsonify({"error": "No JSON body"}), 400
+    
+    print("DEBUG save_unlimited_state:", data)
 
     user_id = session["user_id"]
     game_id = data.get("game_id")
@@ -540,14 +542,26 @@ def save_unlimited_state():
         )
         db.session.add(game)
 
-    # update user stats on win
-    if data.get("won") is True:
-        user = User.query.get(user_id)
-        user.wins += 1
-        user.streak += 1
-    elif data.get("won") is False:
-        user = User.query.get(user_id)
-        user.streak = 0
+    challenge_id = data.get("challenge_id")
+
+    # only update streak/wins for real games, not challenges
+    if not challenge_id:
+        if data.get("won") is True:
+            user = User.query.get(user_id)
+            user.wins += 1
+            user.streak += 1
+        elif data.get("won") is False:
+            user = User.query.get(user_id)
+            user.streak = 0
+    else:
+        # mark the challenge as played when the game ends
+        if data.get("won") is not None:
+            challenge = FriendChallenge.query.filter_by(
+                id=int(challenge_id),
+                receiver_id=user_id
+            ).first()
+            if challenge:
+                challenge.status = "played"
 
     db.session.commit()
     return jsonify({"message": "State saved", "game_id": game.id}), 200 if game_id else 201

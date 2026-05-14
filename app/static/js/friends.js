@@ -166,6 +166,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  // show result if redirected back from a challenge
+  const urlParams = new URLSearchParams(window.location.search);
+  const challengeResult = urlParams.get("challenge");
+  const challengeWord   = urlParams.get("word");
+
+  if (challengeResult === "won") {
+    showPopup("YOU WON!", `YOU GUESSED <span>${challengeWord}</span>!`, "#00dc82", "✓");
+  } else if (challengeResult === "lost") {
+    showPopup("YOU LOST!", `THE WORD WAS <span>${challengeWord}</span>`, "#ff4e4e", "✕");
+  }
+
+  loadFriends();
+  loadInbox();
+
   function loadFriends() {
     fetch("/api/friends")
       .then(res => res.json())
