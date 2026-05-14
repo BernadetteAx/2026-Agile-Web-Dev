@@ -128,18 +128,23 @@ async function saveState(won = null) {
  
 async function initGame(skipFetch = false) {
   if (!skipFetch) {
-    try {
-      const response = await fetch("/api/random-word");
-      const data = await response.json();
-      if (!response.ok) {
-        console.error("Failed to fetch word:", data.error);
+    // Keep fetching until we get a word not in usedWords
+    let attempts = 0;
+    do {
+      try {
+        const response = await fetch("/api/random-word");
+        const data = await response.json();
+        if (!response.ok) {
+          console.error("Failed to fetch word:", data.error);
+          return;
+        }
+        word = data.word;
+        attempts++;
+      } catch (err) {
+        console.error("Error fetching word:", err);
         return;
       }
-      word = data.word;
-    } catch (err) {
-      console.error("Error fetching word:", err);
-      return;
-    }
+    } while (usedWords.has(word) && attempts < 10);
 
     gameId = null;
     challengeId = null; // clear challenge when starting a fresh game
