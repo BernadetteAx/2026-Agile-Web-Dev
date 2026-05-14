@@ -1,10 +1,17 @@
-document.addEventListener("DOMContentLoaded", () => {
-  if (localStorage.getItem(`friendsFirstVisit_${window.currentUserId}`) !== "false") {
+async function maybeShowInstructions() {
+  const userId = await window.currentUserReady;
+  if (!userId) return;
+
+  if (localStorage.getItem(`friendsFirstVisit_${userId}`) !== "false") {
     const popup = document.getElementById("instructions-popup");
     popup.classList.remove("hidden");
     popup.offsetHeight;
     popup.classList.add("show");
   }
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await maybeShowInstructions();
 
   const searchInput = document.getElementById("searchInput");
   const friendsList = document.getElementById("friendsList");

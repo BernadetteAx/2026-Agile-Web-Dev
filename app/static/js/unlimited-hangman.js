@@ -184,13 +184,20 @@ function closeInstructions() {
   localStorage.setItem(`unlimitedFirstVisit_${window.currentUserId}`, "false");
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
-  if (localStorage.getItem(`unlimitedFirstVisit_${window.currentUserId}`) !== "false") {
+async function maybeShowInstructions() {
+  const userId = await window.currentUserReady;
+  if (!userId) return;
+
+  if (localStorage.getItem(`unlimitedFirstVisit_${userId}`) !== "false") {
     const popup = document.getElementById("instructions-popup");
     popup.classList.remove("hidden");
     popup.offsetHeight;
     popup.classList.add("show");
   }
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await maybeShowInstructions();
 
   // Restore streak when refreshing page
   try {

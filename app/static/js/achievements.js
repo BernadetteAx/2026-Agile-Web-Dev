@@ -90,14 +90,21 @@ function closeInstructions() {
   localStorage.setItem(`achievementsFirstVisit_${window.currentUserId}`, "false");
 }
 
-/* init */
-document.addEventListener("DOMContentLoaded", () => {
-  if (localStorage.getItem(`achievementsFirstVisit_${window.currentUserId}`) !== "false") {
+async function maybeShowInstructions() {
+  const userId = await window.currentUserReady;
+  if (!userId) return;
+
+  if (localStorage.getItem(`achievementsFirstVisit_${userId}`) !== "false") {
     const popup = document.getElementById("instructions-popup");
     popup.classList.remove("hidden");
     popup.offsetHeight;
     popup.classList.add("show");
   }
+}
+
+/* init */
+document.addEventListener("DOMContentLoaded", async () => {
+  await maybeShowInstructions();
   loadAchievements();
 });
 
