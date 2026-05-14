@@ -386,7 +386,28 @@ function closePodiumPopup() {
   document.getElementById("podium-popup").classList.add("hidden");
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+function closeInstructions() {
+  const popup = document.getElementById("instructions-popup");
+  popup.classList.remove("show");
+  popup.classList.add("hidden");
+  localStorage.setItem(`leaderboardFirstVisit_${window.currentUserId}`, "false");
+}
+
+async function maybeShowInstructions() {
+  const userId = await window.currentUserReady;
+  if (!userId) return;
+
+  if (localStorage.getItem(`leaderboardFirstVisit_${userId}`) !== "false") {
+    const popup = document.getElementById("instructions-popup");
+    popup.classList.remove("hidden");
+    popup.offsetHeight;
+    popup.classList.add("show");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", async function () {
+  await maybeShowInstructions();
+
   document.getElementById("daily-tab").addEventListener("click", function () {
     currentMode = "daily";
     currentSort = "dailyScore";

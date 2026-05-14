@@ -396,4 +396,26 @@ function triggerConfetti() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", fetchDailyWord);
+function closeInstructions() {
+  const popup = document.getElementById("instructions-popup");
+  popup.classList.remove("show");
+  popup.classList.add("hidden");
+  localStorage.setItem(`dailyFirstVisit_${window.currentUserId}`, "false");
+}
+
+async function maybeShowInstructions() {
+  const userId = await window.currentUserReady;
+  if (!userId) return;
+
+  if (localStorage.getItem(`dailyFirstVisit_${userId}`) !== "false") {
+    const popup = document.getElementById("instructions-popup");
+    popup.classList.remove("hidden");
+    popup.offsetHeight;
+    popup.classList.add("show");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await maybeShowInstructions();
+  fetchDailyWord();
+});

@@ -1,3 +1,18 @@
+window.currentUserReady = (async function () {
+  try {
+    const response = await fetch('/api/auth/me');
+    if (response.ok) {
+      const data = await response.json();
+      window.currentUserId = data.id;
+      return window.currentUserId;
+    }
+  } catch (error) {
+    console.error('Failed to fetch user:', error);
+  }
+  window.currentUserId = null;
+  return null;
+})();
+
 document.addEventListener("DOMContentLoaded", function () {
   const loginLink  = document.getElementById('login-icon-link');
   const overlay    = document.getElementById('logout-overlay');
