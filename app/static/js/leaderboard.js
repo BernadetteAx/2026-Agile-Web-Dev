@@ -295,6 +295,8 @@ async function showPodiumPopup() {
   if (topThree.length === 0) {
     stage.innerHTML = `<div class="podium-player first">NO DATA YET</div>`;
     popup.classList.remove("hidden");
+    popup.offsetHeight;
+    popup.classList.add("show");
     return;
   }
 
@@ -329,6 +331,8 @@ stage.innerHTML = podiumPlayers.map((item) => {
 }).join("");
 
   popup.classList.remove("hidden");
+  triggerPodiumFireworks();
+  popup.classList.add("show");
   triggerPodiumFireworks();
 }
 
@@ -384,6 +388,8 @@ function createOneFirework(colors) {
 
 function closePodiumPopup() {
   document.getElementById("podium-popup").classList.add("hidden");
+  popup.classList.remove("show");
+  popup.classList.add("hidden");
 }
 
 function closeInstructions() {
