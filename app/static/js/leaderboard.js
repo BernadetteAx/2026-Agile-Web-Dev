@@ -420,7 +420,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("daily-tab").classList.add("active-tab");
     document.getElementById("unlimited-tab").classList.remove("active-tab");
     renderLeaderboard();
-    showPodiumPopup();
   });
 
   document.getElementById("unlimited-tab").addEventListener("click", function () {
@@ -429,7 +428,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("unlimited-tab").classList.add("active-tab");
     document.getElementById("daily-tab").classList.remove("active-tab");
     renderLeaderboard();
-    showPodiumPopup();
   });
 
   document.getElementById("podium-close-btn").addEventListener("click", closePodiumPopup);
