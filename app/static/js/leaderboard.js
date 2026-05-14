@@ -388,6 +388,7 @@ function closePodiumPopup() {
 
 function closeInstructions() {
   const popup = document.getElementById("instructions-popup");
+  popup.classList.remove("show");
   popup.classList.add("hidden");
   localStorage.setItem(`leaderboardFirstVisit_${window.currentUserId}`, "false");
 }

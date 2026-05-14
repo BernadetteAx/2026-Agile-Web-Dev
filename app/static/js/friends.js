@@ -1,6 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
   if (localStorage.getItem(`friendsFirstVisit_${window.currentUserId}`) !== "false") {
-    document.getElementById("instructionsPopup").classList.add("show");
+    const popup = document.getElementById("instructions-popup");
+    popup.classList.remove("hidden");
+    popup.offsetHeight;
+    popup.classList.add("show");
   }
 
   const searchInput = document.getElementById("searchInput");
@@ -166,6 +169,8 @@ function closePopup() {
 }
 
 function closeInstructions() {
-  document.getElementById("instructionsPopup").classList.remove("show");
+  const popup = document.getElementById("instructions-popup");
+  popup.classList.remove("show");
+  popup.classList.add("hidden");
   localStorage.setItem(`friendsFirstVisit_${window.currentUserId}`, "false");
 }

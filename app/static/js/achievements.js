@@ -85,6 +85,7 @@ function maskText(text) {
 
 function closeInstructions() {
   const popup = document.getElementById("instructions-popup");
+  popup.classList.remove("show");
   popup.classList.add("hidden");
   localStorage.setItem(`achievementsFirstVisit_${window.currentUserId}`, "false");
 }
