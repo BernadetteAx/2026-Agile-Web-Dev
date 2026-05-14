@@ -295,6 +295,8 @@ async function showPodiumPopup() {
   if (topThree.length === 0) {
     stage.innerHTML = `<div class="podium-player first">NO DATA YET</div>`;
     popup.classList.remove("hidden");
+    popup.offsetHeight;
+    popup.classList.add("show");
     return;
   }
 
@@ -329,6 +331,8 @@ stage.innerHTML = podiumPlayers.map((item) => {
 }).join("");
 
   popup.classList.remove("hidden");
+  triggerPodiumFireworks();
+  popup.classList.add("show");
   triggerPodiumFireworks();
 }
 
@@ -384,6 +388,8 @@ function createOneFirework(colors) {
 
 function closePodiumPopup() {
   document.getElementById("podium-popup").classList.add("hidden");
+  popup.classList.remove("show");
+  popup.classList.add("hidden");
 }
 
 function closeInstructions() {
@@ -414,7 +420,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("daily-tab").classList.add("active-tab");
     document.getElementById("unlimited-tab").classList.remove("active-tab");
     renderLeaderboard();
-    showPodiumPopup();
   });
 
   document.getElementById("unlimited-tab").addEventListener("click", function () {
@@ -423,7 +428,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("unlimited-tab").classList.add("active-tab");
     document.getElementById("daily-tab").classList.remove("active-tab");
     renderLeaderboard();
-    showPodiumPopup();
   });
 
   document.getElementById("podium-close-btn").addEventListener("click", closePodiumPopup);
