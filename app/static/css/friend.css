@@ -202,24 +202,26 @@
 }
 
 .challenge-popup .popup-icon {
-  color: #00dc82;
+  color: #4e7f6a;
   font-size: 1.4rem;
 }
 
 .challenge-popup .popup-title {
-  color: #00dc82;
+  color: #ffffff;
 }
 
 /* word input inside the challenge popup */
 .challenge-popup .input {
   margin-bottom: 16px;
   text-transform: uppercase;
-  border-color: #00dc82;
-  caret-color: #00dc82;
+  border-color: #4e7f6a;
+  caret-color: #4e7f6a;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .challenge-popup .input:focus {
-  border-color: #00dc82;
+  border-color: #4e7f6a;
   box-shadow: 0 0 0 1px #00dc8240;
 }
 
@@ -284,13 +286,19 @@
 }
 
 /* search dropdown */
+.search-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 350px;
+  display: flex;
+  justify-content: center;
+}
+
 .search-dropdown {
   position: absolute;
   top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
   width: 100%;
-  max-width: 350px;
   background: #1a1a1a;
   border: 2px solid #fff;
   z-index: 100;
