@@ -28,6 +28,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       const res  = await fetch("/api/challenge/inbox");
       const data = await res.json();
 
+      console.log("Inbox data:", data); // temporary ----------------------
+
       if (!Array.isArray(data) || data.length === 0) {
         inboxSection.style.display = "none";
         return;
@@ -255,6 +257,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   loadFriends();
+  loadInbox();
 });
 
 function closePopup() {
