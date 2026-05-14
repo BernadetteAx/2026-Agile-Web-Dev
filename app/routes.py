@@ -4,7 +4,7 @@ import requests
 import random
 
 from app import db
-from app.models import DailyWord, Achievement, UserAchievement, User, DailyGameState, UnlimitedGameState, Friendship
+from app.models import DailyWord, Achievement, UserAchievement, User, DailyGameState, UnlimitedGameState, Friendship, FriendChallenge
 from app.services.achievements import check_achievement
 from app.decorators import login_required
 
