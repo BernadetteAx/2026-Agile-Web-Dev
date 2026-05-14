@@ -12,7 +12,6 @@
 /* spacing blocks */
 .panel-section {
   margin-bottom: 12px;
-  margin-bottom: 12px;
   display: flex;
   justify-content: center;
   position: relative;
@@ -65,8 +64,8 @@
 }
 
 .list {
-  background: #0d0d0d; /* slightly darker than rows */
-  border: 6px solid #2a2a2a; 
+  background: #0d0d0d;
+  border: 6px solid #2a2a2a;
   border-radius: 2px;
 
   width: 100%;
@@ -74,7 +73,6 @@
   height: 60vh;
 
   padding: 14px;
-  margin-top: 20px;
   margin: 20px auto 0;
 
   display: flex;
@@ -92,6 +90,7 @@
 
   display: flex;
   justify-content: space-between;
+  align-items: center;
 
   padding: 10px;
 }
@@ -115,6 +114,14 @@
   color: var(--accent);
 }
 
+/* send word button inside friend rows */
+.row-item .btn-arcade {
+  padding: 4px 10px;
+  font-size: 0.5rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 0 #fff;
+}
+
 /* if no result */
 .no-results {
   display: none;
@@ -123,6 +130,7 @@
   color: #fff;
 }
 
+/* base overlay */
 .arcade-popup-overlay {
   display: none;
   position: fixed;
@@ -193,6 +201,72 @@
   background: #ccc;
 }
 
+.challenge-popup .popup-icon {
+  color: #4e7f6a;
+  font-size: 1.4rem;
+}
+
+.challenge-popup .popup-title {
+  color: #ffffff;
+}
+
+/* word input inside the challenge popup */
+.challenge-popup .input {
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  border-color: #4e7f6a;
+  caret-color: #4e7f6a;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.challenge-popup .input:focus {
+  border-color: #4e7f6a;
+  box-shadow: 0 0 0 1px #00dc8240;
+}
+
+/* two-button row */
+.challenge-btn-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.popup-close-btn.cancel {
+  background: transparent;
+  color: #fff;
+  border: 2px solid #fff;
+}
+
+.popup-close-btn.cancel:hover {
+  background: #1a1a1a;
+}
+
+/* inbox section */
+.panel-label {
+  font-size: 0.55rem;
+  color: #555;
+  padding-top: 6px;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+  text-align: center;
+  width: 100%;
+}
+
+#inboxSection {
+  margin-bottom: 4px;
+  width: 100%;
+  flex-direction: column;
+}
+
+#inboxSection .list {
+  height: auto;
+  max-height: 28vh;
+  margin-top: 6px;
+  border-color: #1e1e1e;
+}
+
+/* scrollbars */
 .list::-webkit-scrollbar {
   width: 6px;
 }
@@ -210,13 +284,20 @@
   background: #555;
 }
 
+/* search dropdown */
+.search-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 350px;
+  display: flex;
+  justify-content: center;
+}
+
 .search-dropdown {
   position: absolute;
   top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
   width: 100%;
-  max-width: 350px;
   background: #1a1a1a;
   border: 2px solid #fff;
   z-index: 100;
@@ -239,11 +320,11 @@
   background: #333;
 }
 
-.dropdown-name { color: #fff; }
-.dropdown-wins { color: #4e7f6a; }
+.dropdown-name  { color: #fff; }
+.dropdown-wins  { color: #4e7f6a; }
 .dropdown-empty { color: #666; justify-content: center; }
 
-/* popup styles for instructions */
+/* instructions popup */
 .result-popup {
   position: fixed;
   inset: 0;

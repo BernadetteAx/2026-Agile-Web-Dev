@@ -154,3 +154,19 @@ class Friendship(db.Model):
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     friend = db.relationship('User', foreign_keys=[friend_id])
+
+class FriendChallenge(db.Model):
+    __tablename__ = "friend_challenges"
+
+    id          = db.Column(db.Integer, primary_key=True)
+    sender_id   = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    receiver_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    word        = db.Column(db.String(50), nullable=False)
+    status      = db.Column(db.String(20), nullable=False, default="pending")  # pending >> played
+    created_at  = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    sender   = db.relationship("User", foreign_keys=[sender_id])
+    receiver = db.relationship("User", foreign_keys=[receiver_id])
+
+    def __repr__(self):
+        return f"<FriendChallenge {self.sender_id}→{self.receiver_id} word={self.word} status={self.status}>"

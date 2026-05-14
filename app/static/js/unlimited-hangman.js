@@ -9,7 +9,8 @@ let gameOver = false;
 let streak = 0;
 let word;
 let usedWords = new Set();
-let gameId = null; // tracks current game session on the backend
+let gameId = null;
+let challengeId = null; // set when launched from a friend challenge
  
 const mistakeNum = document.getElementById("mistakeNum");
 const hangmanFigure = document.getElementById("hangman-figure");
@@ -19,7 +20,6 @@ const parts = [
   "part-right-arm", "part-left-leg", "part-right-leg"
 ];
 
-// Fetch active game state from backend and restore if it exists
 async function fetchActiveGame() {
   try {
     const response = await fetch("/api/unlimited-state/active");
@@ -35,9 +35,7 @@ async function fetchActiveGame() {
       word = activeGame.word;
       gameId = activeGame.game_id;
 
-      initGame(true); // Initialize without fetching a new word
-
-      // Restore the saved state
+      initGame(true);
       restoreState(activeGame);
       return true;
     }
@@ -49,21 +47,17 @@ async function fetchActiveGame() {
   }
 }
 
-// Restore a previously saved game state
 function restoreState(state) {
-  // Replay all guessed letters
   if (state.guessed_letters && state.guessed_letters.length > 0) {
     state.guessed_letters.forEach(letter => replayLetter(letter));
   }
 
-  // Update the displayed score
   if (state.score !== undefined) {
     streak = state.score;
     score.textContent = streak;
   }
 }
 
-// Silently replay a letter without triggering game end logic
 function replayLetter(letter) {
   if (guessedLetters.has(letter)) return;
   guessedLetters.add(letter);
@@ -99,8 +93,7 @@ function replayLetter(letter) {
   }
 }
 
-
-// Backend state saving
+// attach challenge_id when present
 async function saveState(won = null) {
   try {
     const body = {
@@ -113,6 +106,12 @@ async function saveState(won = null) {
       hangman_state: mistakes,
       won: won,
     };
+
+    if (challengeId !== null) {
+      body.challenge_id = challengeId;
+    }
+
+    console.log("Saving state:", body);
  
     const response = await fetch("/api/unlimited-state", {
       method: "POST",
@@ -121,19 +120,13 @@ async function saveState(won = null) {
     });
  
     const data = await response.json();
- 
-    // Store the game_id returned by the server so subsequent saves update the same row
-    if (data.game_id) {
-      gameId = data.game_id;
-    }
+    if (data.game_id) gameId = data.game_id;
   } catch (err) {
     console.error("Failed to save unlimited game state:", err);
   }
 }
  
-// Initialise game (skipFetch is true when restoring from active game)
 async function initGame(skipFetch = false) {
-  // Fetch a new word only if we're not restoring from an active game
   if (!skipFetch) {
     try {
       const response = await fetch("/api/random-word");
@@ -149,6 +142,7 @@ async function initGame(skipFetch = false) {
     }
 
     gameId = null;
+    challengeId = null; // clear challenge when starting a fresh game
   }
 
   document.querySelectorAll(".part").forEach(el => el.classList.remove("revealed"));
@@ -171,10 +165,71 @@ async function initGame(skipFetch = false) {
     key.style.pointerEvents = "auto";
   });
 
-  // Save initial game state to backend so word is persisted even with 0 guesses
   if (!skipFetch) {
     await saveState(null);
   }
+}
+
+// load a friend challenge by id
+async function loadChallenge(id) {
+  try {
+    const res  = await fetch(`/api/challenge/${id}`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Failed to load challenge:", data.error);
+      initGame();
+      return;
+    }
+
+    if (data.status === "played") {
+      showChallengeAlreadyPlayed(data.from);
+      return;
+    }
+
+    challengeId = data.challenge_id;
+    console.log("challengeId set to:", challengeId);
+    word = data.word;
+
+    showChallengeBanner(data.from);
+    await initGame(true);
+  } catch (err) {
+    console.error("Error loading challenge:", err);
+    initGame();
+  }
+}
+
+// small banner above the board during a challenge
+function showChallengeBanner(fromName) {
+  let banner = document.getElementById("challenge-banner");
+  if (!banner) {
+    banner = document.createElement("div");
+    banner.id = "challenge-banner";
+    banner.style.cssText =
+      "text-align:center;font-size:0.5rem;letter-spacing:.08em;" +
+      "color:#4e7f6a;opacity:.85;margin-bottom:8px;font-family:var(--font-press,monospace);";
+    document.querySelector(".word-row")?.parentElement?.prepend(banner);
+  }
+  banner.textContent = `CHALLENGE FROM ${fromName}`;
+}
+
+// shown if the challenge was already played
+function showChallengeAlreadyPlayed(fromName) {
+  const popup     = document.getElementById("result-popup");
+  const icon      = document.getElementById("result-icon");
+  const title     = document.getElementById("result-title");
+  const sub       = document.getElementById("result-sub");
+  const wordReveal = document.getElementById("result-word-reveal");
+
+  icon.textContent  = "⚔";
+  icon.style.fontSize = "1.4rem";
+  title.textContent = "ALREADY PLAYED";
+  sub.textContent   = `YOU'VE ALREADY PLAYED ${fromName}'S CHALLENGE.`;
+  wordReveal.textContent = "";
+
+  popup.classList.remove("hidden");
+  popup.offsetHeight;
+  popup.classList.add("show");
 }
  
 function closeInstructions() {
@@ -199,7 +254,6 @@ async function maybeShowInstructions() {
 document.addEventListener("DOMContentLoaded", async () => {
   await maybeShowInstructions();
 
-  // Restore streak when refreshing page
   try {
     const res = await fetch("/api/auth/me");
     const data = await res.json();
@@ -222,14 +276,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // Try to restore active game; if none exists, start a new one
-  const hasActiveGame = await fetchActiveGame();
-  if (!hasActiveGame) {
-    initGame();
+  // check for challenge_id in URL before normal flow
+  const params = new URLSearchParams(window.location.search);
+  const urlChallenge = params.get("challenge_id");
+
+  if (urlChallenge) {
+    await loadChallenge(parseInt(urlChallenge, 10));
+  } else {
+    const hasActiveGame = await fetchActiveGame();
+    if (!hasActiveGame) initGame();
   }
 });
  
-// handle a guess
 function handleGuess(letter) {
   if (gameOver || guessedLetters.has(letter) || mistakes >= maxMistakes) return;
  
@@ -268,40 +326,64 @@ function handleGuess(letter) {
   checkGameEnd();
 }
  
-// win / loss detection
 function checkGameEnd() {
   if (mistakes >= maxMistakes) {
     gameOver = true;
     const finalStreak = streak;
-    streak = 0;
-    score.textContent = streak;
-    usedWords.clear();
- 
+
+    if (challengeId === null) {
+      streak = 0;
+      score.textContent = streak;
+      usedWords.clear();
+    }
+
     word.split("").forEach((char, i) => {
       tiles[i].querySelector(".tile-letter").textContent = char;
     });
     document.querySelectorAll(".key").forEach(k => k.style.pointerEvents = "none");
- 
-    saveState(false); // save loss to backend
- 
-    triggerGlitch();
-    setTimeout(() => showResultPopup(false, word, finalStreak), 400);
- 
+
+    saveState(false);
+
+    if (challengeId !== null) {
+      triggerGlitch();
+      setTimeout(() => redirectAfterChallenge(false, word), 400);
+    } else {
+      triggerGlitch();
+      setTimeout(() => showResultPopup(false, word, finalStreak), 400);
+    }
+
   } else if (wordDisplay.join("") === word) {
     gameOver = true;
-    streak++;
-    score.textContent = streak;
-    usedWords.add(word);
- 
+
+    if (challengeId === null) {
+      streak++;
+      score.textContent = streak;
+      usedWords.add(word);
+    }
+
     document.querySelectorAll(".key").forEach(k => k.style.pointerEvents = "none");
- 
-    saveState(true); // save win to backend
- 
-    setTimeout(() => initGame(), 1000);
- 
+
+    saveState(true);
+
+    if (challengeId !== null) {
+      setTimeout(() => redirectAfterChallenge(true, word), 1000);
+    } else {
+      setTimeout(() => initGame(), 1000);
+    }
+
   } else {
-    saveState(null); // in-progress snapshot
+    saveState(null);
   }
+}
+
+function redirectAfterChallenge(won, word) {
+  // clear the banner
+  const banner = document.getElementById("challenge-banner");
+  if (banner) banner.remove();
+
+  // redirect to friends page with a result flag so they see feedback
+  const result = won ? "won" : "lost";
+  window.location.href = `/friends?challenge=${result}&word=${word}`;
 }
  
 function closePopupAndPlay() {

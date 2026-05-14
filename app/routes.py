@@ -4,7 +4,7 @@ import requests
 import random
 
 from app import db
-from app.models import DailyWord, Achievement, UserAchievement, User, DailyGameState, UnlimitedGameState, Friendship
+from app.models import DailyWord, Achievement, UserAchievement, User, DailyGameState, UnlimitedGameState, Friendship, FriendChallenge
 from app.services.achievements import check_achievement
 from app.decorators import login_required
 
@@ -504,6 +504,8 @@ def save_unlimited_state():
     data = request.get_json(silent=True)
     if not data:
         return jsonify({"error": "No JSON body"}), 400
+    
+    print("DEBUG save_unlimited_state:", data)
 
     user_id = session["user_id"]
     game_id = data.get("game_id")
@@ -540,14 +542,26 @@ def save_unlimited_state():
         )
         db.session.add(game)
 
-    # update user stats on win
-    if data.get("won") is True:
-        user = User.query.get(user_id)
-        user.wins += 1
-        user.streak += 1
-    elif data.get("won") is False:
-        user = User.query.get(user_id)
-        user.streak = 0
+    challenge_id = data.get("challenge_id")
+
+    # only update streak/wins for real games, not challenges
+    if not challenge_id:
+        if data.get("won") is True:
+            user = User.query.get(user_id)
+            user.wins += 1
+            user.streak += 1
+        elif data.get("won") is False:
+            user = User.query.get(user_id)
+            user.streak = 0
+    else:
+        # mark the challenge as played when the game ends
+        if data.get("won") is not None:
+            challenge = FriendChallenge.query.filter_by(
+                id=int(challenge_id),
+                receiver_id=user_id
+            ).first()
+            if challenge:
+                challenge.status = "played"
 
     db.session.commit()
     return jsonify({"message": "State saved", "game_id": game.id}), 200 if game_id else 201
@@ -601,3 +615,98 @@ def get_random_word():
         return jsonify({"word": word}), 200
     except requests.exceptions.RequestException as e:
         return jsonify({"error": "Failed to fetch word"}), 500
+    
+
+@main.route("/api/challenge/send", methods=["POST"])
+@login_required
+def send_challenge():
+    """
+    Send a word challenge to a friend.
+
+    Expected JSON:
+    {
+        "friend_username": "ALICE",
+        "word": "PYTHON"          // 4-8 alpha chars
+    }
+    """
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"error": "No JSON body"}), 400
+
+    sender_id = session["user_id"]
+    friend_name = (data.get("friend_username") or "").strip()
+    word = (data.get("word") or "").strip().upper()
+
+    if not friend_name:
+        return jsonify({"error": "friend_username is required"}), 400
+
+    if not word or not word.isalpha() or not (4 <= len(word) <= 8):
+        return jsonify({"error": "Word must be 4-8 letters (alpha only)"}), 400
+
+    # Receiver must exist
+    receiver = User.query.filter(
+        db.func.upper(User.username) == friend_name.upper()
+    ).first()
+    if not receiver:
+        return jsonify({"error": "User not found"}), 404
+
+    if receiver.id == sender_id:
+        return jsonify({"error": "Cannot challenge yourself"}), 400
+
+    # They must actually be friends (sender → receiver)
+    friendship = Friendship.query.filter_by(
+        user_id=sender_id, friend_id=receiver.id
+    ).first()
+    if not friendship:
+        return jsonify({"error": "You can only challenge friends"}), 403
+
+    challenge = FriendChallenge(
+        sender_id=sender_id,
+        receiver_id=receiver.id,
+        word=word,
+    )
+    db.session.add(challenge)
+    db.session.commit()
+
+    return jsonify({"message": "Challenge sent", "challenge_id": challenge.id}), 201
+
+# returns all pending challenges addressed to the current user
+@main.route("/api/challenge/inbox")
+@login_required
+def challenge_inbox():
+    user_id = session["user_id"]
+    challenges = (
+        FriendChallenge.query
+        .filter_by(receiver_id=user_id, status="pending")
+        .order_by(FriendChallenge.created_at.desc())
+        .all()
+    )
+
+    return jsonify([
+        {
+            "challenge_id": c.id,
+            "from": c.sender.username.upper(),
+            "word_length": len(c.word),   # don't reveal the word yet
+            "sent_at": c.created_at.isoformat(),
+        }
+        for c in challenges
+    ]), 200
+
+# returns the challenge word so the unlimited-hangman page can load it
+@main.route("/api/challenge/<int:challenge_id>")
+@login_required
+def get_challenge(challenge_id):
+
+    user_id = session["user_id"]
+    challenge = FriendChallenge.query.get_or_404(challenge_id)
+
+    if challenge.receiver_id != user_id:
+        return jsonify({"error": "Access denied"}), 403
+
+    return jsonify({
+        "challenge_id": challenge.id,
+        "word": challenge.word,
+        "from": challenge.sender.username.upper(),
+        "status": challenge.status,
+    }), 200
+

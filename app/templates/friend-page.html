@@ -14,17 +14,18 @@
       <div class="row justify-content-center">
         <div class="col-12 col-sm-10 col-md-6 col-lg-4">
           <div class="panel">
+
             <!-- search bar -->
             <div class="panel-section">
-              <input
-                type="text"
-                id="searchInput"
-                class="input"
-                placeholder="SEARCH FRIENDS..."
-              />
-
-              <div id="searchDropdown" class="search-dropdown"></div>
-              
+              <div class="search-wrapper">
+                <input
+                  type="text"
+                  id="searchInput"
+                  class="input"
+                  placeholder="SEARCH FRIENDS..."
+                />
+                <div id="searchDropdown" class="search-dropdown"></div>
+              </div>
             </div>
 
             <!-- sorting buttons -->
@@ -37,6 +38,12 @@
 
             <div id="noResults" class="no-results">NO PLAYERS FOUND</div>
 
+            <!-- inbox is hidden until there are pending challenges -->
+            <div id="inboxSection" class="panel-section" style="display:none;">
+              <div class="panel-label">CHALLENGES RECEIVED</div>
+              <div id="inboxList" class="list"></div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -48,6 +55,29 @@
         <p class="popup-title" id="popupTitle"></p>
         <p class="popup-msg" id="popupMsg"></p>
         <button class="popup-close-btn" onclick="closePopup()">OK</button>
+      </div>
+    </div>
+
+    <!-- Send a word challenge -->
+    <div class="arcade-popup-overlay" id="challengeModal">
+      <div class="arcade-popup challenge-popup">
+        <span class="popup-icon">⚔</span>
+        <p class="popup-title">
+          CHALLENGE <span id="challengeTargetName"></span>
+        </p>
+        <p class="popup-msg">TYPE A WORD FOR THEM TO GUESS (4–8 LETTERS)</p>
+        <input
+          type="text"
+          id="challengeWordInput"
+          class="input"
+          maxlength="8"
+          placeholder="YOUR WORD..."
+          onkeydown="if(event.key==='Enter') sendChallenge()"
+        />
+        <div class="challenge-btn-row">
+          <button class="popup-close-btn" onclick="sendChallenge()">SEND</button>
+          <button class="popup-close-btn cancel" onclick="closeChallengeModal()">CANCEL</button>
+        </div>
       </div>
     </div>
 
