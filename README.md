@@ -167,6 +167,7 @@ This application includes the following functionality:
 - Python 3
 - [Flask](https://flask.palletsprojects.com/) – web framework
 - Bootstrap – front-end styling
+- SQL
 
 ---
 
@@ -203,14 +204,14 @@ The application is designed to be:
 
 | Page | Description |
 |------|-------------|
-| Home | Intro screen with a "Play Now" button |
-| Login | User login form |
-| Signup | New account registration |
-| Dashboard | Welcome screen with links to start a game, view the leaderboard, and view history |
-| Game | Word display (`_ _ _ _`), letter keyboard, hangman drawing, and score |
-| Leaderboard | Top players ranked by score |
-| Create Word | Form for users to submit custom words |
-| Profile | User stats including games played, wins, and losses |
+| Home | Intro screen with a "Start Now" and  "Log out" button |
+| Login | User login form, option to register |
+| Register | New account registration |
+| Daily Game | Word display (`_ _ _ _`), letter keyboard, hangman drawing, and timer |
+| Unlimited Game | Word display (`_ _ _ _`), letter keyboard, hangman drawing, and score |
+| Leaderboard | Top players ranked by score, toggle from Daily and Unlimited scores, sorting buttons |
+| Achievements | List of achievements (either locked or unlocked) |
+| Friends | Search bar to add friends, friends list, "Send Word" button, challenges recieved |
 
 ### UI Layout
 
