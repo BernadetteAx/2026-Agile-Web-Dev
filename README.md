@@ -151,7 +151,9 @@ This application includes the following functionality:
 - User authentication (signup/login/logout)  
 - Single-player Hangman gameplay  
 - Score tracking and persistence  
-- Leaderboard system  
+- Leaderboard system
+- Unlockable achievements
+- Friend system
 - User-created word challenges  
 - Game history tracking  
 
@@ -176,12 +178,12 @@ This application includes the following functionality:
 - As a user I want to have solo games to practice  
 - As a user I want to guess letters so you solve words  
 - As a user I want to have feedback on correct/incorrect guesses for progress  
-- As a user I want to have a score saved to track improvement.  
+- As a user I want to have a score saved to track improvement
 - As a user I want to have a leaderboard so to compare with others  
 - As a user I want to see my past games to review performance  
 - As a user I want to have a limited number of guesses so the game is challenging  
-- As a user I want to create my own word puzzles so others can play them?  
-- As a user I want to play words created by other users?  
+- As a user I want to create my own word puzzles so others can play them
+- As a user I want to play words created by other users
 - As a user I want to have a visual hangman drawing so the game feels interactive  
 
 ---
@@ -213,11 +215,10 @@ The application is designed to be:
 
 ### UI Layout
 
-- Navigation bar: Home | Play | Leaderboard | Profile | Logout
+- Navigation bar: Daily | Unlimited | Leaderboard | Achievements | Friends | Logout
 - Large centered game area
 - A–Z letter buttons for input
 - Hangman image updates dynamically with each incorrect guess
-
 
 ---
 
@@ -233,7 +234,6 @@ The application is designed to be:
 | wins | Integer |
 | streak | Integer |
 
----
 
 ### DailyWords
 | Field | Type |
@@ -242,7 +242,6 @@ The application is designed to be:
 | word | String(50) |
 | date | Date |
 
----
 
 ### Achievements
 | Field | Type |
@@ -254,7 +253,6 @@ The application is designed to be:
 | condition_type | String(50) |
 | threshold_value | Integer |
 
----
 
 ### UserAchievements
 | Field | Type |
@@ -264,7 +262,6 @@ The application is designed to be:
 | achievement_id | Integer (FK: Achievements) |
 | unlocked_at | DateTime |
 
----
 
 ### DailyGameStates
 | Field | Type |
@@ -279,7 +276,6 @@ The application is designed to be:
 | won | Boolean |
 | timestamp | DateTime |
 
----
 
 ### UnlimitedGameStates
 | Field | Type |
@@ -296,7 +292,6 @@ The application is designed to be:
 | started_at | DateTime |
 | updated_at | DateTime |
 
----
 
 ### Friendships
 | Field | Type |
@@ -306,7 +301,6 @@ The application is designed to be:
 | friend_id | Integer (FK: Users) |
 | created_at | DateTime |
 
----
 
 ### FriendChallenges
 | Field | Type |
