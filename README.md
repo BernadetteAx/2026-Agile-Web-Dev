@@ -84,8 +84,9 @@ $ pip install -r requirements.txt
 ```
 ---
 
-## Create .env
+## Create .env file
 
+Contents:
 ```
 HANGMAN_SECRET_KEY=#put_secret_key_here_with_no_hashtag
 FLASK_APP=app
@@ -164,7 +165,7 @@ This application includes the following functionality:
 - Python 3
 - [Flask](https://flask.palletsprojects.com/) – web framework
 - Bootstrap – front-end styling
-- SQL
+- SQLite
 - Selenium testing unit
 
 ---
@@ -214,9 +215,10 @@ The application is designed to be:
 ### UI Layout
 
 - Navigation bar: Daily | Unlimited | Leaderboard | Achievements | Friends | Logout
-- Large centered game area
+- Large centered game/content area
 - A–Z letter buttons for input
 - Hangman image updates dynamically with each incorrect guess
+- Other content updates dynamically with updated database information
 
 ---
 
