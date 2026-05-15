@@ -93,13 +93,6 @@ FLASK_ENV=development
 ```
 ---
 
-## Install dotenv Support
-
-```
-pip install python-dotenv
-```
----
-
 ## Initialise database
 
 ```
@@ -133,14 +126,18 @@ Open the root directory of the project in a terminal and enter:
 ```
 # Start the app first
 flask run
-
-# Run with on seperate terminal
-python -m pytest app/tests/test_selenium.py -v
 ```
 
+On a separate terminal, enter the virtual environment:
 ```
-# Run with
-python -m pytest app/tests/test_unit.py -v
+# Run on separate terminal
+MacOS/Linux: python3 -m pytest app/tests/test_selenium.py -v
+Windows: python -m pytest app/tests/test_selenium.py -v
+```
+```
+# Run with (on separate terminal)
+MacOs/Linux: python3 -m pytest app/tests/test_unit.py -v
+Windows: python -m pytest app/tests/test_unit.py -v
 ```
 ---
 
@@ -168,6 +165,7 @@ This application includes the following functionality:
 - [Flask](https://flask.palletsprojects.com/) – web framework
 - Bootstrap – front-end styling
 - SQL
+- Selenium testing unit
 
 ---
 
