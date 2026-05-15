@@ -108,13 +108,22 @@ Set the Flask app environment variable and start the development server.
 On Mac and Linux:
 ```
 $ export FLASK_APP=app.py
+```
+```
 $ flask run
+or
+$ python3 run.py
+
 ```
 
 On Windows:
 ```
 $ set FLASK_APP=app.py
+```
+```
 $ flask run
+or
+$ python run.py
 ```
 
 The app will be available at `http://127.0.0.1:5000` by default.
