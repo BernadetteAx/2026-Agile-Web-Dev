@@ -142,8 +142,6 @@ python -m pytest app/tests/test_selenium.py -v
 # Run with
 python -m pytest app/tests/test_unit.py -v
 ```
-
-> **Note:** Ensure that the virtual environment is **not** active when running the automated tests, as it may cause errors.
 ---
 
 ## Features  
