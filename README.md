@@ -82,7 +82,29 @@ $ python -m venv flask
 $ flask\Scripts\activate
 $ pip install -r requirements.txt
 ```
+---
 
+## Create .env
+
+```
+HANGMAN_SECRET_KEY=#put_secret_key_here_with_no_hashtag
+FLASK_APP=app
+FLASK_ENV=development
+```
+---
+
+## Install dotenv Support
+
+```
+pip install python-dotenv
+```
+---
+
+## Initialise database
+
+```
+flask db upgrade
+```
 ---
 
 ## Running the Application
@@ -109,34 +131,19 @@ The app will be available at `http://127.0.0.1:5000` by default.
 
 Open the root directory of the project in a terminal and enter:
 ```
-$ python -m unittest discover
+# Start the app first
+flask run
+
+# Run with on seperate terminal
+python -m pytest app/tests/test_selenium.py -v
+```
+
+```
+# Run with
+python -m pytest app/tests/test_unit.py -v
 ```
 
 > **Note:** Ensure that the virtual environment is **not** active when running the automated tests, as it may cause errors.
-
----
-
-## Deployment
-
-To configure the application for deployment, set the required environment variables:
-
-On Mac and Linux:
-```
-$ export FLASK_APP=app.py
-$ export FLASK_ENV=production
-```
-
-If any additional environment variables are required (e.g. secret keys or mail credentials), set them as follows:
-```
-$ export SECRET_KEY=<your-secret-key>
-$ export MAIL_PASSWORD=<your-mail-server-password>
-```
-
-Then start the server:
-```
-$ flask run
-```
-
 ---
 
 ## Features  
@@ -218,35 +225,96 @@ The application is designed to be:
 ## Database Schema
 
 ### Users
-| Field         | Type    |
-|---------------|---------|
-| user_id       | Integer |
-| username      | String  |
-| password_hash | String  |
-| score         | Integer |
-| games_played  | Integer |
+| Field    | Type |
+|----------|------|
+| id | Integer (PK) |
+| email | String(120) |
+| username | String(50) |
+| password | String(256) |
+| wins | Integer |
+| streak | Integer |
 
-### Games
-| Field        | Type          |
-|--------------|---------------|
-| game_id      | Integer       |
-| user_id      | Integer (FK)  |
-| word         | String        |
-| result       | win / lose    |
-| guesses_used | Integer       |
+---
 
-### Words
-| Field      | Type         |
-|------------|--------------|
-| word_id    | Integer      |
-| word_text  | String       |
-| created_by | Integer (FK) |
+### DailyWords
+| Field | Type |
+|-------|------|
+| id | Integer (PK) |
+| word | String(50) |
+| date | Date |
 
-### Scores
-| Field       | Type         |
-|-------------|--------------|
-| score_id    | Integer      |
-| user_id     | Integer (FK) |
-| score_value | Integer      |
-| timestamp   | DateTime     |
+---
 
+### Achievements
+| Field | Type |
+|-------|------|
+| id | Integer (PK) |
+| name | String(100) |
+| description | String(255) |
+| image_url | String(1000) |
+| condition_type | String(50) |
+| threshold_value | Integer |
+
+---
+
+### UserAchievements
+| Field | Type |
+|-------|------|
+| id | Integer (PK) |
+| user_id | Integer (FK: Users) |
+| achievement_id | Integer (FK: Achievements) |
+| unlocked_at | DateTime |
+
+---
+
+### DailyGameStates
+| Field | Type |
+|-------|------|
+| id | Integer (PK) |
+| user_id | Integer (FK: Users) |
+| daily_word_id | Integer (FK: DailyWords) |
+| guessed_letters | String(26) |
+| mistakes | Integer |
+| time_left | Integer |
+| hangman_state | Integer |
+| won | Boolean |
+| timestamp | DateTime |
+
+---
+
+### UnlimitedGameStates
+| Field | Type |
+|-------|------|
+| id | Integer (PK) |
+| user_id | Integer (FK: Users) |
+| word | String(50) |
+| guessed_letters | String(26) |
+| mistakes | Integer |
+| score | Integer |
+| time_left | Integer |
+| hangman_state | Integer |
+| won | Boolean |
+| started_at | DateTime |
+| updated_at | DateTime |
+
+---
+
+### Friendships
+| Field | Type |
+|-------|------|
+| id | Integer (PK) |
+| user_id | Integer (FK: Users) |
+| friend_id | Integer (FK: Users) |
+| created_at | DateTime |
+
+---
+
+### FriendChallenges
+| Field | Type |
+|-------|------|
+| id | Integer (PK) |
+| sender_id | Integer (FK: Users) |
+| receiver_id | Integer (FK: Users) |
+| word | String(50) |
+| status | String(20) |
+| created_at | DateTime |
