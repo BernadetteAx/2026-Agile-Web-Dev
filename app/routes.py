@@ -504,8 +504,6 @@ def save_unlimited_state():
     data = request.get_json(silent=True)
     if not data:
         return jsonify({"error": "No JSON body"}), 400
-    
-    print("DEBUG save_unlimited_state:", data)
 
     user_id = session["user_id"]
     game_id = data.get("game_id")
