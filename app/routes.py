@@ -1,11 +1,11 @@
 from flask import Blueprint, render_template, jsonify, request, session
 from datetime import date, datetime
-import requests
 import random
 
 from app import db
 from app.models import DailyWord, Achievement, UserAchievement, User, DailyGameState, UnlimitedGameState, Friendship, FriendChallenge
 from app.services.achievements import check_achievement
+from app.services.words import get_random_word as get_word_from_list
 from app.decorators import login_required
 
 main = Blueprint("main", __name__)
@@ -337,28 +337,15 @@ def get_daily_word():
 
 
 def _fetch_and_store_daily_word(today):
-    """Helper: hit the Datamuse API and store a new unique daily word."""
+    """Helper: load a word from local word list and store a new unique daily word."""
     max_retries = 10
     for _ in range(max_retries):
         try:
-            response = requests.get(
-                "https://api.datamuse.com/words?ml=common&max=1000",
-                headers={"User-Agent": "Mozilla/5.0", "Accept": "application/json"},
-                timeout=10,
-            )
-            response.raise_for_status()
-            word_list = response.json()
-        except requests.exceptions.RequestException:
+            word = get_word_from_list()
+        except Exception:
             continue
 
-        if not isinstance(word_list, list) or not word_list:
-            continue
-
-        valid_words = [w["word"].upper() for w in word_list if w["word"].isalpha() and 4 <= len(w["word"]) <= 8]
-        if not valid_words:
-            continue
-
-        word = random.choice(valid_words)
+        # Check if this word was already used for a daily word
         if DailyWord.query.filter_by(word=word).first():
             continue  # already used
 
@@ -599,20 +586,10 @@ def get_active_unlimited_game():
 @login_required
 def get_random_word():
     try:
-        response = requests.get(
-            "https://api.datamuse.com/words?ml=common&max=1000",
-            headers={"User-Agent": "Mozilla/5.0", "Accept": "application/json"},
-            timeout=10,
-        )
-        response.raise_for_status()
-        word_list = response.json()
-        valid_words = [w["word"].upper() for w in word_list if w["word"].isalpha() and 4 <= len(w["word"]) <= 8]
-        if not valid_words:
-            return jsonify({"error": "No valid words found"}), 500
-        word = random.choice(valid_words)
+        word = get_word_from_list()
         return jsonify({"word": word}), 200
-    except requests.exceptions.RequestException as e:
-        return jsonify({"error": "Failed to fetch word"}), 500
+    except Exception as e:
+        return jsonify({"error": "Failed to get word"}), 500
     
 
 @main.route("/api/challenge/send", methods=["POST"])
