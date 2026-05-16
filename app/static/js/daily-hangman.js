@@ -13,6 +13,7 @@ let tiles;
 let gameOver = false;
 let timeRemaining = initialTime;
 let timerInterval;
+let stateSaveQueue = Promise.resolve();
 
 const mistakeNum = document.getElementById("mistakeNum");
 const hangmanFigure = document.getElementById("hangman-figure");
@@ -74,7 +75,7 @@ function restoreState(state) {
       });
     }
     document.querySelectorAll(".key").forEach(k => k.style.pointerEvents = "none");
-    showResultPopup(state.won, word, state.time_left ?? 0, wordDefinition, wordPartOfSpeech);
+    showResultPopup(state.won, word, state.time_left ?? 0, wordDefinition, wordPartOfSpeech, state.guessed_letters);
     return;
   }
 
@@ -130,21 +131,44 @@ function replayLetter(letter) {
 async function saveState(won = null) {
   if (!dailyWordId) return;
 
-  try {
+  const payload = {
+    daily_word_id: dailyWordId,
+    guessed_letters: [...guessedLetters].join(""),
+    mistakes: mistakes,
+    time_left: timeRemaining,
+    hangman_state: mistakes,
+    won: won,
+  };
+
+  stateSaveQueue = stateSaveQueue.catch(() => undefined).then(async () => {
     await fetch("/api/daily-state", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        daily_word_id: dailyWordId,
-        guessed_letters: [...guessedLetters].join(""),
-        mistakes: mistakes,
-        time_left: timeRemaining,
-        hangman_state: mistakes,
-        won: won,
-      }),
+      body: JSON.stringify(payload),
     });
-  } catch (err) {
+  }).catch(err => {
     console.error("Failed to save game state:", err);
+  });
+
+  return stateSaveQueue;
+}
+
+// load the latest guessed letters snapshot for this user + daily word
+async function fetchSavedGuessedLetters(fallbackLetters = null) {
+  if (!dailyWordId) return fallbackLetters || Array.from(guessedLetters);
+
+  try {
+    const response = await fetch(`/api/daily-state/${dailyWordId}`);
+    const states = await response.json();
+
+    if (!response.ok || !Array.isArray(states) || states.length === 0) {
+      return fallbackLetters || Array.from(guessedLetters);
+    }
+
+    return states[states.length - 1].guessed_letters || [];
+  } catch (err) {
+    console.error("Failed to fetch saved guessed letters:", err);
+    return fallbackLetters || Array.from(guessedLetters);
   }
 }
 
@@ -178,7 +202,7 @@ function initGame() {
 }
 
 // Handle a live guess
-function handleGuess(letter) {
+async function handleGuess(letter) {
   if (gameOver || guessedLetters.has(letter) || mistakes >= maxMistakes) return;
 
   guessedLetters.add(letter);
@@ -215,15 +239,15 @@ function handleGuess(letter) {
     });
   }
 
-  checkGameEnd();
+  await checkGameEnd();
 }
 
 // win / loss detection
-function checkGameEnd() {
+async function checkGameEnd() {
   if (mistakes >= maxMistakes) {
     gameOver = true;
     stopTimer();
-    saveState(false);
+    await saveState(false);
 
     word.split("").forEach((char, i) => {
       tiles[i].querySelector(".tile-letter").textContent = char;
@@ -235,19 +259,19 @@ function checkGameEnd() {
   } else if (wordDisplay.join("") === word) {
     gameOver = true;
     stopTimer();
-    saveState(true);
+    await saveState(true);
 
     document.querySelectorAll(".key").forEach(k => k.style.pointerEvents = "none");
     triggerConfetti();
     setTimeout(() => showResultPopup(true, word, timeRemaining, wordDefinition, wordPartOfSpeech), 400);
 
   } else {
-    saveState(null);
+    await saveState(null);
   }
 }
 
 // result popup
-function showResultPopup(won, word, timeRemaining, definition = "", partOfSpeech = "") {
+async function showResultPopup(won, word, timeRemaining, definition = "", partOfSpeech = "", fallbackGuessedLetters = null) {
   const popup = document.getElementById("result-popup");
   const icon = document.getElementById("result-icon");
   const title = document.getElementById("result-title");
@@ -272,13 +296,15 @@ function showResultPopup(won, word, timeRemaining, definition = "", partOfSpeech
     wordReveal.textContent = "WORD: " + word;
   }
 
+  const savedGuessedLetters = await fetchSavedGuessedLetters(fallbackGuessedLetters);
+
   // Display word definition, part of speech, and guessed letters
   wordDisplay.textContent = word || "";
   wordDisplay.classList.toggle("lost", !won);
   wordReveal.classList.toggle("lost", !won);
   posDisplay.textContent = partOfSpeech ? `${partOfSpeech}` : "";
   defDisplay.textContent = definition || "";
-  guessedDisplay.textContent = `Guessed letters: ${Array.from(guessedLetters).sort().join(", ") || "None"}`;
+  guessedDisplay.textContent = `Guessed letters: ${savedGuessedLetters.slice().sort().join(", ") || "None"}`;
 
   popup.classList.remove("hidden");
   popup.offsetHeight;
@@ -293,13 +319,13 @@ function updateTimerDisplay() {
 }
 
 function startTimer() {
-  timerInterval = setInterval(() => {
+  timerInterval = setInterval(async () => {
     timeRemaining--;
     updateTimerDisplay();
     if (timeRemaining <= 0) {
       stopTimer();
       gameOver = true;
-      saveState(false);
+      await saveState(false);
       document.querySelectorAll(".key").forEach(key => key.style.pointerEvents = "none");
       setTimeout(() => showResultPopup(false, word, 0, wordDefinition, wordPartOfSpeech), 10);
     }
