@@ -48,7 +48,7 @@ def load_words_from_file():
     valid_words = [
         word.upper() 
         for word in all_words 
-        if word and word.isalpha() and 4 <= len(word) <= 8
+        if word and word.isalpha() and 5 <= len(word) <= 10
     ]
     
     if not valid_words:
