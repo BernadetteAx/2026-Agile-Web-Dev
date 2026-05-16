@@ -279,7 +279,17 @@ class TestDailyWordAPI:
     def test_daily_word_returns_word(self, mock_get, app, client, db_session):
         mock_response = MagicMock()
         mock_response.json.return_value = [
-            {"word": "python"}, {"word": "flask"}, {"word": "hangman"}
+            {
+                "word": "python",
+                "meanings": [
+                    {
+                        "partOfSpeech": "noun",
+                        "definitions": [
+                            {"definition": "A programming language."}
+                        ]
+                    }
+                ]
+            }
         ]
         mock_response.raise_for_status = MagicMock()
         mock_get.return_value = mock_response
@@ -294,10 +304,16 @@ class TestDailyWordAPI:
         assert "daily_word_id" in data
 
     # the same word should be returned on repeated calls for the same day
-    @patch("app.routes.requests.get")
-    def test_same_word_returned_for_today(self, mock_get, app, client, db_session):
+    @patch("app.routes.get_word_definition")
+    @patch("app.routes.get_word_from_list")
+    def test_same_word_returned_for_today(self, mock_get_word, mock_definition, app, client, db_session):
         from app.models import DailyWord
         from app import db
+
+        mock_definition.return_value = {
+            "definition": "A programming language.",
+            "part_of_speech": "noun",
+        }
 
         # Pre-seed today's word
         today_word = DailyWord(word="PYTHON", date=date.today())
@@ -311,8 +327,26 @@ class TestDailyWordAPI:
         res2 = client.get("/api/daily-word")
 
         assert res1.get_json()["word"] == res2.get_json()["word"]
-        # Datamuse should NOT have been called since word already exists
-        mock_get.assert_not_called()
+        # A new word should NOT be chosen since today's word already exists
+        mock_get_word.assert_not_called()
+
+    @patch("app.routes.get_word_definition")
+    @patch("app.routes.get_word_from_list")
+    def test_daily_word_skips_words_without_dictionary_entry(self, mock_get_word, mock_definition, app, client, db_session):
+        mock_get_word.side_effect = ["NOTAWORD", "PYTHON"]
+        mock_definition.side_effect = [
+            {"definition": "", "part_of_speech": ""},
+            {"definition": "A programming language.", "part_of_speech": "noun"},
+            {"definition": "A programming language.", "part_of_speech": "noun"},
+        ]
+
+        create_user(db_session)
+        login(client)
+
+        res = client.get("/api/daily-word")
+
+        assert res.status_code == 200
+        assert res.get_json()["word"] == "PYTHON"
 
 # daily game state tests
 class TestDailyGameState:
