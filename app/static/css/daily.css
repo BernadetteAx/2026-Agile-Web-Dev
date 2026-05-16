@@ -249,6 +249,11 @@
   border-radius: 2px;
 }
 
+.result-word-reveal.lost {
+  color: #ff3b3b;
+  border: 2px solid #ff3b3b33;
+}
+
 /* hide word-reveal if empty */
 .result-word-reveal:empty {
   display: none;
@@ -265,7 +270,7 @@
 
 .result-word {
   font-family: var(--font-press);
-  color: #4e7f6a;
+  color: #ffffff;
   font-weight: bold;
   margin-bottom: 4px;
 }

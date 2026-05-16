@@ -274,6 +274,8 @@ function showResultPopup(won, word, timeRemaining, definition = "", partOfSpeech
 
   // Display word definition, part of speech, and guessed letters
   wordDisplay.textContent = word || "";
+  wordDisplay.classList.toggle("lost", !won);
+  wordReveal.classList.toggle("lost", !won);
   posDisplay.textContent = partOfSpeech ? `${partOfSpeech}` : "";
   defDisplay.textContent = definition || "";
   guessedDisplay.textContent = `Guessed letters: ${Array.from(guessedLetters).sort().join(", ") || "None"}`;
