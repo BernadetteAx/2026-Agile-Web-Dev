@@ -2,6 +2,8 @@
 
 let word = "";
 let dailyWordId = null;
+let wordDefinition = "";
+let wordPartOfSpeech = "";
 const maxMistakes = 6;
 const initialTime = 90;
 let mistakes = 0;
@@ -39,6 +41,8 @@ async function fetchDailyWord() {
 
     word = data.word;
     dailyWordId = data.daily_word_id;
+    wordDefinition = data.definition || "";
+    wordPartOfSpeech = data.part_of_speech || "";
 
     initGame();
 
@@ -70,7 +74,7 @@ function restoreState(state) {
       });
     }
     document.querySelectorAll(".key").forEach(k => k.style.pointerEvents = "none");
-    showResultPopup(state.won, word, state.time_left ?? 0);
+    showResultPopup(state.won, word, state.time_left ?? 0, wordDefinition, wordPartOfSpeech);
     return;
   }
 
@@ -226,7 +230,7 @@ function checkGameEnd() {
     });
     document.querySelectorAll(".key").forEach(k => k.style.pointerEvents = "none");
     triggerGlitch();
-    setTimeout(() => showResultPopup(false, word, timeRemaining), 950);
+    setTimeout(() => showResultPopup(false, word, timeRemaining, wordDefinition, wordPartOfSpeech), 950);
 
   } else if (wordDisplay.join("") === word) {
     gameOver = true;
@@ -235,7 +239,7 @@ function checkGameEnd() {
 
     document.querySelectorAll(".key").forEach(k => k.style.pointerEvents = "none");
     triggerConfetti();
-    setTimeout(() => showResultPopup(true, word, timeRemaining), 400);
+    setTimeout(() => showResultPopup(true, word, timeRemaining, wordDefinition, wordPartOfSpeech), 400);
 
   } else {
     saveState(null);
@@ -243,12 +247,16 @@ function checkGameEnd() {
 }
 
 // result popup
-function showResultPopup(won, word, timeRemaining) {
+function showResultPopup(won, word, timeRemaining, definition = "", partOfSpeech = "") {
   const popup = document.getElementById("result-popup");
   const icon = document.getElementById("result-icon");
   const title = document.getElementById("result-title");
   const sub = document.getElementById("result-sub");
   const wordReveal = document.getElementById("result-word-reveal");
+  const wordDisplay = document.getElementById("result-word");
+  const posDisplay = document.getElementById("result-part-of-speech");
+  const defDisplay = document.getElementById("result-definition");
+  const guessedDisplay = document.getElementById("result-guessed-letters");
 
   if (won) {
     icon.innerHTML = '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA2UlEQVR4nO3QQQ7DIAxEUd//0tN1LFUoEYwN/LetGg8/AgCAz1QsqokAtarfH8cHULNB9j0iwDtTXtlpjwjw9Pb32ex7RIA1B1f97+t37QcJkFTvsR8kQFK9x36QAEn1HvtBAiTVe+wHCZBU77Ef3DbAyKyHuPfYD14f4CsCNNsT7oP2B44QIDnt3hABktPuDV0fYDRwtuhOBFgrutPtAf4ZPeSYh/5DgOTt79vTbQE0WexGBJgrdqPbAmjx4PZBRICn3b7ffuB2AVaLbmQW3YgAXtXvBQDEAX6Fs5FCYTw98QAAAABJRU5ErkJggg==" alt="trophy" style="width:40px;height:40px;image-rendering:pixelated;">';
@@ -263,6 +271,12 @@ function showResultPopup(won, word, timeRemaining) {
     sub.textContent = "Better luck tomorrow";
     wordReveal.textContent = "WORD: " + word;
   }
+
+  // Display word definition, part of speech, and guessed letters
+  wordDisplay.textContent = word || "";
+  posDisplay.textContent = partOfSpeech ? `${partOfSpeech}` : "";
+  defDisplay.textContent = definition || "";
+  guessedDisplay.textContent = `Guessed letters: ${Array.from(guessedLetters).sort().join(", ") || "None"}`;
 
   popup.classList.remove("hidden");
   popup.offsetHeight;
@@ -285,7 +299,7 @@ function startTimer() {
       gameOver = true;
       saveState(false);
       document.querySelectorAll(".key").forEach(key => key.style.pointerEvents = "none");
-      setTimeout(() => showResultPopup(false, word, 0), 10);
+      setTimeout(() => showResultPopup(false, word, 0, wordDefinition, wordPartOfSpeech), 10);
     }
   }, 1000);
 }

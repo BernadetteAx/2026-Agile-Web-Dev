@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, jsonify, request, session
 from datetime import date, datetime
 import random
+import requests
 
 from app import db
 from app.models import DailyWord, Achievement, UserAchievement, User, DailyGameState, UnlimitedGameState, Friendship, FriendChallenge
@@ -9,6 +10,42 @@ from app.services.words import get_random_word as get_word_from_list
 from app.decorators import login_required
 
 main = Blueprint("main", __name__)
+
+
+# Helper function to fetch word definition and part of speech
+def get_word_definition(word):
+    """
+    Fetch definition and part of speech for a word from the Dictionary API.
+    
+    Args:
+        word (str): The word to look up
+    
+    Returns:
+        dict: Contains 'definition' and 'part_of_speech' or empty strings if fetch fails
+    """
+    try:
+        response = requests.get(
+            f"https://api.dictionaryapi.dev/api/v2/entries/en/{word.lower()}",
+            timeout=5
+        )
+        response.raise_for_status()
+        data = response.json()
+        
+        if data and len(data) > 0:
+            meanings = data[0].get('meanings', [])
+            if meanings:
+                first_meaning = meanings[0]
+                part_of_speech = first_meaning.get('partOfSpeech', '')
+                definitions = first_meaning.get('definitions', [])
+                definition = definitions[0].get('definition', '') if definitions else ''
+                return {
+                    'definition': definition,
+                    'part_of_speech': part_of_speech
+                }
+    except (requests.exceptions.RequestException, ValueError, IndexError, KeyError):
+        pass
+    
+    return {'definition': '', 'part_of_speech': ''}
 
 
 # public pages (no login required)
@@ -329,9 +366,14 @@ def get_daily_word():
             "won": latest_state.won,
         }
 
+    # Fetch word definition and part of speech
+    word_info = get_word_definition(daily_word.word)
+
     return jsonify({
         "word": daily_word.word,
         "daily_word_id": daily_word.id,
+        "definition": word_info['definition'],
+        "part_of_speech": word_info['part_of_speech'],
         "saved_state": saved_state,
     }), 200
 
