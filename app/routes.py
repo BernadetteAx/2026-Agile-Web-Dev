@@ -653,9 +653,28 @@ def get_random_word():
         word = _get_dictionary_word_from_list()
         if word is None:
             return jsonify({"error": "Failed to get dictionary word"}), 500
-        return jsonify({"word": word}), 200
+        word_info = get_word_definition(word)
+        return jsonify({
+            "word": word,
+            "definition": word_info["definition"],
+            "part_of_speech": word_info["part_of_speech"],
+        }), 200
     except Exception as e:
         return jsonify({"error": "Failed to get word"}), 500
+
+
+@main.route("/api/word-info/<word>")
+@login_required
+def get_word_info(word):
+    if not word or not word.isalpha():
+        return jsonify({"error": "Invalid word"}), 400
+
+    word_info = get_word_definition(word)
+    return jsonify({
+        "word": word.upper(),
+        "definition": word_info["definition"],
+        "part_of_speech": word_info["part_of_speech"],
+    }), 200
     
 
 @main.route("/api/challenge/send", methods=["POST"])
