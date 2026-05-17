@@ -55,67 +55,93 @@
 
 #figure-card.is-fetching {
   border-color: #4e7f6a;
-  box-shadow: 0 0 0 2px #ffffff22, 0 0 18px #4e7f6a44;
+  box-shadow: 0 0 0 2px #ffffff22, inset 0 0 22px #4e7f6a22;
 }
 
 #figure-card.is-fetching::before {
   content: "";
   position: absolute;
-  inset: 0;
+  width: 4px;
+  height: 4px;
+  left: 50%;
+  top: 50%;
   pointer-events: none;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent 0,
-    transparent 10px,
-    rgba(78, 127, 106, 0.22) 10px,
-    rgba(78, 127, 106, 0.22) 12px
-  );
-  animation: loadingScan 0.7s steps(6) infinite;
-}
-
-#figure-card.is-fetching #hangman-figure {
-  animation: loadingFigureJitter 0.16s steps(2) infinite;
+  background: transparent;
+  opacity: 0;
+  box-shadow:
+    -58px -52px 0 #ffffff,
+    -34px -68px 0 #4e7f6a,
+    -10px -48px 0 #ffffff,
+    18px -62px 0 #4e7f6a,
+    44px -42px 0 #ffffff,
+    -48px -18px 0 #4e7f6a,
+    -22px -6px 0 #ffffff,
+    10px -22px 0 #ffffff,
+    34px -8px 0 #4e7f6a,
+    58px -18px 0 #ffffff,
+    -42px 24px 0 #ffffff,
+    -14px 38px 0 #4e7f6a,
+    18px 26px 0 #ffffff,
+    46px 42px 0 #4e7f6a,
+    66px 18px 0 #ffffff;
+  animation: hangmanDebris 1.15s steps(5) infinite;
 }
 
 #figure-card.is-fetching #hangman-figure line {
-  stroke-dasharray: 1000;
+  stroke-dasharray: 18 10;
   stroke-dashoffset: 0;
   opacity: 1;
-  animation: loadingHangmanDisappear 1.25s steps(6) infinite;
+  animation: loadingHangmanDestroy 1.15s steps(6) infinite;
 }
 
 #figure-card.is-fetching #hangman-figure line:nth-of-type(2n) {
-  animation-delay: 0.08s;
+  animation-delay: 0.1s;
 }
 
 #figure-card.is-fetching #hangman-figure line:nth-of-type(3n) {
-  animation-delay: 0.16s;
+  animation-delay: 0.2s;
 }
 
-@keyframes loadingHangmanDisappear {
-  0%, 18% {
+@keyframes loadingHangmanDestroy {
+  0%, 16% {
     stroke-dashoffset: 0;
     opacity: 1;
+    transform: translate(0, 0);
   }
-  48%, 68% {
-    stroke-dashoffset: 1000;
-    opacity: 0.12;
+  34% {
+    stroke-dashoffset: 42;
+    opacity: 0.75;
+    transform: translate(1px, 0);
+  }
+  54%, 72% {
+    stroke-dashoffset: 120;
+    opacity: 0.16;
+    transform: translate(0, 3px);
   }
   100% {
     stroke-dashoffset: 0;
     opacity: 1;
+    transform: translate(0, 0);
   }
 }
 
-@keyframes loadingFigureJitter {
-  0% { transform: translate(0, 0); }
-  50% { transform: translate(2px, -1px); }
-  100% { transform: translate(-1px, 1px); }
-}
-
-@keyframes loadingScan {
-  from { transform: translateY(-12px); }
-  to { transform: translateY(12px); }
+@keyframes hangmanDebris {
+  0%, 18% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+  32% {
+    opacity: 0.95;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  64% {
+    opacity: 0.75;
+    transform: translate(-50%, -46%) scale(1.12);
+  }
+  86%, 100% {
+    opacity: 0;
+    transform: translate(-50%, -42%) scale(1.35);
+  }
 }
 
 .word-row {
