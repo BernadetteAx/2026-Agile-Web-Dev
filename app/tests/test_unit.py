@@ -172,6 +172,35 @@ class TestAuthRoutes:
         res = client.get("/api/auth/me")
         assert res.status_code == 401
 
+    # registration with invalid email format should return 400
+    def test_register_invalid_email(self, app, client):
+        res = client.post("/api/auth/register", json={
+            "username": "bademail",
+            "email": "notanemail",
+            "password": "password1"
+        })
+        assert res.status_code == 400
+
+    # registration password without a number should return 400
+    def test_register_password_requires_number(self, app, client):
+        res = client.post("/api/auth/register", json={
+            "username": "nonumber",
+            "email": "nonumber@test.com",
+            "password": "password"
+        })
+        assert res.status_code == 400
+
+
+    # registration password without a letter should return 400
+    def test_register_password_requires_letter(self, app, client):
+        res = client.post("/api/auth/register", json={
+            "username": "noletter",
+            "email": "noletter@test.com",
+            "password": "12345678"
+        })
+        assert res.status_code == 400
+
+
 # protected route tests
 class TestProtectedRoutes:
 
@@ -499,12 +528,3 @@ class TestFriendsAPI:
         res = client.get("/api/users/search?q=alice")
         results = res.get_json()
         assert all(u["username"] != "alice" for u in results)
-
-    # registration with invalid email format should return 400
-    def test_register_invalid_email(self, app, client):
-        res = client.post("/api/auth/register", json={
-            "username": "bademail",
-            "email": "notanemail",
-            "password": "password1"
-        })
-        assert res.status_code == 400

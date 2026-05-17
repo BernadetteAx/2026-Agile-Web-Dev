@@ -31,6 +31,9 @@ def register():
 
     if len(password) < 8:
         return jsonify({"error": "Password must be at least 8 characters"}), 400
+    
+    if not any(char.isalpha() for char in password) or not any(char.isdigit() for char in password):
+        return jsonify({"error": "Password must contain at least one letter and one number"}), 400
 
     if User.query.filter_by(email=email).first():
         return jsonify({"error": "An account with that email already exists"}), 400
