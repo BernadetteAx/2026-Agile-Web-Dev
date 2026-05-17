@@ -8,6 +8,8 @@ let tiles;
 let gameOver = false;
 let streak = 0;
 let word;
+let wordDefinition = "";
+let wordPartOfSpeech = "";
 let usedWords = new Set();
 let gameId = null;
 let challengeId = null; // set when launched from a friend challenge
@@ -33,6 +35,7 @@ async function fetchActiveGame() {
     if (data.active_game) {
       const activeGame = data.active_game;
       word = activeGame.word;
+      await fetchWordInfo(word);
       gameId = activeGame.game_id;
 
       initGame(true);
@@ -44,6 +47,28 @@ async function fetchActiveGame() {
   } catch (error) {
     console.error("Error fetching active game:", error);
     return false;
+  }
+}
+
+async function fetchWordInfo(wordToFetch) {
+  wordDefinition = "";
+  wordPartOfSpeech = "";
+
+  if (!wordToFetch) return;
+
+  try {
+    const response = await fetch(`/api/word-info/${encodeURIComponent(wordToFetch)}`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Failed to fetch word info:", data.error);
+      return;
+    }
+
+    wordDefinition = data.definition || "";
+    wordPartOfSpeech = data.part_of_speech || "";
+  } catch (err) {
+    console.error("Error fetching word info:", err);
   }
 }
 
@@ -110,8 +135,6 @@ async function saveState(won = null) {
     if (challengeId !== null) {
       body.challenge_id = challengeId;
     }
-
-    console.log("Saving state:", body);
  
     const response = await fetch("/api/unlimited-state", {
       method: "POST",
@@ -139,6 +162,8 @@ async function initGame(skipFetch = false) {
           return;
         }
         word = data.word;
+        wordDefinition = data.definition || "";
+        wordPartOfSpeech = data.part_of_speech || "";
         attempts++;
       } catch (err) {
         console.error("Error fetching word:", err);
@@ -193,8 +218,8 @@ async function loadChallenge(id) {
     }
 
     challengeId = data.challenge_id;
-    console.log("challengeId set to:", challengeId);
     word = data.word;
+    await fetchWordInfo(word);
 
     showChallengeBanner(data.from);
     await initGame(true);
@@ -225,12 +250,20 @@ function showChallengeAlreadyPlayed(fromName) {
   const title     = document.getElementById("result-title");
   const sub       = document.getElementById("result-sub");
   const wordReveal = document.getElementById("result-word-reveal");
+  const wordDisplay = document.getElementById("result-word");
+  const posDisplay = document.getElementById("result-part-of-speech");
+  const defDisplay = document.getElementById("result-definition");
+  const guessedDisplay = document.getElementById("result-guessed-letters");
 
   icon.textContent  = "⚔";
   icon.style.fontSize = "1.4rem";
   title.textContent = "ALREADY PLAYED";
   sub.textContent   = `YOU'VE ALREADY PLAYED ${fromName}'S CHALLENGE.`;
   wordReveal.textContent = "";
+  wordDisplay.textContent = "";
+  posDisplay.textContent = "";
+  defDisplay.textContent = "";
+  guessedDisplay.textContent = "";
 
   popup.classList.remove("hidden");
   popup.offsetHeight;
@@ -293,7 +326,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
  
-function handleGuess(letter) {
+async function handleGuess(letter) {
   if (gameOver || guessedLetters.has(letter) || mistakes >= maxMistakes) return;
  
   guessedLetters.add(letter);
@@ -328,10 +361,10 @@ function handleGuess(letter) {
     });
   }
  
-  checkGameEnd();
+  await checkGameEnd();
 }
  
-function checkGameEnd() {
+async function checkGameEnd() {
   if (mistakes >= maxMistakes) {
     gameOver = true;
     const finalStreak = streak;
@@ -347,7 +380,7 @@ function checkGameEnd() {
     });
     document.querySelectorAll(".key").forEach(k => k.style.pointerEvents = "none");
 
-    saveState(false);
+    await saveState(false);
 
     if (challengeId !== null) {
       triggerGlitch();
@@ -368,7 +401,7 @@ function checkGameEnd() {
 
     document.querySelectorAll(".key").forEach(k => k.style.pointerEvents = "none");
 
-    saveState(true);
+    await saveState(true);
 
     if (challengeId !== null) {
       setTimeout(() => redirectAfterChallenge(true, word), 1000);
@@ -377,7 +410,7 @@ function checkGameEnd() {
     }
 
   } else {
-    saveState(null);
+    await saveState(null);
   }
 }
 
@@ -400,17 +433,30 @@ function closePopupAndPlay() {
   }, 200);
 }
  
-function showResultPopup(won, word, currentStreak) {
+async function showResultPopup(won, word, currentStreak) {
   const popup = document.getElementById("result-popup");
   const icon = document.getElementById("result-icon");
   const title = document.getElementById("result-title");
   const sub = document.getElementById("result-sub");
   const wordReveal = document.getElementById("result-word-reveal");
+  const wordDisplay = document.getElementById("result-word");
+  const posDisplay = document.getElementById("result-part-of-speech");
+  const defDisplay = document.getElementById("result-definition");
+  const guessedDisplay = document.getElementById("result-guessed-letters");
+
+  if (!wordDefinition && !wordPartOfSpeech) {
+    await fetchWordInfo(word);
+  }
  
   icon.innerHTML = '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA7klEQVR4nO3QQZLEMAhDUe5/ac3a1KTctDEm7f+2KSNFZgAAAMmUzN5GDJDL3ka3DKCiwm2HEQP87605bYu1GUCnC5zuIwYoDuzWRwxQHNitj24bQM1+uLyvGGBkzbm6DGDtDm7GAE7ZQT3Izo/2WM03BnCyin6bH+2xmm8M4ESLfvo+6040b4oBnF3Fs+5E86YYwNlVPOtONG+KAbIPbpbeVwwwsuZcXQaw3QFPsos+BgXvLFNSEQZwqnKX6fYBPjUrtvq9PTHAqPr9cWKAUfX748QAo+r3x+n2AWY/NGO/RgwQY79Gtw8AALB+/gBv3TVmnpIGyAAAAABJRU5ErkJggg==" alt="game over" style="width:40px;height:40px;image-rendering:pixelated;">';
   title.textContent = "GAME OVER";
   sub.textContent = `STREAK: ${currentStreak}`;
   wordReveal.textContent = "WORD: " + word;
+  wordReveal.classList.toggle("lost", !won);
+  wordDisplay.textContent = word || "";
+  posDisplay.textContent = wordPartOfSpeech || "";
+  defDisplay.textContent = wordDefinition || "";
+  guessedDisplay.textContent = `Guessed letters: ${Array.from(guessedLetters).sort().join(", ") || "None"}`;
  
   popup.classList.remove("hidden");
   popup.offsetHeight;

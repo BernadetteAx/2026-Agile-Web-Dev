@@ -1,11 +1,12 @@
 from flask import Blueprint, render_template, jsonify, request, session
 from datetime import date, datetime
-import requests
 import random
+import requests
 
 from app import db
 from app.models import DailyWord, Achievement, UserAchievement, User, DailyGameState, UnlimitedGameState, Friendship, FriendChallenge
 from app.services.achievements import check_achievement
+from app.services.words import get_random_word as get_word_from_list
 from app.decorators import login_required
 
 main = Blueprint("main", __name__)
@@ -152,7 +153,6 @@ def leaderboard():
 
 # leaderboard API
 
-
 @main.route("/api/leaderboard")
 @login_required
 def api_leaderboard():
@@ -292,8 +292,67 @@ def get_achievements():
     ])
 
 
-# daily word API
+# Helper function to fetch word definition and part of speech
+def get_word_definition(word):
+    """
+    Fetch definition and part of speech for a word from the Dictionary API.
 
+    Args:
+        word (str): The word to look up
+
+    Returns:
+        dict: Contains 'definition' and 'part_of_speech' or empty strings if fetch fails
+    """
+    try:
+        response = requests.get(
+            f"https://api.dictionaryapi.dev/api/v2/entries/en/{word.lower()}",
+            timeout=5
+        )
+        response.raise_for_status()
+        data = response.json()
+
+        if data and len(data) > 0:
+            meanings = data[0].get('meanings', [])
+            if meanings:
+                first_meaning = meanings[0]
+                part_of_speech = first_meaning.get('partOfSpeech', '')
+                definitions = first_meaning.get('definitions', [])
+                definition = definitions[0].get('definition', '') if definitions else ''
+                return {
+                    'definition': definition,
+                    'part_of_speech': part_of_speech
+                }
+    except (requests.exceptions.RequestException, ValueError, IndexError, KeyError):
+        pass
+
+    return {'definition': '', 'part_of_speech': ''}
+
+
+def _word_exists_in_dictionary(word):
+    """Return True when the Dictionary API has usable data for the word."""
+    word_info = get_word_definition(word)
+    return bool(word_info["definition"] or word_info["part_of_speech"])
+
+
+def _get_dictionary_word_from_list(max_retries=10, excluded_words=None):
+    """Choose a local word that also exists in the dictionary API."""
+    checked_words = set(excluded_words or [])
+
+    for _ in range(max_retries):
+        word = get_word_from_list()
+
+        if word in checked_words:
+            continue
+
+        checked_words.add(word)
+
+        if _word_exists_in_dictionary(word):
+            return word
+
+    return None
+
+
+# daily word API
 @main.route("/api/daily-word")
 @login_required
 def get_daily_word():
@@ -329,45 +388,37 @@ def get_daily_word():
             "won": latest_state.won,
         }
 
+    # Fetch word definition and part of speech
+    word_info = get_word_definition(daily_word.word)
+
     return jsonify({
         "word": daily_word.word,
         "daily_word_id": daily_word.id,
+        "definition": word_info['definition'],
+        "part_of_speech": word_info['part_of_speech'],
         "saved_state": saved_state,
     }), 200
 
 
 def _fetch_and_store_daily_word(today):
-    """Helper: hit the Datamuse API and store a new unique daily word."""
-    max_retries = 10
-    for _ in range(max_retries):
-        try:
-            response = requests.get(
-                "https://api.datamuse.com/words?ml=common&max=1000",
-                headers={"User-Agent": "Mozilla/5.0", "Accept": "application/json"},
-                timeout=10,
-            )
-            response.raise_for_status()
-            word_list = response.json()
-        except requests.exceptions.RequestException:
-            continue
+    """Helper: load and store a new unique daily word that exists in the dictionary."""
+    used_words = {
+        word
+        for (word,) in DailyWord.query.with_entities(DailyWord.word).all()
+    }
 
-        if not isinstance(word_list, list) or not word_list:
-            continue
+    try:
+        word = _get_dictionary_word_from_list(excluded_words=used_words)
+    except Exception:
+        return None
 
-        valid_words = [w["word"].upper() for w in word_list if w["word"].isalpha() and 4 <= len(w["word"]) <= 8]
-        if not valid_words:
-            continue
+    if word is None:
+        return None
 
-        word = random.choice(valid_words)
-        if DailyWord.query.filter_by(word=word).first():
-            continue  # already used
-
-        new_daily_word = DailyWord(word=word, date=today)
-        db.session.add(new_daily_word)
-        db.session.commit()
-        return new_daily_word
-
-    return None
+    new_daily_word = DailyWord(word=word, date=today)
+    db.session.add(new_daily_word)
+    db.session.commit()
+    return new_daily_word
 
 
 # daily game state API
@@ -599,20 +650,31 @@ def get_active_unlimited_game():
 @login_required
 def get_random_word():
     try:
-        response = requests.get(
-            "https://api.datamuse.com/words?ml=common&max=1000",
-            headers={"User-Agent": "Mozilla/5.0", "Accept": "application/json"},
-            timeout=10,
-        )
-        response.raise_for_status()
-        word_list = response.json()
-        valid_words = [w["word"].upper() for w in word_list if w["word"].isalpha() and 4 <= len(w["word"]) <= 8]
-        if not valid_words:
-            return jsonify({"error": "No valid words found"}), 500
-        word = random.choice(valid_words)
-        return jsonify({"word": word}), 200
-    except requests.exceptions.RequestException as e:
-        return jsonify({"error": "Failed to fetch word"}), 500
+        word = _get_dictionary_word_from_list()
+        if word is None:
+            return jsonify({"error": "Failed to get dictionary word"}), 500
+        word_info = get_word_definition(word)
+        return jsonify({
+            "word": word,
+            "definition": word_info["definition"],
+            "part_of_speech": word_info["part_of_speech"],
+        }), 200
+    except Exception as e:
+        return jsonify({"error": "Failed to get word"}), 500
+
+
+@main.route("/api/word-info/<word>")
+@login_required
+def get_word_info(word):
+    if not word or not word.isalpha():
+        return jsonify({"error": "Invalid word"}), 400
+
+    word_info = get_word_definition(word)
+    return jsonify({
+        "word": word.upper(),
+        "definition": word_info["definition"],
+        "part_of_speech": word_info["part_of_speech"],
+    }), 200
     
 
 @main.route("/api/challenge/send", methods=["POST"])
@@ -707,4 +769,3 @@ def get_challenge(challenge_id):
         "from": challenge.sender.username.upper(),
         "status": challenge.status,
     }), 200
-

@@ -2,6 +2,8 @@
 
 let word = "";
 let dailyWordId = null;
+let wordDefinition = "";
+let wordPartOfSpeech = "";
 const maxMistakes = 6;
 const initialTime = 90;
 let mistakes = 0;
@@ -11,6 +13,7 @@ let tiles;
 let gameOver = false;
 let timeRemaining = initialTime;
 let timerInterval;
+let stateSaveQueue = Promise.resolve();
 
 const mistakeNum = document.getElementById("mistakeNum");
 const hangmanFigure = document.getElementById("hangman-figure");
@@ -39,6 +42,8 @@ async function fetchDailyWord() {
 
     word = data.word;
     dailyWordId = data.daily_word_id;
+    wordDefinition = data.definition || "";
+    wordPartOfSpeech = data.part_of_speech || "";
 
     initGame();
 
@@ -70,7 +75,7 @@ function restoreState(state) {
       });
     }
     document.querySelectorAll(".key").forEach(k => k.style.pointerEvents = "none");
-    showResultPopup(state.won, word, state.time_left ?? 0);
+    showResultPopup(state.won, word, state.time_left ?? 0, wordDefinition, wordPartOfSpeech, state.guessed_letters);
     return;
   }
 
@@ -126,21 +131,44 @@ function replayLetter(letter) {
 async function saveState(won = null) {
   if (!dailyWordId) return;
 
-  try {
+  const payload = {
+    daily_word_id: dailyWordId,
+    guessed_letters: [...guessedLetters].join(""),
+    mistakes: mistakes,
+    time_left: timeRemaining,
+    hangman_state: mistakes,
+    won: won,
+  };
+
+  stateSaveQueue = stateSaveQueue.catch(() => undefined).then(async () => {
     await fetch("/api/daily-state", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        daily_word_id: dailyWordId,
-        guessed_letters: [...guessedLetters].join(""),
-        mistakes: mistakes,
-        time_left: timeRemaining,
-        hangman_state: mistakes,
-        won: won,
-      }),
+      body: JSON.stringify(payload),
     });
-  } catch (err) {
+  }).catch(err => {
     console.error("Failed to save game state:", err);
+  });
+
+  return stateSaveQueue;
+}
+
+// load the latest guessed letters snapshot for this user + daily word
+async function fetchSavedGuessedLetters(fallbackLetters = null) {
+  if (!dailyWordId) return fallbackLetters || Array.from(guessedLetters);
+
+  try {
+    const response = await fetch(`/api/daily-state/${dailyWordId}`);
+    const states = await response.json();
+
+    if (!response.ok || !Array.isArray(states) || states.length === 0) {
+      return fallbackLetters || Array.from(guessedLetters);
+    }
+
+    return states[states.length - 1].guessed_letters || [];
+  } catch (err) {
+    console.error("Failed to fetch saved guessed letters:", err);
+    return fallbackLetters || Array.from(guessedLetters);
   }
 }
 
@@ -174,7 +202,7 @@ function initGame() {
 }
 
 // Handle a live guess
-function handleGuess(letter) {
+async function handleGuess(letter) {
   if (gameOver || guessedLetters.has(letter) || mistakes >= maxMistakes) return;
 
   guessedLetters.add(letter);
@@ -211,44 +239,48 @@ function handleGuess(letter) {
     });
   }
 
-  checkGameEnd();
+  await checkGameEnd();
 }
 
 // win / loss detection
-function checkGameEnd() {
+async function checkGameEnd() {
   if (mistakes >= maxMistakes) {
     gameOver = true;
     stopTimer();
-    saveState(false);
+    await saveState(false);
 
     word.split("").forEach((char, i) => {
       tiles[i].querySelector(".tile-letter").textContent = char;
     });
     document.querySelectorAll(".key").forEach(k => k.style.pointerEvents = "none");
     triggerGlitch();
-    setTimeout(() => showResultPopup(false, word, timeRemaining), 950);
+    setTimeout(() => showResultPopup(false, word, timeRemaining, wordDefinition, wordPartOfSpeech), 950);
 
   } else if (wordDisplay.join("") === word) {
     gameOver = true;
     stopTimer();
-    saveState(true);
+    await saveState(true);
 
     document.querySelectorAll(".key").forEach(k => k.style.pointerEvents = "none");
     triggerConfetti();
-    setTimeout(() => showResultPopup(true, word, timeRemaining), 400);
+    setTimeout(() => showResultPopup(true, word, timeRemaining, wordDefinition, wordPartOfSpeech), 400);
 
   } else {
-    saveState(null);
+    await saveState(null);
   }
 }
 
 // result popup
-function showResultPopup(won, word, timeRemaining) {
+async function showResultPopup(won, word, timeRemaining, definition = "", partOfSpeech = "", fallbackGuessedLetters = null) {
   const popup = document.getElementById("result-popup");
   const icon = document.getElementById("result-icon");
   const title = document.getElementById("result-title");
   const sub = document.getElementById("result-sub");
   const wordReveal = document.getElementById("result-word-reveal");
+  const wordDisplay = document.getElementById("result-word");
+  const posDisplay = document.getElementById("result-part-of-speech");
+  const defDisplay = document.getElementById("result-definition");
+  const guessedDisplay = document.getElementById("result-guessed-letters");
 
   if (won) {
     icon.innerHTML = '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA2UlEQVR4nO3QQQ7DIAxEUd//0tN1LFUoEYwN/LetGg8/AgCAz1QsqokAtarfH8cHULNB9j0iwDtTXtlpjwjw9Pb32ex7RIA1B1f97+t37QcJkFTvsR8kQFK9x36QAEn1HvtBAiTVe+wHCZBU77Ef3DbAyKyHuPfYD14f4CsCNNsT7oP2B44QIDnt3hABktPuDV0fYDRwtuhOBFgrutPtAf4ZPeSYh/5DgOTt79vTbQE0WexGBJgrdqPbAmjx4PZBRICn3b7ffuB2AVaLbmQW3YgAXtXvBQDEAX6Fs5FCYTw98QAAAABJRU5ErkJggg==" alt="trophy" style="width:40px;height:40px;image-rendering:pixelated;">';
@@ -264,6 +296,16 @@ function showResultPopup(won, word, timeRemaining) {
     wordReveal.textContent = "WORD: " + word;
   }
 
+  const savedGuessedLetters = await fetchSavedGuessedLetters(fallbackGuessedLetters);
+
+  // Display word definition, part of speech, and guessed letters
+  wordDisplay.textContent = word || "";
+  wordDisplay.classList.toggle("lost", !won);
+  wordReveal.classList.toggle("lost", !won);
+  posDisplay.textContent = partOfSpeech ? `${partOfSpeech}` : "";
+  defDisplay.textContent = definition || "";
+  guessedDisplay.textContent = `Guessed letters: ${savedGuessedLetters.slice().sort().join(", ") || "None"}`;
+
   popup.classList.remove("hidden");
   popup.offsetHeight;
   popup.classList.add("show");
@@ -277,15 +319,15 @@ function updateTimerDisplay() {
 }
 
 function startTimer() {
-  timerInterval = setInterval(() => {
+  timerInterval = setInterval(async () => {
     timeRemaining--;
     updateTimerDisplay();
     if (timeRemaining <= 0) {
       stopTimer();
       gameOver = true;
-      saveState(false);
+      await saveState(false);
       document.querySelectorAll(".key").forEach(key => key.style.pointerEvents = "none");
-      setTimeout(() => showResultPopup(false, word, 0), 10);
+      setTimeout(() => showResultPopup(false, word, 0, wordDefinition, wordPartOfSpeech), 10);
     }
   }, 1000);
 }
