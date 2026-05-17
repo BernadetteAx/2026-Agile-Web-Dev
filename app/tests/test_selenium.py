@@ -1,10 +1,11 @@
 """
 Start the app first: flask run
-Run with on seperate terminal: python -m pytest app/tests/test_selenium.py -v
+Run with on seperate terminal: python3 -m pytest app/tests/test_selenium.py -v
 """
 
 import pytest
 import time
+from datetime import date
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -12,15 +13,37 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException
+from app import create_app, db
+from app.models import DailyGameState, DailyWord, User
 
 BASE_URL = "http://127.0.0.1:5000"
 
 # test credentials
-# this is an existing account in MY database
-#change for an exitsing account in your own databases
-TEST_EMAIL = "asd"
+TEST_EMAIL = "selenium@example.test"
 TEST_PASSWORD = "asdasd1!"
-TEST_USERNAME = "asd"
+TEST_USERNAME = "selenium"
+
+
+@pytest.fixture(scope="module", autouse=True)
+def selenium_test_user():
+    """Create a predictable test user so Selenium does not depend on local data."""
+    app = create_app()
+    with app.app_context():
+        user = User.query.filter_by(email=TEST_EMAIL).first()
+        username = TEST_USERNAME
+        username_owner = User.query.filter_by(username=username).first()
+
+        if username_owner and username_owner.email != TEST_EMAIL:
+            username = f"sel{int(time.time()) % 1000000}"
+
+        if user is None:
+            user = User(email=TEST_EMAIL, username=username)
+            db.session.add(user)
+        else:
+            user.username = username
+
+        user.set_password(TEST_PASSWORD)
+        db.session.commit()
 
 # driver fixture
 # set up headless Chrome for all tests in this module
@@ -202,6 +225,20 @@ class TestNavigation:
 
 # daily game tests
 class TestDailyGame:
+    @pytest.fixture(scope="class", autouse=True)
+    def reset_daily_game_state(self):
+        """Start daily-game Selenium tests without a saved result for today."""
+        app = create_app()
+        with app.app_context():
+            user = User.query.filter_by(email=TEST_EMAIL).first()
+            daily_word = DailyWord.query.filter_by(date=date.today()).first()
+
+            if user and daily_word:
+                DailyGameState.query.filter_by(
+                    user_id=user.id,
+                    daily_word_id=daily_word.id,
+                ).delete()
+                db.session.commit()
 
     # daily game page should load successfully
     def test_daily_page_loads(self, logged_in_driver):
@@ -231,12 +268,15 @@ class TestDailyGame:
         time.sleep(1)  # let saveState settle
 
         keys = logged_in_driver.find_elements(By.CLASS_NAME, "key")
-        first_key = keys[0]
-        first_key.click()
-        time.sleep(0.5)
+        # Find a key that hasn't been guessed yet (skip the first few that might have been used in previous tests)
+        test_key = keys[10]  # Pick a middle key (letter K)
+        
+        # Use JavaScript click to trigger the click event handler
+        logged_in_driver.execute_script("arguments[0].click();", test_key)
+        time.sleep(1)
 
-        state = first_key.get_attribute("data-state")
-        assert state in ("correct", "wrong", "guessed")
+        state = test_key.get_attribute("data-state")
+        assert state in ("correct", "wrong", "guessed"), f"Expected valid state but got: {state}"
 
     # mistake counter should update after a wrong guess
     def test_mistake_count_updates(self, logged_in_driver):
