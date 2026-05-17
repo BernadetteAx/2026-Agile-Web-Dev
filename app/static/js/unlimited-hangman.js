@@ -13,6 +13,8 @@ let wordPartOfSpeech = "";
 let usedWords = new Set();
 let gameId = null;
 let challengeId = null; // set when launched from a friend challenge
+let loadingRequests = 0;
+let gameLoading = false;
  
 const mistakeNum = document.getElementById("mistakeNum");
 const hangmanFigure = document.getElementById("hangman-figure");
@@ -22,7 +24,32 @@ const parts = [
   "part-right-arm", "part-left-leg", "part-right-leg"
 ];
 
+function startApiDistraction(message = "LOADING") {
+  loadingRequests++;
+  gameLoading = true;
+
+  const figureCard = document.getElementById("figure-card");
+  if (!figureCard) return;
+
+  figureCard.dataset.loadingText = message;
+  figureCard.classList.add("is-fetching");
+}
+
+function stopApiDistraction() {
+  loadingRequests = Math.max(loadingRequests - 1, 0);
+  if (loadingRequests > 0) return;
+
+  gameLoading = false;
+
+  const figureCard = document.getElementById("figure-card");
+  if (!figureCard) return;
+
+  figureCard.classList.remove("is-fetching");
+  delete figureCard.dataset.loadingText;
+}
+
 async function fetchActiveGame() {
+  startApiDistraction("RESTORING");
   try {
     const response = await fetch("/api/unlimited-state/active");
     const data = await response.json();
@@ -47,6 +74,8 @@ async function fetchActiveGame() {
   } catch (error) {
     console.error("Error fetching active game:", error);
     return false;
+  } finally {
+    stopApiDistraction();
   }
 }
 
@@ -151,25 +180,30 @@ async function saveState(won = null) {
  
 async function initGame(skipFetch = false) {
   if (!skipFetch) {
+    startApiDistraction("FETCHING WORD");
     // Keep fetching until we get a word not in usedWords
     let attempts = 0;
-    do {
-      try {
-        const response = await fetch("/api/random-word");
-        const data = await response.json();
-        if (!response.ok) {
-          console.error("Failed to fetch word:", data.error);
+    try {
+      do {
+        try {
+          const response = await fetch("/api/random-word");
+          const data = await response.json();
+          if (!response.ok) {
+            console.error("Failed to fetch word:", data.error);
+            return;
+          }
+          word = data.word;
+          wordDefinition = data.definition || "";
+          wordPartOfSpeech = data.part_of_speech || "";
+          attempts++;
+        } catch (err) {
+          console.error("Error fetching word:", err);
           return;
         }
-        word = data.word;
-        wordDefinition = data.definition || "";
-        wordPartOfSpeech = data.part_of_speech || "";
-        attempts++;
-      } catch (err) {
-        console.error("Error fetching word:", err);
-        return;
-      }
-    } while (usedWords.has(word) && attempts < 10);
+      } while (usedWords.has(word) && attempts < 10);
+    } finally {
+      stopApiDistraction();
+    }
 
     gameId = null;
     challengeId = null; // clear challenge when starting a fresh game
@@ -202,6 +236,7 @@ async function initGame(skipFetch = false) {
 
 // load a friend challenge by id
 async function loadChallenge(id) {
+  startApiDistraction("LOADING DUEL");
   try {
     const res  = await fetch(`/api/challenge/${id}`);
     const data = await res.json();
@@ -226,6 +261,8 @@ async function loadChallenge(id) {
   } catch (err) {
     console.error("Error loading challenge:", err);
     initGame();
+  } finally {
+    stopApiDistraction();
   }
 }
 
@@ -327,7 +364,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
  
 async function handleGuess(letter) {
-  if (gameOver || guessedLetters.has(letter) || mistakes >= maxMistakes) return;
+  if (gameLoading || !word || gameOver || guessedLetters.has(letter) || mistakes >= maxMistakes) return;
  
   guessedLetters.add(letter);
  
