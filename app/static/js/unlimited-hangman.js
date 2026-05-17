@@ -17,6 +17,7 @@ let loadingRequests = 0;
 let gameLoading = false;
  
 const mistakeNum = document.getElementById("mistakeNum");
+const mistakeLabel = document.querySelector(".mistake-label");
 const hangmanFigure = document.getElementById("hangman-figure");
 const score = document.getElementById("score");
 const parts = [
@@ -221,6 +222,7 @@ async function initGame(skipFetch = false) {
 
   mistakes = 0;
   mistakeNum.textContent = "0";
+  if (mistakeLabel) mistakeLabel.hidden = false;
   guessedLetters.clear();
   gameOver = false;
 

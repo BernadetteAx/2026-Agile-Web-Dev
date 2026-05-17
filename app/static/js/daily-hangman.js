@@ -16,6 +16,7 @@ let timerInterval;
 let stateSaveQueue = Promise.resolve();
 
 const mistakeNum = document.getElementById("mistakeNum");
+const mistakeLabel = document.querySelector(".mistake-label");
 const hangmanFigure = document.getElementById("hangman-figure");
 const gameTimer = document.querySelector(".game-timer");
 const parts = [
@@ -184,6 +185,7 @@ function initGame() {
 
   mistakes = 0;
   mistakeNum.textContent = "0";
+  if (mistakeLabel) mistakeLabel.hidden = false;
   guessedLetters.clear();
   gameOver = false;
   timeRemaining = initialTime;
