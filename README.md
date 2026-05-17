@@ -35,7 +35,7 @@ The application is designed to be:
 
 ---
 ## Getting Started
-These instructions will help you set up the project locally for development and testing.
+These instructions will help you set up the project locally for setup and testing.
 
 ### Prerequisites
 A minimum of Python 3.7 is required to run this project.
@@ -216,7 +216,7 @@ The application is designed to be:
 | Login | User login form, option to register |
 | Register | New account registration |
 | Daily Game | Word display (`_ _ _ _`), letter keyboard, hangman drawing, and timer |
-| Unlimited Game | Word display (`_ _ _ _`), letter keyboard, hangman drawing, and score |
+| Unlimited Game | Word display (`_ _ _ _`), letter keyboard, hangman drawing, mistakes, and score |
 | Leaderboard | Top players ranked by score, toggle from Daily and Unlimited scores, sorting buttons |
 | Achievements | List of achievements (either locked or unlocked) |
 | Friends | Search bar to add friends, friends list, "Send Word" button, challenges recieved |
