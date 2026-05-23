@@ -2,6 +2,7 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from app.config import Config
+from app.csrf import init_csrf
 from datetime import timedelta
 
 # Establish the database and migration objects. These will be initialized with the Flask app in create_app()
@@ -18,6 +19,7 @@ def create_app():
     # Attach the database and migration objects to the Flask app
     db.init_app(app)
     migrate.init_app(app, db)
+    init_csrf(app)
 
     # Register routes
     from .routes import main
