@@ -1,3 +1,31 @@
+const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+const csrfToken = csrfMeta ? csrfMeta.getAttribute("content") : "";
+const originalFetch = window.fetch.bind(window);
+
+window.fetch = function (resource, options = {}) {
+  const requestUrl = resource instanceof Request ? resource.url : resource;
+  const requestMethod = (
+    options.method ||
+    (resource instanceof Request ? resource.method : "GET")
+  ).toUpperCase();
+  const url = new URL(requestUrl, window.location.origin);
+
+  if (
+    csrfToken &&
+    url.origin === window.location.origin &&
+    ["POST", "PUT", "PATCH", "DELETE"].includes(requestMethod)
+  ) {
+    const headers = new Headers(
+      options.headers ||
+      (resource instanceof Request ? resource.headers : undefined)
+    );
+    headers.set("X-CSRFToken", csrfToken);
+    return originalFetch(resource, { ...options, headers });
+  }
+
+  return originalFetch(resource, options);
+};
+
 window.currentUserReady = (async function () {
   try {
     const response = await fetch('/api/auth/me');
